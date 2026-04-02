@@ -5,9 +5,10 @@ import { AppService } from './app.service';
 import { ConfigModule } from './config/config.module';
 import { UserModule } from './modules/user/user.module';
 import { PersistenceModule } from './infrastructure/persistence.module';
+import { ArticleModule } from './modules/article/article.module';
 
 @Module({
-  imports: [ConfigModule, UserModule, PersistenceModule],
+  imports: [ConfigModule, UserModule, PersistenceModule, ArticleModule],
   controllers: [AppController],
   providers: [AppService],
 })
