@@ -11,6 +11,7 @@ import {
   COMMENT_REPOSITORY,
   CommentRepository,
 } from 'src/domain/repositories/comment.repository.interface';
+import { FindArticlesQueryDto } from './dto/find-articles-query.dto';
 
 @Injectable()
 export class ArticleService {
@@ -26,8 +27,9 @@ export class ArticleService {
     return await this.articleRepo.create(articleEntity);
   }
 
-  async findAll() {
-    return await this.articleRepo.findAll();
+  async findAll(query: FindArticlesQueryDto) {
+    const articles = await this.articleRepo.findAll(query);
+    return articles;
   }
 
   async findOne(id: string) {

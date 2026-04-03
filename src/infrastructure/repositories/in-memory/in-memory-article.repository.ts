@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
 import type { ArticleInterface } from 'src/domain/entities/article.interface';
-import type { ArticleRepository } from 'src/domain/repositories/article.repository.interface';
+import type {
+  ArticleFilters,
+  ArticleRepository,
+} from 'src/domain/repositories/article.repository.interface';
 
 @Injectable()
 export class InMemoryArticleRepository implements ArticleRepository {
@@ -43,8 +46,25 @@ export class InMemoryArticleRepository implements ArticleRepository {
     return this.articlesByCategory.get(id) ?? null;
   }
 
-  async findAll() {
-    return [...this.articles.values()];
+  async findAll(filters: ArticleFilters) {
+    const { status, tag, categoryId } = filters;
+    let articles = [...this.articles.values()];
+
+    if (status) {
+      articles = articles.filter((article) => article.status === status);
+    }
+
+    if (tag) {
+      articles = articles.filter((article) => article.tags.includes(tag));
+    }
+
+    if (categoryId) {
+      articles = articles.filter(
+        (article) => article.categoryId === categoryId,
+      );
+    }
+
+    return articles;
   }
 
   async update(id: string, article: ArticleInterface) {

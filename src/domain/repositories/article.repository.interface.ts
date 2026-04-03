@@ -1,7 +1,14 @@
+import { ArticleStatus } from 'src/modules/article/dto/create-article.dto';
 import type { ArticleInterface } from '../entities/article.interface';
 
+export interface ArticleFilters {
+  status?: ArticleStatus;
+  categoryId?: string;
+  tag?: string;
+}
+
 export interface ArticleRepository {
-  findAll(): Promise<ArticleInterface[]>;
+  findAll(filters: ArticleFilters): Promise<ArticleInterface[]>;
   findById(id: string): Promise<ArticleInterface | null>;
   findByAuthorId(id: string): Promise<Set<string> | null>;
   findByCategoryId(id: string): Promise<Set<string> | null>;
