@@ -4,6 +4,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import {
   CATEGORY_REPOSITORY,
+  type CategoryFilters,
   CategoryRepository,
 } from 'src/domain/repositories/category.repository.interface';
 import { Category } from 'src/domain/entities/category.entity';
@@ -11,7 +12,6 @@ import {
   ARTICLE_REPOSITORY,
   ArticleRepository,
 } from 'src/domain/repositories/article.repository.interface';
-import type { FilterInterface } from 'src/common/entities/filter.interface';
 
 @Injectable()
 export class CategoryService {
@@ -27,7 +27,7 @@ export class CategoryService {
     return await this.categoryRepo.create(categoryEntity);
   }
 
-  async findAll(filters: FilterInterface) {
+  async findAll(filters: CategoryFilters) {
     return await this.categoryRepo.findAll(filters);
   }
 

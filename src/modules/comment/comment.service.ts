@@ -9,13 +9,13 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { Comment } from 'src/domain/entities/comment.entity';
 import {
   COMMENT_REPOSITORY,
+  type CommentFilters,
   CommentRepository,
 } from 'src/domain/repositories/comment.repository.interface';
 import {
   ARTICLE_REPOSITORY,
   ArticleRepository,
 } from 'src/domain/repositories/article.repository.interface';
-import { FindCommentsQueryDto } from './dto/find-comments-query.dto';
 
 @Injectable()
 export class CommentService {
@@ -46,7 +46,7 @@ export class CommentService {
     return comment;
   }
 
-  async findAll(filters: FindCommentsQueryDto) {
+  async findAll(filters: CommentFilters) {
     return await this.commentRepo.findAll(filters);
   }
 

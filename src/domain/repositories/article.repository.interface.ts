@@ -2,8 +2,12 @@ import { ArticleStatus } from 'src/modules/article/dto/create-article.dto';
 import type { ArticleInterface } from '../entities/article.interface';
 import type { FilterInterface } from 'src/common/entities/filter.interface';
 import type { PaginatedResponse } from 'src/common/entities/paginated-response.interface';
+import { SortInterface } from 'src/common/entities/sort.interface';
+import { ArticleFields } from 'src/modules/article/dto/find-articles-query.dto';
 
-export interface ArticleFilters extends FilterInterface {
+export interface ArticleFilters
+  extends FilterInterface,
+    SortInterface<typeof ArticleFields> {
   status?: ArticleStatus;
   categoryId?: string;
   tag?: string;

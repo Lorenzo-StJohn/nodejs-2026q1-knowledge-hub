@@ -12,6 +12,7 @@ import { UserResponseDto } from './dto/user-response.dto';
 import {
   UserRepository,
   USER_REPOSITORY,
+  type UserFilters,
 } from 'src/domain/repositories/user.repository.interface';
 import {
   ARTICLE_REPOSITORY,
@@ -22,7 +23,6 @@ import {
   CommentRepository,
 } from 'src/domain/repositories/comment.repository.interface';
 import { User } from 'src/domain/entities/user.entity';
-import type { FilterInterface } from 'src/common/entities/filter.interface';
 import { UserPaginationResponseDto } from './dto/user-pagination-response.dto';
 
 @Injectable()
@@ -44,7 +44,7 @@ export class UserService {
     });
   }
 
-  async findAll(filters: FilterInterface) {
+  async findAll(filters: UserFilters) {
     const users = await this.userRepo.findAll(filters);
     return plainToInstance(UserPaginationResponseDto, users, {
       excludeExtraneousValues: true,

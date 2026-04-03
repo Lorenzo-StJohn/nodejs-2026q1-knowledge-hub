@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Order } from 'src/common/entities/sort.interface';
 
 import type { ArticleInterface } from 'src/domain/entities/article.interface';
 import type {
@@ -47,7 +48,7 @@ export class InMemoryArticleRepository implements ArticleRepository {
   }
 
   async findAll(filters: ArticleFilters) {
-    const { status, tag, categoryId, page, limit } = filters;
+    const { status, tag, categoryId, page, limit, sortBy, order } = filters;
     let articles = [...this.articles.values()];
 
     if (status) {
@@ -71,6 +72,16 @@ export class InMemoryArticleRepository implements ArticleRepository {
       articles = [];
     } else {
       articles = articles.slice(skip, Math.min(total, skip + limit));
+    }
+
+    if (sortBy) {
+      articles = articles.sort((a, b) => {
+        if (a[sortBy] === null) return 1;
+        if (b[sortBy] === null) return -1;
+        return order === Order[0]
+          ? a[sortBy].localeCompare(b[sortBy])
+          : b[sortBy].localeCompare(a[sortBy]);
+      });
     }
 
     return { total, page, limit, data: articles };

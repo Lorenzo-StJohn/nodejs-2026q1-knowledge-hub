@@ -13,7 +13,7 @@ import {
 
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { FindCommentsQueryDto } from './dto/find-comments-query.dto';
+import { FindCommentQueryDto } from './dto/find-comment-query.dto';
 import { IdParamDto } from 'src/common/dto/id-param.dto';
 import { ConditionalPaginationInterceptor } from 'src/common/interceptors/conditional-pagination.interceptor';
 
@@ -29,7 +29,7 @@ export class CommentController {
 
   @Get()
   @UseInterceptors(ConditionalPaginationInterceptor)
-  async findAll(@Query() filters: FindCommentsQueryDto) {
+  async findAll(@Query() filters: FindCommentQueryDto) {
     return this.commentService.findAll(filters);
   }
 

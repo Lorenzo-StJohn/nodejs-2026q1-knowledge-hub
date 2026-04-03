@@ -17,7 +17,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { IdParamDto } from 'src/common/dto/id-param.dto';
 import { ConditionalPaginationInterceptor } from 'src/common/interceptors/conditional-pagination.interceptor';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { FindCategoryQueryDto } from './dto/find-category-query.dto';
 
 @Controller('category')
 export class CategoryController {
@@ -31,7 +31,7 @@ export class CategoryController {
 
   @Get()
   @UseInterceptors(ConditionalPaginationInterceptor)
-  async findAll(@Query() filters: PaginationQueryDto) {
+  async findAll(@Query() filters: FindCategoryQueryDto) {
     return this.categoryService.findAll(filters);
   }
 

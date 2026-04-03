@@ -6,13 +6,13 @@ const DEFAULT_LIMIT = 10;
 export class PaginationQueryDto {
   @IsOptional()
   @Type(() => Number)
-  @IsInt()
+  @IsInt({ message: 'Page should be a number' })
   @Min(1)
   page: number = 1;
 
   @IsOptional()
   @Type(() => Number)
-  @IsInt()
+  @IsInt({ message: 'Limit should be a number' })
   @Min(1)
   limit: number = DEFAULT_LIMIT;
 }

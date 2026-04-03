@@ -17,7 +17,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-user.dto';
 import { IdParamDto } from 'src/common/dto/id-param.dto';
 import { ConditionalPaginationInterceptor } from 'src/common/interceptors/conditional-pagination.interceptor';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { FindUserQueryDto } from './dto/find-user-query.dto';
 
 @Controller('user')
 export class UserController {
@@ -31,7 +31,7 @@ export class UserController {
 
   @Get()
   @UseInterceptors(ConditionalPaginationInterceptor)
-  async findAll(@Query() filters: PaginationQueryDto) {
+  async findAll(@Query() filters: FindUserQueryDto) {
     return await this.userService.findAll(filters);
   }
 

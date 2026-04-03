@@ -1,5 +1,6 @@
 import {
   IsEnum,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -8,6 +9,18 @@ import {
 
 import { ArticleStatus } from './create-article.dto';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { Order } from 'src/common/entities/sort.interface';
+
+export const ArticleFields = [
+  'id',
+  'title',
+  'content',
+  'status',
+  'authorId',
+  'categoryId',
+  'createdAt',
+  'updatedAt',
+];
 
 export class FindArticlesQueryDto extends PaginationQueryDto {
   @IsOptional()
@@ -31,4 +44,12 @@ export class FindArticlesQueryDto extends PaginationQueryDto {
     message: 'Each tag in tags should not be empty',
   })
   tag?: string;
+
+  @IsOptional()
+  @IsIn(ArticleFields)
+  sortBy?: (typeof ArticleFields)[number];
+
+  @IsOptional()
+  @IsIn(Order)
+  order?: (typeof Order)[number] = Order[0];
 }

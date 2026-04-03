@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
 import type { CommentInterface } from 'src/domain/entities/comment.interface';
-import type { CommentRepository } from 'src/domain/repositories/comment.repository.interface';
-import type { FindCommentsQueryDto } from 'src/modules/comment/dto/find-comments-query.dto';
+import type {
+  CommentFilters,
+  CommentRepository,
+} from 'src/domain/repositories/comment.repository.interface';
+import { Order } from 'src/common/entities/sort.interface';
 
 @Injectable()
 export class InMemoryCommentRepository implements CommentRepository {
@@ -37,8 +40,8 @@ export class InMemoryCommentRepository implements CommentRepository {
     return this.commentsByAuthorId.get(id) ?? null;
   }
 
-  async findAll(filters: FindCommentsQueryDto) {
-    const { articleId, page, limit } = filters;
+  async findAll(filters: CommentFilters) {
+    const { articleId, page, limit, sortBy, order } = filters;
 
     let comments: CommentInterface[] = [];
     this.commentsByArticle.get(articleId)?.forEach((commentId) => {
@@ -52,6 +55,16 @@ export class InMemoryCommentRepository implements CommentRepository {
       comments = [];
     } else {
       comments = comments.slice(skip, Math.min(total, skip + limit));
+    }
+
+    if (sortBy) {
+      comments = comments.sort((a, b) => {
+        if (a[sortBy] === null) return 1;
+        if (b[sortBy] === null) return -1;
+        return order === Order[0]
+          ? a[sortBy].localeCompare(b[sortBy])
+          : b[sortBy].localeCompare(a[sortBy]);
+      });
     }
 
     return { total, page, limit, data: comments };

@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { FilterInterface } from 'src/common/entities/filter.interface';
 
 import type { CategoryInterface } from 'src/domain/entities/category.interface';
-import type { CategoryRepository } from 'src/domain/repositories/category.repository.interface';
+import type {
+  CategoryFilters,
+  CategoryRepository,
+} from 'src/domain/repositories/category.repository.interface';
+import { Order } from 'src/common/entities/sort.interface';
 
 @Injectable()
 export class InMemoryCategoryRepository implements CategoryRepository {
@@ -17,8 +20,8 @@ export class InMemoryCategoryRepository implements CategoryRepository {
     return this.categories.get(id) ?? null;
   }
 
-  async findAll(filters: FilterInterface) {
-    const { page, limit } = filters;
+  async findAll(filters: CategoryFilters) {
+    const { page, limit, sortBy, order } = filters;
 
     let categories = [...this.categories.values()];
 
@@ -29,6 +32,16 @@ export class InMemoryCategoryRepository implements CategoryRepository {
       categories = [];
     } else {
       categories = categories.slice(skip, Math.min(total, skip + limit));
+    }
+
+    if (sortBy) {
+      categories = categories.sort((a, b) => {
+        if (a[sortBy] === null) return 1;
+        if (b[sortBy] === null) return -1;
+        return order === Order[0]
+          ? a[sortBy].localeCompare(b[sortBy])
+          : b[sortBy].localeCompare(a[sortBy]);
+      });
     }
 
     return { total, page, limit, data: categories };

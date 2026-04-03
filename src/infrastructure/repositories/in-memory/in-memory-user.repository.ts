@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
 import type { UserInterface } from 'src/domain/entities/user.interface';
-import type { UserRepository } from 'src/domain/repositories/user.repository.interface';
-import type { FilterInterface } from 'src/common/entities/filter.interface';
+import type {
+  UserFilters,
+  UserRepository,
+} from 'src/domain/repositories/user.repository.interface';
+import { Order } from 'src/common/entities/sort.interface';
 
 @Injectable()
 export class InMemoryUserRepository implements UserRepository {
@@ -17,8 +20,8 @@ export class InMemoryUserRepository implements UserRepository {
     return this.users.get(id) ?? null;
   }
 
-  async findAll(filters: FilterInterface) {
-    const { page, limit } = filters;
+  async findAll(filters: UserFilters) {
+    const { page, limit, sortBy, order } = filters;
 
     let users = [...this.users.values()];
 
@@ -29,6 +32,16 @@ export class InMemoryUserRepository implements UserRepository {
       users = [];
     } else {
       users = users.slice(skip, Math.min(total, skip + limit));
+    }
+
+    if (sortBy) {
+      users = users.sort((a, b) => {
+        if (a[sortBy] === null) return 1;
+        if (b[sortBy] === null) return -1;
+        return order === Order[0]
+          ? a[sortBy].localeCompare(b[sortBy])
+          : b[sortBy].localeCompare(a[sortBy]);
+      });
     }
 
     return { total, page, limit, data: users };
