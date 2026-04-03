@@ -13,6 +13,10 @@ import {
   UserRepository,
   USER_REPOSITORY,
 } from 'src/domain/repositories/user.repository.interface';
+import {
+  ARTICLE_REPOSITORY,
+  ArticleRepository,
+} from 'src/domain/repositories/article.repository.interface';
 import { User } from 'src/domain/entities/user.entity';
 
 @Injectable()
@@ -20,6 +24,8 @@ export class UserService {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepo: UserRepository,
+    @Inject(ARTICLE_REPOSITORY)
+    private readonly articleRepo: ArticleRepository,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -71,6 +77,14 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found!`);
     }
-    return await this.userRepo.delete(id);
+    await this.userRepo.delete(id);
+    const articlesByUser = await this.articleRepo.findByAuthorId(id);
+    if (articlesByUser) {
+      articlesByUser.forEach(async (articleId) => {
+        const article = await this.articleRepo.findById(articleId);
+        const updatedArticle = { ...article, authorId: null };
+        await this.articleRepo.update(articleId, updatedArticle);
+      });
+    }
   }
 }

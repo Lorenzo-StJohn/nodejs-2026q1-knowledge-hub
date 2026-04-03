@@ -3,6 +3,7 @@ import type { ArticleInterface } from '../entities/article.interface';
 export interface ArticleRepository {
   findAll(): Promise<ArticleInterface[]>;
   findById(id: string): Promise<ArticleInterface | null>;
+  findByAuthorId(id: string): Promise<Set<string> | null>;
   create(article: ArticleInterface): Promise<ArticleInterface>;
   update(id: string, article: ArticleInterface): Promise<ArticleInterface>;
   delete(id: string): Promise<void>;
