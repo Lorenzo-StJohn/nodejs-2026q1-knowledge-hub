@@ -14,10 +14,15 @@ import {
   CATEGORY_REPOSITORY,
   CategoryRepository,
 } from 'src/domain/repositories/category.repository.interface';
+import {
+  COMMENT_REPOSITORY,
+  CommentRepository,
+} from 'src/domain/repositories/comment.repository.interface';
 
 import { InMemoryUserRepository } from './repositories/in-memory/in-memory-user.repository';
 import { InMemoryArticleRepository } from './repositories/in-memory/in-memory-article.repository';
 import { InMemoryCategoryRepository } from './repositories/in-memory/in-memory-category.repository';
+import { InMemoryCommentRepository } from './repositories/in-memory/in-memory-comment.repository';
 
 const createRepository = <T>(
   config: Configuration,
@@ -55,7 +60,18 @@ const createRepository = <T>(
         ),
       inject: [Configuration],
     },
+    {
+      provide: COMMENT_REPOSITORY,
+      useFactory: (config: Configuration) =>
+        createRepository<CommentRepository>(config, InMemoryCommentRepository),
+      inject: [Configuration],
+    },
   ],
-  exports: [USER_REPOSITORY, ARTICLE_REPOSITORY, CATEGORY_REPOSITORY],
+  exports: [
+    USER_REPOSITORY,
+    ARTICLE_REPOSITORY,
+    CATEGORY_REPOSITORY,
+    COMMENT_REPOSITORY,
+  ],
 })
 export class PersistenceModule {}

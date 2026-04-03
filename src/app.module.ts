@@ -7,6 +7,7 @@ import { UserModule } from './modules/user/user.module';
 import { PersistenceModule } from './infrastructure/persistence.module';
 import { ArticleModule } from './modules/article/article.module';
 import { CategoryModule } from './modules/category/category.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CategoryModule } from './modules/category/category.module';
     PersistenceModule,
     ArticleModule,
     CategoryModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
