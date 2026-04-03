@@ -68,7 +68,7 @@ export class UserService {
     if (oldPassword !== updateUserDto.oldPassword) {
       throw new ForbiddenException('Wrong old password!');
     }
-    const updatedUserEntity = User.updatePassword(
+    const updatedUserEntity = await User.updatePassword(
       user,
       updateUserDto.newPassword,
     );

@@ -50,7 +50,7 @@ export class InMemoryCommentRepository implements CommentRepository {
 
     const authorId = this.comments.get(id).authorId;
     if (authorId) {
-      this.commentsByAuthorId.get(authorId).delete(id);
+      this.commentsByAuthorId.get(authorId)?.delete(id);
     }
 
     this.comments.delete(id);

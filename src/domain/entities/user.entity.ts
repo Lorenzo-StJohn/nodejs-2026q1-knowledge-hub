@@ -21,10 +21,9 @@ export class User implements UserInterface {
     this.updatedAt = timestamp;
   }
 
-  public static updatePassword(
-    user: UserInterface,
-    newPassword: string,
-  ): UserInterface {
+  public static async updatePassword(user: UserInterface, newPassword: string) {
+    //prevent creating and updating in the same time
+    await new Promise((resolve) => setTimeout(resolve, 10));
     const timestamp = Date.now();
     return { ...user, password: newPassword, updatedAt: timestamp };
   }

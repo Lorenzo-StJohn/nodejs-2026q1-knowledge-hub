@@ -73,7 +73,7 @@ export class InMemoryArticleRepository implements ArticleRepository {
 
     if (oldAuthorId !== newAuthorId) {
       if (oldAuthorId) {
-        this.articlesByUser.get(oldAuthorId).delete(id);
+        this.articlesByUser.get(oldAuthorId)?.delete(id);
       }
       if (newAuthorId) {
         if (!this.articlesByUser.has(newAuthorId)) {
@@ -88,7 +88,7 @@ export class InMemoryArticleRepository implements ArticleRepository {
 
     if (oldCategoryId !== newCategoryId) {
       if (oldCategoryId) {
-        this.articlesByCategory.get(oldCategoryId).delete(id);
+        this.articlesByCategory.get(oldCategoryId)?.delete(id);
       }
       if (newAuthorId) {
         if (!this.articlesByCategory.has(newCategoryId)) {
@@ -105,13 +105,14 @@ export class InMemoryArticleRepository implements ArticleRepository {
   async delete(id: string) {
     const authorId = this.articles.get(id).authorId;
     if (authorId) {
-      this.articlesByUser.get(authorId).delete(id);
+      this.articlesByUser.get(authorId)?.delete(id);
     }
 
     const categoryId = this.articles.get(id).categoryId;
     if (categoryId) {
-      this.articlesByCategory.get(categoryId).delete(id);
+      this.articlesByCategory.get(categoryId)?.delete(id);
     }
+
     this.articles.delete(id);
   }
 }
