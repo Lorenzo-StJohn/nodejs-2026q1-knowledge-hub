@@ -1,6 +1,8 @@
 import { IsUUID } from 'class-validator';
 
-export class FindCommentsQueryDto {
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+
+export class FindCommentsQueryDto extends PaginationQueryDto {
   @IsUUID('4', {
     message: 'ArticleId should be valid UUID v4',
   })

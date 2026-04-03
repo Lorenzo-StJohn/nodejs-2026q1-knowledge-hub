@@ -8,12 +8,16 @@ import {
   HttpCode,
   HttpStatus,
   Put,
+  UseInterceptors,
+  Query,
 } from '@nestjs/common';
 
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-user.dto';
-import { FindUserParamDto } from './dto/find-user-param.dto';
+import { IdParamDto } from 'src/common/dto/id-param.dto';
+import { ConditionalPaginationInterceptor } from 'src/common/interceptors/conditional-pagination.interceptor';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Controller('user')
 export class UserController {
@@ -26,18 +30,19 @@ export class UserController {
   }
 
   @Get()
-  async findAll() {
-    return await this.userService.findAll();
+  @UseInterceptors(ConditionalPaginationInterceptor)
+  async findAll(@Query() filters: PaginationQueryDto) {
+    return await this.userService.findAll(filters);
   }
 
   @Get(':id')
-  async findOne(@Param() params: FindUserParamDto) {
+  async findOne(@Param() params: IdParamDto) {
     return await this.userService.findOne(params.id);
   }
 
   @Put(':id')
   async update(
-    @Param() params: FindUserParamDto,
+    @Param() params: IdParamDto,
     @Body() updateUserDto: UpdatePasswordDto,
   ) {
     return await this.userService.update(params.id, updateUserDto);
@@ -45,7 +50,7 @@ export class UserController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param() params: FindUserParamDto) {
+  async remove(@Param() params: IdParamDto) {
     return await this.userService.remove(params.id);
   }
 }

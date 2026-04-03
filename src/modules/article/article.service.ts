@@ -4,14 +4,14 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import {
   ARTICLE_REPOSITORY,
-  ArticleRepository,
+  type ArticleFilters,
+  type ArticleRepository,
 } from 'src/domain/repositories/article.repository.interface';
 import { Article } from 'src/domain/entities/article.entity';
 import {
   COMMENT_REPOSITORY,
   CommentRepository,
 } from 'src/domain/repositories/comment.repository.interface';
-import { FindArticlesQueryDto } from './dto/find-articles-query.dto';
 
 @Injectable()
 export class ArticleService {
@@ -27,8 +27,8 @@ export class ArticleService {
     return await this.articleRepo.create(articleEntity);
   }
 
-  async findAll(query: FindArticlesQueryDto) {
-    const articles = await this.articleRepo.findAll(query);
+  async findAll(filters: ArticleFilters) {
+    const articles = await this.articleRepo.findAll(filters);
     return articles;
   }
 
@@ -55,7 +55,13 @@ export class ArticleService {
       throw new NotFoundException(`Article with ID ${id} not found!`);
     }
 
-    const commentsByArticle = await this.commentRepo.findAll(id);
+    const commentsByArticle = (
+      await this.commentRepo.findAll({
+        articleId: id,
+        page: 1,
+        limit: Number.MAX_SAFE_INTEGER,
+      })
+    ).data;
     if (commentsByArticle) {
       commentsByArticle.forEach(async (comment) => {
         await this.commentRepo.delete(comment.id);

@@ -8,12 +8,16 @@ import {
   HttpCode,
   HttpStatus,
   Put,
+  UseInterceptors,
+  Query,
 } from '@nestjs/common';
 
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { FindCategoryParamDto } from './dto/find-category-param.dto';
+import { IdParamDto } from 'src/common/dto/id-param.dto';
+import { ConditionalPaginationInterceptor } from 'src/common/interceptors/conditional-pagination.interceptor';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Controller('category')
 export class CategoryController {
@@ -26,18 +30,19 @@ export class CategoryController {
   }
 
   @Get()
-  async findAll() {
-    return this.categoryService.findAll();
+  @UseInterceptors(ConditionalPaginationInterceptor)
+  async findAll(@Query() filters: PaginationQueryDto) {
+    return this.categoryService.findAll(filters);
   }
 
   @Get(':id')
-  async findOne(@Param() params: FindCategoryParamDto) {
+  async findOne(@Param() params: IdParamDto) {
     return this.categoryService.findOne(params.id);
   }
 
   @Put(':id')
   async update(
-    @Param() params: FindCategoryParamDto,
+    @Param() params: IdParamDto,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
     return this.categoryService.update(params.id, updateCategoryDto);
@@ -45,7 +50,7 @@ export class CategoryController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param() params: FindCategoryParamDto) {
+  async remove(@Param() params: IdParamDto) {
     return this.categoryService.remove(params.id);
   }
 }

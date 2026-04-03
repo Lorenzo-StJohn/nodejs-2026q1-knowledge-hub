@@ -9,13 +9,15 @@ import {
   HttpStatus,
   Put,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { FindArticleParamDto } from './dto/find-article-param.dto';
 import { FindArticlesQueryDto } from './dto/find-articles-query.dto';
+import { IdParamDto } from 'src/common/dto/id-param.dto';
+import { ConditionalPaginationInterceptor } from 'src/common/interceptors/conditional-pagination.interceptor';
 
 @Controller('article')
 export class ArticleController {
@@ -28,18 +30,19 @@ export class ArticleController {
   }
 
   @Get()
-  async findAll(@Query() query: FindArticlesQueryDto) {
-    return await this.articleService.findAll(query);
+  @UseInterceptors(ConditionalPaginationInterceptor)
+  async findAll(@Query() filters: FindArticlesQueryDto) {
+    return await this.articleService.findAll(filters);
   }
 
   @Get(':id')
-  async findOne(@Param() params: FindArticleParamDto) {
+  async findOne(@Param() params: IdParamDto) {
     return await this.articleService.findOne(params.id);
   }
 
   @Put(':id')
   async update(
-    @Param() params: FindArticleParamDto,
+    @Param() params: IdParamDto,
     @Body() updateArticleDto: UpdateArticleDto,
   ) {
     return await this.articleService.update(params.id, updateArticleDto);
@@ -47,7 +50,7 @@ export class ArticleController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param() params: FindArticleParamDto) {
+  async remove(@Param() params: IdParamDto) {
     return await this.articleService.remove(params.id);
   }
 }

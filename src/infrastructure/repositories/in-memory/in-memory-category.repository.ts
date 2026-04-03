@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { FilterInterface } from 'src/common/entities/filter.interface';
 
 import type { CategoryInterface } from 'src/domain/entities/category.interface';
 import type { CategoryRepository } from 'src/domain/repositories/category.repository.interface';
@@ -16,8 +17,21 @@ export class InMemoryCategoryRepository implements CategoryRepository {
     return this.categories.get(id) ?? null;
   }
 
-  async findAll() {
-    return [...this.categories.values()];
+  async findAll(filters: FilterInterface) {
+    const { page, limit } = filters;
+
+    let categories = [...this.categories.values()];
+
+    const skip = (page - 1) * limit;
+    const total = categories.length;
+
+    if (skip >= total) {
+      categories = [];
+    } else {
+      categories = categories.slice(skip, Math.min(total, skip + limit));
+    }
+
+    return { total, page, limit, data: categories };
   }
 
   async update(id: string, category: CategoryInterface) {

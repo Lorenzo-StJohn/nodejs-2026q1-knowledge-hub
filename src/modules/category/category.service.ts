@@ -11,6 +11,7 @@ import {
   ARTICLE_REPOSITORY,
   ArticleRepository,
 } from 'src/domain/repositories/article.repository.interface';
+import type { FilterInterface } from 'src/common/entities/filter.interface';
 
 @Injectable()
 export class CategoryService {
@@ -26,8 +27,8 @@ export class CategoryService {
     return await this.categoryRepo.create(categoryEntity);
   }
 
-  async findAll() {
-    return await this.categoryRepo.findAll();
+  async findAll(filters: FilterInterface) {
+    return await this.categoryRepo.findAll(filters);
   }
 
   async findOne(id: string) {

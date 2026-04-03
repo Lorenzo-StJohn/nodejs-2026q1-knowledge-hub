@@ -22,6 +22,8 @@ import {
   CommentRepository,
 } from 'src/domain/repositories/comment.repository.interface';
 import { User } from 'src/domain/entities/user.entity';
+import type { FilterInterface } from 'src/common/entities/filter.interface';
+import { UserPaginationResponseDto } from './dto/user-pagination-response.dto';
 
 @Injectable()
 export class UserService {
@@ -42,9 +44,9 @@ export class UserService {
     });
   }
 
-  async findAll() {
-    const users = await this.userRepo.findAll();
-    return plainToInstance(UserResponseDto, users, {
+  async findAll(filters: FilterInterface) {
+    const users = await this.userRepo.findAll(filters);
+    return plainToInstance(UserPaginationResponseDto, users, {
       excludeExtraneousValues: true,
     });
   }

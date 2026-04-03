@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import type { CommentInterface } from 'src/domain/entities/comment.interface';
 import type { CommentRepository } from 'src/domain/repositories/comment.repository.interface';
+import type { FindCommentsQueryDto } from 'src/modules/comment/dto/find-comments-query.dto';
 
 @Injectable()
 export class InMemoryCommentRepository implements CommentRepository {
@@ -36,12 +37,24 @@ export class InMemoryCommentRepository implements CommentRepository {
     return this.commentsByAuthorId.get(id) ?? null;
   }
 
-  async findAll(articleId: string) {
-    const results: CommentInterface[] = [];
+  async findAll(filters: FindCommentsQueryDto) {
+    const { articleId, page, limit } = filters;
+
+    let comments: CommentInterface[] = [];
     this.commentsByArticle.get(articleId)?.forEach((commentId) => {
-      results.push(this.comments.get(commentId));
+      comments.push(this.comments.get(commentId));
     });
-    return results;
+
+    const skip = (page - 1) * limit;
+    const total = comments.length;
+
+    if (skip >= total) {
+      comments = [];
+    } else {
+      comments = comments.slice(skip, Math.min(total, skip + limit));
+    }
+
+    return { total, page, limit, data: comments };
   }
 
   async delete(id: string) {

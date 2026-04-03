@@ -47,7 +47,7 @@ export class InMemoryArticleRepository implements ArticleRepository {
   }
 
   async findAll(filters: ArticleFilters) {
-    const { status, tag, categoryId } = filters;
+    const { status, tag, categoryId, page, limit } = filters;
     let articles = [...this.articles.values()];
 
     if (status) {
@@ -64,7 +64,16 @@ export class InMemoryArticleRepository implements ArticleRepository {
       );
     }
 
-    return articles;
+    const skip = (page - 1) * limit;
+    const total = articles.length;
+
+    if (skip >= total) {
+      articles = [];
+    } else {
+      articles = articles.slice(skip, Math.min(total, skip + limit));
+    }
+
+    return { total, page, limit, data: articles };
   }
 
   async update(id: string, article: ArticleInterface) {

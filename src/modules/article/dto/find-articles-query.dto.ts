@@ -7,8 +7,9 @@ import {
 } from 'class-validator';
 
 import { ArticleStatus } from './create-article.dto';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
-export class FindArticlesQueryDto {
+export class FindArticlesQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsEnum(ArticleStatus, {
     message:
