@@ -6,9 +6,16 @@ import { ConfigModule } from './config/config.module';
 import { UserModule } from './modules/user/user.module';
 import { PersistenceModule } from './infrastructure/persistence.module';
 import { ArticleModule } from './modules/article/article.module';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
-  imports: [ConfigModule, UserModule, PersistenceModule, ArticleModule],
+  imports: [
+    ConfigModule,
+    UserModule,
+    PersistenceModule,
+    ArticleModule,
+    CategoryModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

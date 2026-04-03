@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { ArticleInterface } from 'src/domain/entities/article.interface';
+import type { ArticleInterface } from 'src/domain/entities/article.interface';
 import type { ArticleRepository } from 'src/domain/repositories/article.repository.interface';
 
 @Injectable()
