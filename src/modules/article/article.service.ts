@@ -7,12 +7,18 @@ import {
   ArticleRepository,
 } from 'src/domain/repositories/article.repository.interface';
 import { Article } from 'src/domain/entities/article.entity';
+import {
+  COMMENT_REPOSITORY,
+  CommentRepository,
+} from 'src/domain/repositories/comment.repository.interface';
 
 @Injectable()
 export class ArticleService {
   constructor(
     @Inject(ARTICLE_REPOSITORY)
     private readonly articleRepo: ArticleRepository,
+    @Inject(COMMENT_REPOSITORY)
+    private readonly commentRepo: CommentRepository,
   ) {}
 
   async create(createArticleDto: CreateArticleDto) {
@@ -46,6 +52,14 @@ export class ArticleService {
     if (!article) {
       throw new NotFoundException(`Article with ID ${id} not found!`);
     }
+
+    const commentsByArticle = await this.commentRepo.findAll(id);
+    if (commentsByArticle) {
+      commentsByArticle.forEach(async (comment) => {
+        await this.commentRepo.delete(comment.id);
+      });
+    }
+
     return await this.articleRepo.delete(id);
   }
 }
