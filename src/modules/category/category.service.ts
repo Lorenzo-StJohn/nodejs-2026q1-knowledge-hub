@@ -7,12 +7,18 @@ import {
   CategoryRepository,
 } from 'src/domain/repositories/category.repository.interface';
 import { Category } from 'src/domain/entities/category.entity';
+import {
+  ARTICLE_REPOSITORY,
+  ArticleRepository,
+} from 'src/domain/repositories/article.repository.interface';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @Inject(CATEGORY_REPOSITORY)
     private readonly categoryRepo: CategoryRepository,
+    @Inject(ARTICLE_REPOSITORY)
+    private readonly articleRepo: ArticleRepository,
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto) {
@@ -46,6 +52,16 @@ export class CategoryService {
     if (!category) {
       throw new NotFoundException(`Category with ID ${id} not found!`);
     }
+
+    const articlesByCategory = await this.articleRepo.findByCategoryId(id);
+    if (articlesByCategory) {
+      articlesByCategory.forEach(async (articleId) => {
+        const article = await this.articleRepo.findById(articleId);
+        const updatedArticle = { ...article, categoryId: null };
+        this.articleRepo.update(articleId, updatedArticle);
+      });
+    }
+
     return await this.categoryRepo.delete(id);
   }
 }

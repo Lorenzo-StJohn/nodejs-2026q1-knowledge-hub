@@ -7,9 +7,11 @@ import type { ArticleRepository } from 'src/domain/repositories/article.reposito
 export class InMemoryArticleRepository implements ArticleRepository {
   private articles = new Map<string, ArticleInterface>();
   private articlesByUser = new Map<string, Set<string>>();
+  private articlesByCategory = new Map<string, Set<string>>();
 
   async create(article: ArticleInterface) {
     this.articles.set(article.id, article);
+
     const authorId = article.authorId;
     if (authorId) {
       if (!this.articlesByUser.has(authorId)) {
@@ -17,6 +19,15 @@ export class InMemoryArticleRepository implements ArticleRepository {
       }
       this.articlesByUser.get(authorId).add(article.id);
     }
+
+    const categoryId = article.categoryId;
+    if (categoryId) {
+      if (!this.articlesByCategory.has(categoryId)) {
+        this.articlesByCategory.set(categoryId, new Set<string>());
+      }
+      this.articlesByCategory.get(categoryId).add(article.id);
+    }
+
     return article;
   }
 
@@ -26,6 +37,10 @@ export class InMemoryArticleRepository implements ArticleRepository {
 
   async findByAuthorId(id: string) {
     return this.articlesByUser.get(id) ?? null;
+  }
+
+  async findByCategoryId(id: string) {
+    return this.articlesByCategory.get(id) ?? null;
   }
 
   async findAll() {
@@ -48,6 +63,21 @@ export class InMemoryArticleRepository implements ArticleRepository {
       }
     }
 
+    const oldCategoryId = this.articles.get(id).categoryId;
+    const newCategoryId = article.categoryId;
+
+    if (oldCategoryId !== newCategoryId) {
+      if (oldCategoryId) {
+        this.articlesByCategory.get(oldCategoryId).delete(id);
+      }
+      if (newAuthorId) {
+        if (!this.articlesByCategory.has(newCategoryId)) {
+          this.articlesByCategory.set(newCategoryId, new Set<string>());
+        }
+        this.articlesByCategory.get(newCategoryId).add(article.id);
+      }
+    }
+
     this.articles.set(id, article);
     return this.articles.get(id);
   }
@@ -56,6 +86,11 @@ export class InMemoryArticleRepository implements ArticleRepository {
     const authorId = this.articles.get(id).authorId;
     if (authorId) {
       this.articlesByUser.get(authorId).delete(id);
+    }
+
+    const categoryId = this.articles.get(id).categoryId;
+    if (categoryId) {
+      this.articlesByCategory.get(categoryId).delete(id);
     }
     this.articles.delete(id);
   }

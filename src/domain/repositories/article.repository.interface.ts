@@ -4,6 +4,7 @@ export interface ArticleRepository {
   findAll(): Promise<ArticleInterface[]>;
   findById(id: string): Promise<ArticleInterface | null>;
   findByAuthorId(id: string): Promise<Set<string> | null>;
+  findByCategoryId(id: string): Promise<Set<string> | null>;
   create(article: ArticleInterface): Promise<ArticleInterface>;
   update(id: string, article: ArticleInterface): Promise<ArticleInterface>;
   delete(id: string): Promise<void>;
