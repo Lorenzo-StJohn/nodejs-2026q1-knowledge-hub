@@ -62,8 +62,12 @@ export class InMemoryCommentRepository implements CommentRepository {
         if (a[sortBy] === null) return 1;
         if (b[sortBy] === null) return -1;
         return order === Order[0]
-          ? a[sortBy].localeCompare(b[sortBy])
-          : b[sortBy].localeCompare(a[sortBy]);
+          ? typeof a[sortBy] === 'number' && typeof b[sortBy] === 'number'
+            ? a[sortBy] - b[sortBy]
+            : a[sortBy].localeCompare(b[sortBy])
+          : typeof a[sortBy] === 'number' && typeof b[sortBy] === 'number'
+            ? b[sortBy] - a[sortBy]
+            : b[sortBy].localeCompare(a[sortBy]);
       });
     }
 
