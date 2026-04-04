@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { Configuration } from './config/configuration';
 
 @Injectable()
 export class AppService {
+  constructor(private readonly config: Configuration) {}
+
   getHello(): string {
-    return 'Go to http://localhost:4000/doc/ see documentation (replace 4000 with your port)';
+    const port = this.config.port;
+    return `Go to http://localhost:${port}/doc/ see documentation`;
   }
 }
