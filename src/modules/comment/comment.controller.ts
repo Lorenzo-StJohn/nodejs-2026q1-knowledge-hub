@@ -44,6 +44,10 @@ export class CommentController {
     status: 400,
     description: 'Bad request. Body does not contain required fields',
   })
+  @ApiResponse({
+    status: 422,
+    description: "Unprocessable entity. Referenced articleId doesn't exist",
+  })
   async create(@Body() createCommentDto: CreateCommentDto) {
     return this.commentService.create(createCommentDto);
   }
