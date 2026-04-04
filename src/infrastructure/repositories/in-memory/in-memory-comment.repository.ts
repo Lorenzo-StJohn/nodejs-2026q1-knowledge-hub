@@ -48,15 +48,6 @@ export class InMemoryCommentRepository implements CommentRepository {
       comments.push(this.comments.get(commentId));
     });
 
-    const skip = (page - 1) * limit;
-    const total = comments.length;
-
-    if (skip >= total) {
-      comments = [];
-    } else {
-      comments = comments.slice(skip, Math.min(total, skip + limit));
-    }
-
     if (sortBy) {
       comments = comments.sort((a, b) => {
         if (a[sortBy] === null) return 1;
@@ -69,6 +60,15 @@ export class InMemoryCommentRepository implements CommentRepository {
             ? b[sortBy] - a[sortBy]
             : b[sortBy].localeCompare(a[sortBy]);
       });
+    }
+
+    const skip = (page - 1) * limit;
+    const total = comments.length;
+
+    if (skip >= total) {
+      comments = [];
+    } else {
+      comments = comments.slice(skip, Math.min(total, skip + limit));
     }
 
     return { total, page, limit, data: comments };

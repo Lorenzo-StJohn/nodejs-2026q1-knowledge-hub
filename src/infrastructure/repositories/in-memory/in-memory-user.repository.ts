@@ -25,15 +25,6 @@ export class InMemoryUserRepository implements UserRepository {
 
     let users = [...this.users.values()];
 
-    const skip = (page - 1) * limit;
-    const total = users.length;
-
-    if (skip >= total) {
-      users = [];
-    } else {
-      users = users.slice(skip, Math.min(total, skip + limit));
-    }
-
     if (sortBy) {
       users = users.sort((a, b) => {
         if (a[sortBy] === null) return 1;
@@ -46,6 +37,15 @@ export class InMemoryUserRepository implements UserRepository {
             ? b[sortBy] - a[sortBy]
             : b[sortBy].localeCompare(a[sortBy]);
       });
+    }
+
+    const skip = (page - 1) * limit;
+    const total = users.length;
+
+    if (skip >= total) {
+      users = [];
+    } else {
+      users = users.slice(skip, Math.min(total, skip + limit));
     }
 
     return { total, page, limit, data: users };

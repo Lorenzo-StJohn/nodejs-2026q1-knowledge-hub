@@ -65,15 +65,6 @@ export class InMemoryArticleRepository implements ArticleRepository {
       );
     }
 
-    const skip = (page - 1) * limit;
-    const total = articles.length;
-
-    if (skip >= total) {
-      articles = [];
-    } else {
-      articles = articles.slice(skip, Math.min(total, skip + limit));
-    }
-
     if (sortBy) {
       articles = articles.sort((a, b) => {
         if (a[sortBy] === null) return 1;
@@ -86,6 +77,15 @@ export class InMemoryArticleRepository implements ArticleRepository {
             ? b[sortBy] - a[sortBy]
             : b[sortBy].localeCompare(a[sortBy]);
       });
+    }
+
+    const skip = (page - 1) * limit;
+    const total = articles.length;
+
+    if (skip >= total) {
+      articles = [];
+    } else {
+      articles = articles.slice(skip, Math.min(total, skip + limit));
     }
 
     return { total, page, limit, data: articles };

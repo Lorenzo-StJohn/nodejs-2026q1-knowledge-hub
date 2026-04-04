@@ -25,15 +25,6 @@ export class InMemoryCategoryRepository implements CategoryRepository {
 
     let categories = [...this.categories.values()];
 
-    const skip = (page - 1) * limit;
-    const total = categories.length;
-
-    if (skip >= total) {
-      categories = [];
-    } else {
-      categories = categories.slice(skip, Math.min(total, skip + limit));
-    }
-
     if (sortBy) {
       categories = categories.sort((a, b) => {
         if (a[sortBy] === null) return 1;
@@ -46,6 +37,15 @@ export class InMemoryCategoryRepository implements CategoryRepository {
             ? b[sortBy] - a[sortBy]
             : b[sortBy].localeCompare(a[sortBy]);
       });
+    }
+
+    const skip = (page - 1) * limit;
+    const total = categories.length;
+
+    if (skip >= total) {
+      categories = [];
+    } else {
+      categories = categories.slice(skip, Math.min(total, skip + limit));
     }
 
     return { total, page, limit, data: categories };
