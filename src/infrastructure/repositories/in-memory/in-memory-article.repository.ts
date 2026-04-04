@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Order } from 'src/common/entities/sort.interface';
 
 import type { ArticleInterface } from 'src/domain/entities/article.interface';
 import type {
   ArticleFilters,
   ArticleRepository,
 } from 'src/domain/repositories/article.repository.interface';
+import { Order } from 'src/common/entities/sort.interface';
 
 @Injectable()
 export class InMemoryArticleRepository implements ArticleRepository {

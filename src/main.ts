@@ -1,14 +1,10 @@
-import { join } from 'node:path';
-
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import 'dotenv/config';
-import * as yaml from 'js-yaml';
 
 import { AppModule } from './app.module';
 import { Configuration } from './config/configuration';
-import { readFile } from 'fs/promises';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,14 +16,19 @@ async function bootstrap() {
     }),
   );
 
-  const yamlPath = join(__dirname, '..', 'doc', 'api.yaml');
-  const yamlContent = await readFile(yamlPath, 'utf8');
-  const document = yaml.load(yamlContent) as OpenAPIObject;
+  const configSwagger = new DocumentBuilder()
+    .setTitle('Knowledge Hub')
+    .setDescription(
+      'Knowledge hub service for managing articles, categories, and comments',
+    )
+    .setVersion('1.0')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, configSwagger);
 
   SwaggerModule.setup('doc', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
+    swaggerOptions: {},
+    customSiteTitle: 'Knowledge Hub',
   });
 
   const config = app.get(Configuration);
