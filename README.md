@@ -12,7 +12,7 @@ This repository contains solution for [Assignment: Nest.js Knowledge Hub API](ht
 ## Implemented features:
 - Full CRUD operations for `User`, `Article`, `Category`, and `Comment` entities
 - In-memory data storage (designed to be easily replaced with a database in future tasks)
-- Request validation using DTOs + global `ValidationPipe`
+- Request validation using DTOs with Nest decorators + global `ValidationPipe`
 - Article filtering by `status`, `categoryId`, and `tag` query parameters
 - **Pagination** (`?page=1&limit=10`) and **sorting** (`?sortBy=createdAt&order=desc`) for all list endpoints
 - Correct cascading delete behavior:
@@ -22,6 +22,7 @@ This repository contains solution for [Assignment: Nest.js Knowledge Hub API](ht
 - OpenAPI/Swagger documentation
 - Additional automated tests
 - The application code for `Users`, `Articles`, `Categories`, and `Comments` is organized into Nest module/controller/service
+- User's password is always excluded from server response
 
 ## How to install
 
@@ -57,6 +58,12 @@ cp .env.example .env
 
 ## Running application
 
+### Standard mode
+
+```
+npm start
+```
+
 ### Development Mode
 
 ```
@@ -84,7 +91,7 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 1. In order to test the application you need to start it first (if you haven't done it before):
 
 ```
-npm run start:dev
+npm start
 ```
 
 2. Then run one of the scripts:  
@@ -99,7 +106,7 @@ npm run start:dev
    npm run test:additional
    ```
 
-### Running linter
+## Running linter
 
 ```
 npm run lint
