@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   Query,
 } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -20,27 +21,114 @@ import { ConditionalPaginationInterceptor } from 'src/common/interceptors/condit
 import { FindCategoryQueryDto } from './dto/find-category-query.dto';
 
 @Controller('category')
+@ApiTags('Categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Add new category ',
+    description: 'Adds new category ',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Category is created',
+    example: {
+      id: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9',
+      name: 'string',
+      description: 'string',
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request. Body does not contain required fields',
+  })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all categories',
+    description: 'Gets all categories',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successful operation',
+    example: [
+      {
+        id: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9',
+        name: 'string',
+        description: 'string',
+      },
+    ],
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request. Wrong query parameters (hacker scope)',
+  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindCategoryQueryDto) {
     return this.categoryService.findAll(filters);
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get single category by id',
+    description: 'Get single category by id',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Category id, format UUID v4',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successful operation',
+    example: {
+      id: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9',
+      name: 'string',
+      description: 'string',
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request. User id is invalid (not uuid)',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
   async findOne(@Param() params: IdParamDto) {
     return this.categoryService.findOne(params.id);
   }
 
   @Put(':id')
+  @ApiOperation({
+    summary: 'Update category information',
+    description: 'Updates category information by ID',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Category id, format UUID v4',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The category has been updated',
+    example: {
+      id: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9',
+      name: 'string',
+      description: 'string',
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request. Category id is invalid (not uuid)',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
   async update(
     @Param() params: IdParamDto,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -50,6 +138,28 @@ export class CategoryController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete category',
+    description:
+      'Deletes category. Sets categoryId to null on associated articles.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Category id, format UUID v4',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'The category has been deleted',
+    example: '',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request. Category id is invalid (not uuid)',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
   async remove(@Param() params: IdParamDto) {
     return this.categoryService.remove(params.id);
   }
