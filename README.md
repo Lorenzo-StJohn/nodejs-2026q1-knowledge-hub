@@ -86,6 +86,13 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
   > `{ total, page, limit, data }` → `data` (array only).  
   > If you add `page` and `limit` query parameters for GET list endpoints, you will receive the **full paginated response**: `{ total, page, limit, data }`.
 
+<img width="1440" height="900" alt="Screenshot 2026-04-05 at 04 12 44" src="https://github.com/user-attachments/assets/b69b9caf-21da-4cd3-92b5-3d84707239d2" />
+
+<img width="1380" height="600" alt="Screenshot 2026-04-05 at 23 24 52" src="https://github.com/user-attachments/assets/aa65a5aa-11b4-4828-98d2-709a60714826" />
+
+<img width="1381" height="519" alt="Screenshot 2026-04-05 at 23 25 07" src="https://github.com/user-attachments/assets/ee014cc7-ee88-4686-8b7f-c338ee42abcd" />
+
+
 ## Testing
 
 1. In order to test the application you need to start it first (if you haven't done it before):
