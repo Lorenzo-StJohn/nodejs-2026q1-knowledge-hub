@@ -6,7 +6,7 @@ const DEFAULT_LIMIT = Number.MAX_SAFE_INTEGER;
 
 export class PaginationQueryDto {
   @ApiPropertyOptional({
-    example: 10,
+    example: 1,
     description: 'Page number (starting from 1)',
   })
   @IsOptional()
@@ -16,7 +16,7 @@ export class PaginationQueryDto {
   page: number = 1;
 
   @ApiPropertyOptional({
-    example: 1,
+    example: 10,
     description: 'Number of items per page',
   })
   @IsOptional()

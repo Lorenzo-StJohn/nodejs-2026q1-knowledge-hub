@@ -44,14 +44,14 @@ paths:
           in: query
           description: Page number (starting from 1)
           schema:
-            example: 10
+            example: 1
             type: number
         - name: limit
           required: false
           in: query
           description: Number of items per page
           schema:
-            example: 1
+            example: 10
             type: number
         - name: sortBy
           required: false
@@ -237,14 +237,14 @@ paths:
           in: query
           description: Page number (starting from 1)
           schema:
-            example: 10
+            example: 1
             type: number
         - name: limit
           required: false
           in: query
           description: Number of items per page
           schema:
-            example: 1
+            example: 10
             type: number
         - name: status
           required: false
@@ -471,14 +471,14 @@ paths:
           in: query
           description: Page number (starting from 1)
           schema:
-            example: 10
+            example: 1
             type: number
         - name: limit
           required: false
           in: query
           description: Number of items per page
           schema:
-            example: 1
+            example: 10
             type: number
         - name: sortBy
           required: false
@@ -645,14 +645,14 @@ paths:
           in: query
           description: Page number (starting from 1)
           schema:
-            example: 10
+            example: 1
             type: number
         - name: limit
           required: false
           in: query
           description: Number of items per page
           schema:
-            example: 1
+            example: 10
             type: number
         - name: articleId
           required: true
