@@ -93,6 +93,10 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 <img width="1381" height="519" alt="Screenshot 2026-04-05 at 23 25 07" src="https://github.com/user-attachments/assets/ee014cc7-ee88-4686-8b7f-c338ee42abcd" />
 
 
+  > [!WARNING]
+  > If you want to get **all items** via one of list endpoints make sure **you've cleared all the filters**!
+
+
 ## Testing
 
 1. In order to test the application you need to start it first (if you haven't done it before):
