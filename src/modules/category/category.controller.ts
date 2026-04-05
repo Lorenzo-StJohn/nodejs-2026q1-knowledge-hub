@@ -117,7 +117,7 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. User id is invalid (not uuid)',
+    description: 'Bad request. Category id is invalid (not uuid)',
   })
   @ApiResponse({
     status: 404,

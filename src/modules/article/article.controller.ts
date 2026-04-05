@@ -182,7 +182,7 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found',
+    description: 'Article not found',
   })
   async update(
     @Param() params: IdParamDto,

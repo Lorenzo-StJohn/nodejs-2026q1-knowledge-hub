@@ -413,7 +413,7 @@ paths:
         '400':
           description: Bad request. Article id is invalid (not uuid)
         '404':
-          description: User not found
+          description: Article not found
       tags:
         - Articles
     delete:
@@ -548,7 +548,7 @@ paths:
                 name: string
                 description: string
         '400':
-          description: Bad request. User id is invalid (not uuid)
+          description: Bad request. Category id is invalid (not uuid)
         '404':
           description: Category not found
       tags:
