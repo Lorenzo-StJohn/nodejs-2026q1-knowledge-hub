@@ -42,14 +42,14 @@ paths:
         - name: page
           required: false
           in: query
-          description: Number of items per page
+          description: Page number (starting from 1)
           schema:
             example: 10
             type: number
         - name: limit
           required: false
           in: query
-          description: Page number (starting from 1)
+          description: Number of items per page
           schema:
             example: 1
             type: number
@@ -81,12 +81,27 @@ paths:
           description: Successful operation
           content:
             application/json:
-              example:
-                - id: b1b73593-2445-421a-af42-359114d6c536
-                  login: string
-                  role: admin
-                  createdAt: 1775287579998
-                  updatedAt: 1775287579998
+              examples:
+                Without pagination:
+                  value:
+                    - id: b1b73593-2445-421a-af42-359114d6c536
+                      login: string
+                      role: admin
+                      createdAt: 1775287579998
+                      updatedAt: 1775287579998
+                  description: Without page and limit query parameters
+                With pagination:
+                  value:
+                    total: 1
+                    page: 1
+                    limit: 10
+                    data:
+                      - id: b1b73593-2445-421a-af42-359114d6c536
+                        login: string
+                        role: admin
+                        createdAt: 1775287579998
+                        updatedAt: 1775287579998
+                  description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
       tags:
@@ -220,14 +235,14 @@ paths:
         - name: page
           required: false
           in: query
-          description: Number of items per page
+          description: Page number (starting from 1)
           schema:
             example: 10
             type: number
         - name: limit
           required: false
           in: query
-          description: Page number (starting from 1)
+          description: Number of items per page
           schema:
             example: 1
             type: number
@@ -287,19 +302,41 @@ paths:
           description: Successful operation
           content:
             application/json:
-              example:
-                - id: 0e2f864e-8611-4e41-9d49-1c94b1df5c95
-                  title: string
-                  content: string
-                  status: draft
-                  authorId: b1b73593-2445-421a-af42-359114d6c536
-                  categoryId: f3d2f4c6-5376-48df-b4a7-9fe825559db9
-                  tags:
-                    - nestjs
-                    - typescript
-                    - backend
-                  createdAt: 1775299578964
-                  updatedAt: 1775299578964
+              examples:
+                Without pagination:
+                  value:
+                    - id: 0e2f864e-8611-4e41-9d49-1c94b1df5c95
+                      title: string
+                      content: string
+                      status: draft
+                      authorId: b1b73593-2445-421a-af42-359114d6c536
+                      categoryId: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+                      tags:
+                        - nestjs
+                        - typescript
+                        - backend
+                      createdAt: 1775299578964
+                      updatedAt: 1775299578964
+                  description: Without page and limit query parameters
+                With pagination:
+                  value:
+                    total: 1
+                    page: 1
+                    limit: 10
+                    data:
+                      - id: 0e2f864e-8611-4e41-9d49-1c94b1df5c95
+                        title: string
+                        content: string
+                        status: draft
+                        authorId: b1b73593-2445-421a-af42-359114d6c536
+                        categoryId: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+                        tags:
+                          - nestjs
+                          - typescript
+                          - backend
+                        createdAt: 1775299578964
+                        updatedAt: 1775299578964
+                  description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
       tags:
@@ -432,14 +469,14 @@ paths:
         - name: page
           required: false
           in: query
-          description: Number of items per page
+          description: Page number (starting from 1)
           schema:
             example: 10
             type: number
         - name: limit
           required: false
           in: query
-          description: Page number (starting from 1)
+          description: Number of items per page
           schema:
             example: 1
             type: number
@@ -469,10 +506,23 @@ paths:
           description: Successful operation
           content:
             application/json:
-              example:
-                - id: f3d2f4c6-5376-48df-b4a7-9fe825559db9
-                  name: string
-                  description: string
+              examples:
+                Without pagination:
+                  value:
+                    - id: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+                      name: string
+                      description: string
+                  description: Without page and limit query parameters
+                With pagination:
+                  value:
+                    total: 1
+                    page: 1
+                    limit: 10
+                    data:
+                      - id: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+                        name: string
+                        description: string
+                  description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
       tags:
@@ -593,14 +643,14 @@ paths:
         - name: page
           required: false
           in: query
-          description: Number of items per page
+          description: Page number (starting from 1)
           schema:
             example: 10
             type: number
         - name: limit
           required: false
           in: query
-          description: Page number (starting from 1)
+          description: Number of items per page
           schema:
             example: 1
             type: number
@@ -639,12 +689,27 @@ paths:
           description: Successful operation
           content:
             application/json:
-              example:
-                - id: 63d364f4-168b-416f-b9d2-865d5a579e87
-                  content: Great article!
-                  articleId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
-                  authorId: b1b73593-2445-421a-af42-359114d6c536
-                  createdAt: 1775287579998
+              examples:
+                Without pagination:
+                  value:
+                    - id: 63d364f4-168b-416f-b9d2-865d5a579e87
+                      content: Great article!
+                      articleId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                      authorId: b1b73593-2445-421a-af42-359114d6c536
+                      createdAt: 1775287579998
+                  description: Without page and limit query parameters
+                With pagination:
+                  value:
+                    total: 1
+                    page: 1
+                    limit: 10
+                    data:
+                      - id: 63d364f4-168b-416f-b9d2-865d5a579e87
+                        content: Great article!
+                        articleId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                        authorId: b1b73593-2445-421a-af42-359114d6c536
+                        createdAt: 1775287579998
+                  description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
       tags:

@@ -55,15 +55,41 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: 'Successful operation',
-    example: [
-      {
-        id: 'b1b73593-2445-421a-af42-359114d6c536',
-        login: 'string',
-        role: 'admin',
-        createdAt: 1775287579998,
-        updatedAt: 1775287579998,
+    content: {
+      'application/json': {
+        examples: {
+          'Without pagination': {
+            value: [
+              {
+                id: 'b1b73593-2445-421a-af42-359114d6c536',
+                login: 'string',
+                role: 'admin',
+                createdAt: 1775287579998,
+                updatedAt: 1775287579998,
+              },
+            ],
+            description: 'Without page and limit query parameters',
+          },
+          'With pagination': {
+            value: {
+              total: 1,
+              page: 1,
+              limit: 10,
+              data: [
+                {
+                  id: 'b1b73593-2445-421a-af42-359114d6c536',
+                  login: 'string',
+                  role: 'admin',
+                  createdAt: 1775287579998,
+                  updatedAt: 1775287579998,
+                },
+              ],
+            },
+            description: 'With page and limit query parameters',
+          },
+        },
       },
-    ],
+    },
   })
   @ApiResponse({
     status: 400,

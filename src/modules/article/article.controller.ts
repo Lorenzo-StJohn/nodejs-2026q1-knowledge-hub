@@ -63,19 +63,49 @@ export class ArticleController {
   @ApiResponse({
     status: 200,
     description: 'Successful operation',
-    example: [
-      {
-        id: '0e2f864e-8611-4e41-9d49-1c94b1df5c95',
-        title: 'string',
-        content: 'string',
-        status: 'draft',
-        authorId: 'b1b73593-2445-421a-af42-359114d6c536',
-        categoryId: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9',
-        tags: ['nestjs', 'typescript', 'backend'],
-        createdAt: 1775299578964,
-        updatedAt: 1775299578964,
+    content: {
+      'application/json': {
+        examples: {
+          'Without pagination': {
+            value: [
+              {
+                id: '0e2f864e-8611-4e41-9d49-1c94b1df5c95',
+                title: 'string',
+                content: 'string',
+                status: 'draft',
+                authorId: 'b1b73593-2445-421a-af42-359114d6c536',
+                categoryId: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9',
+                tags: ['nestjs', 'typescript', 'backend'],
+                createdAt: 1775299578964,
+                updatedAt: 1775299578964,
+              },
+            ],
+            description: 'Without page and limit query parameters',
+          },
+          'With pagination': {
+            value: {
+              total: 1,
+              page: 1,
+              limit: 10,
+              data: [
+                {
+                  id: '0e2f864e-8611-4e41-9d49-1c94b1df5c95',
+                  title: 'string',
+                  content: 'string',
+                  status: 'draft',
+                  authorId: 'b1b73593-2445-421a-af42-359114d6c536',
+                  categoryId: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9',
+                  tags: ['nestjs', 'typescript', 'backend'],
+                  createdAt: 1775299578964,
+                  updatedAt: 1775299578964,
+                },
+              ],
+            },
+            description: 'With page and limit query parameters',
+          },
+        },
       },
-    ],
+    },
   })
   @ApiResponse({
     status: 400,

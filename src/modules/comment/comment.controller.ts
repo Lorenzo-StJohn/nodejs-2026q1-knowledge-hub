@@ -61,15 +61,41 @@ export class CommentController {
   @ApiResponse({
     status: 200,
     description: 'Successful operation',
-    example: [
-      {
-        id: '63d364f4-168b-416f-b9d2-865d5a579e87',
-        content: 'Great article!',
-        articleId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        authorId: 'b1b73593-2445-421a-af42-359114d6c536',
-        createdAt: 1775287579998,
+    content: {
+      'application/json': {
+        examples: {
+          'Without pagination': {
+            value: [
+              {
+                id: '63d364f4-168b-416f-b9d2-865d5a579e87',
+                content: 'Great article!',
+                articleId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                authorId: 'b1b73593-2445-421a-af42-359114d6c536',
+                createdAt: 1775287579998,
+              },
+            ],
+            description: 'Without page and limit query parameters',
+          },
+          'With pagination': {
+            value: {
+              total: 1,
+              page: 1,
+              limit: 10,
+              data: [
+                {
+                  id: '63d364f4-168b-416f-b9d2-865d5a579e87',
+                  content: 'Great article!',
+                  articleId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                  authorId: 'b1b73593-2445-421a-af42-359114d6c536',
+                  createdAt: 1775287579998,
+                },
+              ],
+            },
+            description: 'With page and limit query parameters',
+          },
+        },
       },
-    ],
+    },
   })
   @ApiResponse({
     status: 400,

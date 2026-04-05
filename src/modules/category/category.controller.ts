@@ -56,13 +56,37 @@ export class CategoryController {
   @ApiResponse({
     status: 200,
     description: 'Successful operation',
-    example: [
-      {
-        id: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9',
-        name: 'string',
-        description: 'string',
+    content: {
+      'application/json': {
+        examples: {
+          'Without pagination': {
+            value: [
+              {
+                id: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9',
+                name: 'string',
+                description: 'string',
+              },
+            ],
+            description: 'Without page and limit query parameters',
+          },
+          'With pagination': {
+            value: {
+              total: 1,
+              page: 1,
+              limit: 10,
+              data: [
+                {
+                  id: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9',
+                  name: 'string',
+                  description: 'string',
+                },
+              ],
+            },
+            description: 'With page and limit query parameters',
+          },
+        },
       },
-    ],
+    },
   })
   @ApiResponse({
     status: 400,
