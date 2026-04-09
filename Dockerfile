@@ -7,7 +7,8 @@ COPY package*.json ./
 RUN npm ci -ignore-scripts
 
 COPY . .
-RUN npm run build
+RUN  npx prisma generate && \
+     npm run build
 
 # Stage 2 (production)
 
@@ -16,6 +17,7 @@ WORKDIR /app
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/prisma ./prisma
 
 RUN npm ci --omit=dev --ignore-scripts --no-fund --no-audit && \
     npm cache clean --force && \
