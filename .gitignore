@@ -32,4 +32,11 @@ lerna-debug.log*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
+<<<<<<< HEAD
 !.vscode/extensions.json
+=======
+!.vscode/extensions.json
+/generated/prisma
+
+.env
+>>>>>>> e786173 (chore: add .env to gitignore)
