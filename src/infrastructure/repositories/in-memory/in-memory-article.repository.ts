@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import type { ArticleInterface } from 'src/domain/entities/article.interface';
 import type {
@@ -6,12 +6,21 @@ import type {
   ArticleRepository,
 } from 'src/domain/repositories/article.repository.interface';
 import { Order } from 'src/common/entities/sort.interface';
+import {
+  COMMENT_REPOSITORY,
+  CommentRepository,
+} from 'src/domain/repositories/comment.repository.interface';
 
 @Injectable()
 export class InMemoryArticleRepository implements ArticleRepository {
   private articles = new Map<string, ArticleInterface>();
   private articlesByUser = new Map<string, Set<string>>();
   private articlesByCategory = new Map<string, Set<string>>();
+
+  constructor(
+    @Inject(COMMENT_REPOSITORY)
+    private readonly commentRepo: CommentRepository,
+  ) {}
 
   async create(article: ArticleInterface) {
     this.articles.set(article.id, article);
@@ -135,6 +144,19 @@ export class InMemoryArticleRepository implements ArticleRepository {
     const categoryId = this.articles.get(id).categoryId;
     if (categoryId) {
       this.articlesByCategory.get(categoryId)?.delete(id);
+    }
+
+    const commentsByArticle = (
+      await this.commentRepo.findAll({
+        articleId: id,
+        page: 1,
+        limit: Number.MAX_SAFE_INTEGER,
+      })
+    ).data;
+    if (commentsByArticle) {
+      commentsByArticle.forEach(async (comment) => {
+        await this.commentRepo.delete(comment.id);
+      });
     }
 
     this.articles.delete(id);
