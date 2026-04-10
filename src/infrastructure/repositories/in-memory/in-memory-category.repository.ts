@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import type { CategoryInterface } from 'src/domain/entities/category.interface';
 import type {
@@ -6,10 +6,19 @@ import type {
   CategoryRepository,
 } from 'src/domain/repositories/category.repository.interface';
 import { Order } from 'src/common/entities/sort.interface';
+import {
+  ARTICLE_REPOSITORY,
+  ArticleRepository,
+} from 'src/domain/repositories/article.repository.interface';
 
 @Injectable()
 export class InMemoryCategoryRepository implements CategoryRepository {
   private categories = new Map<string, CategoryInterface>();
+
+  constructor(
+    @Inject(ARTICLE_REPOSITORY)
+    private readonly articleRepo: ArticleRepository,
+  ) {}
 
   async create(category: CategoryInterface) {
     this.categories.set(category.id, category);
@@ -57,6 +66,14 @@ export class InMemoryCategoryRepository implements CategoryRepository {
   }
 
   async delete(id: string) {
+    const articlesByCategory = await this.articleRepo.findByCategoryId(id);
+    if (articlesByCategory) {
+      articlesByCategory.forEach(async (articleId) => {
+        const article = await this.articleRepo.findById(articleId);
+        const updatedArticle = { ...article, categoryId: null };
+        this.articleRepo.update(articleId, updatedArticle);
+      });
+    }
     this.categories.delete(id);
   }
 }
