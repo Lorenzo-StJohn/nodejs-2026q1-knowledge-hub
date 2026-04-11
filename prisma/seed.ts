@@ -11,8 +11,6 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('🌱 Starting database seeding...');
 
-  // ==================== USERS ====================
-
   const hashedPassword = await hash('password123', 10);
 
   const admin = await prisma.user.upsert({
@@ -47,7 +45,6 @@ async function main() {
 
   console.log('✅ Users created');
 
-  // ==================== CATEGORIES ====================
   const categories = await Promise.all([
     prisma.category.upsert({
       where: { id: '00000000-0000-0000-0000-000000000001' },
@@ -92,7 +89,6 @@ async function main() {
 
   console.log('✅ Categories created');
 
-  // ==================== TAGS ====================
   const tags = await Promise.all([
     prisma.tag.upsert({
       where: { name: 'nestjs' },
@@ -136,13 +132,9 @@ async function main() {
         'In this article we explore how to build scalable backend applications...',
       status: 'published',
       authorId: admin.id,
-      categoryId: categories[0].id, // Technology
+      categoryId: categories[0].id,
       tags: {
-        connect: [
-          { id: tags[0].id }, // nestjs
-          { id: tags[1].id }, // typescript
-          { id: tags[2].id }, // prisma
-        ],
+        connect: [{ id: tags[0].id }, { id: tags[1].id }, { id: tags[2].id }],
       },
     },
   });
@@ -154,12 +146,9 @@ async function main() {
         'Deep dive into conditional types, generics and utility types...',
       status: 'published',
       authorId: editor.id,
-      categoryId: categories[1].id, // Programming
+      categoryId: categories[1].id,
       tags: {
-        connect: [
-          { id: tags[1].id }, // typescript
-          { id: tags[5].id }, // javascript
-        ],
+        connect: [{ id: tags[1].id }, { id: tags[5].id }],
       },
     },
   });
@@ -172,7 +161,7 @@ async function main() {
       authorId: admin.id,
       categoryId: categories[0].id,
       tags: {
-        connect: [{ id: tags[3].id }], // docker
+        connect: [{ id: tags[3].id }],
       },
     },
   });
@@ -184,16 +173,40 @@ async function main() {
         'Exploring the importance of backend in modern web development...',
       status: 'published',
       authorId: editor.id,
-      categoryId: categories[3].id, // Business
+      categoryId: categories[3].id,
       tags: {
-        connect: [{ id: tags[4].id }], // backend
+        connect: [{ id: tags[4].id }],
+      },
+    },
+  });
+
+  await prisma.article.create({
+    data: {
+      title: 'The Rise of Quantum Computing',
+      content:
+        'Discover how quantum computers are set to revolutionize computing and solve problems beyond classical capabilities...',
+      status: 'published',
+      authorId: admin.id,
+      categoryId: categories[2].id,
+    },
+  });
+
+  await prisma.article.create({
+    data: {
+      title: 'Optimizing Performance in Node.js Applications',
+      content:
+        'Techniques and best practices for improving speed, scalability, and efficiency in Node.js backend services...',
+      status: 'published',
+      authorId: editor.id,
+      categoryId: categories[1].id,
+      tags: {
+        connect: [{ id: tags[4].id }, { id: tags[5].id }],
       },
     },
   });
 
   console.log('✅ Articles created');
 
-  // ==================== COMMENTS ====================
   await prisma.comment.create({
     data: {
       content: 'Great article! Very helpful for beginners.',
@@ -210,6 +223,26 @@ async function main() {
       authorId: editor.id,
       articleId: (await prisma.article.findFirst({
         where: { title: { contains: 'TypeScript' } },
+      }))!.id,
+    },
+  });
+
+  await prisma.comment.create({
+    data: {
+      content: 'Fascinating insights into quantum computing!',
+      authorId: viewer.id,
+      articleId: (await prisma.article.findFirst({
+        where: { title: { contains: 'Quantum' } },
+      }))!.id,
+    },
+  });
+
+  await prisma.comment.create({
+    data: {
+      content: 'These optimization tips are really useful for production apps.',
+      authorId: editor.id,
+      articleId: (await prisma.article.findFirst({
+        where: { title: { contains: 'Node.js' } },
       }))!.id,
     },
   });
