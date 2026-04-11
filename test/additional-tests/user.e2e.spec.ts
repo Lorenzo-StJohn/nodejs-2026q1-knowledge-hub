@@ -313,14 +313,22 @@ describe('User (e2e)', () => {
         expect(ids).toEqual(sortedIds);
       });
 
-      it('should sort by role (all users have same role)', async () => {
+      it('should sort by role', async () => {
         const response = await unauthorizedRequest
           .get(usersRoutes.getAll)
           .query({ sortBy: 'role', order: 'ASC' })
           .set(commonHeaders);
 
         expect(response.status).toBe(StatusCodes.OK);
-        expect(response.body.every((u: any) => u.role === 'viewer')).toBe(true);
+
+        const roles = response.body.map((user: any) => user.role);
+        const sortedRoles = [...roles].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
+
+        expect(roles).toEqual(sortedRoles);
       });
 
       it('should sort by updatedAt ASC/DESC', async () => {

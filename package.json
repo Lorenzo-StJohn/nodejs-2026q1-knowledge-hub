@@ -14,6 +14,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
+    "start:in-memory": "cross-env MODE=memory nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/src/main",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
@@ -33,9 +34,9 @@
     "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/swagger": "^7.4.2",
+    "@node-rs/bcrypt": "^1.10.7",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
-    "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
@@ -44,6 +45,7 @@
     "rimraf": "^5.0.5",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
+    "tsx": "^4.19.2",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
