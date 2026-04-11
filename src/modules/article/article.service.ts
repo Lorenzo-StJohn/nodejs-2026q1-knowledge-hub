@@ -10,6 +10,7 @@ import {
 import { Article } from 'src/domain/entities/article.entity';
 import { ArticleResponseDto } from './dto/article-response.dto';
 import { plainToInstance } from 'class-transformer';
+import { ArticlePaginationResponseDto } from './dto/article-pagination-response.dto';
 
 @Injectable()
 export class ArticleService {
@@ -26,7 +27,7 @@ export class ArticleService {
 
   async findAll(filters: ArticleFilters) {
     const articles = await this.articleRepo.findAll(filters);
-    return plainToInstance(ArticleResponseDto, articles);
+    return plainToInstance(ArticlePaginationResponseDto, articles);
   }
 
   async findOne(id: string) {

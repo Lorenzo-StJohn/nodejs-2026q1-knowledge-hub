@@ -18,6 +18,7 @@ import {
 } from 'src/domain/repositories/article.repository.interface';
 import { plainToInstance } from 'class-transformer';
 import { CommentResponseDto } from './dto/comment-response.dto';
+import { CommentPaginationResponseDto } from './dto/comment-pagination-response.dto';
 
 @Injectable()
 export class CommentService {
@@ -51,7 +52,7 @@ export class CommentService {
 
   async findAll(filters: CommentFilters) {
     const comments = await this.commentRepo.findAll(filters);
-    return plainToInstance(CommentResponseDto, comments);
+    return plainToInstance(CommentPaginationResponseDto, comments);
   }
 
   async remove(id: string) {
