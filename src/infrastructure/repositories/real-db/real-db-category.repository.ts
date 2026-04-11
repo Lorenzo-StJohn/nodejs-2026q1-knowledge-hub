@@ -75,8 +75,14 @@ export class RealDbCategoryRepository implements CategoryRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.category.delete({
-      where: { id },
+    await this.prisma.$transaction(async (tx) => {
+      await tx.article.updateMany({
+        where: { categoryId: id },
+        data: { categoryId: null },
+      });
+      await tx.category.delete({
+        where: { id },
+      });
     });
   }
 }

@@ -67,8 +67,17 @@ export class RealDbUserRepository implements UserRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.user.delete({
-      where: { id },
+    await this.prisma.$transaction(async (tx) => {
+      await tx.comment.deleteMany({
+        where: { authorId: id },
+      });
+      await tx.article.updateMany({
+        where: { authorId: id },
+        data: { authorId: null },
+      });
+      await tx.user.delete({
+        where: { id },
+      });
     });
   }
 }

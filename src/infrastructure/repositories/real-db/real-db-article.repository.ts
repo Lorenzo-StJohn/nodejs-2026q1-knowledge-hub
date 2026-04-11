@@ -134,35 +134,42 @@ export class RealDbArticleRepository implements ArticleRepository {
     id: string,
     article: ArticleInterface,
   ): Promise<ArticleInterface> {
-    const updated = await this.prisma.article.update({
-      where: { id },
-      data: {
-        title: article.title,
-        content: article.content,
-        status: article.status,
-        authorId: article.authorId,
-        categoryId: article.categoryId,
-        tags: {
-          set: [],
-          connectOrCreate: article.tags.map((tagName) => ({
-            where: { name: tagName },
-            create: { name: tagName },
-          })),
+    const updated = await this.prisma.$transaction(async (tx) => {
+      return tx.article.update({
+        where: { id },
+        data: {
+          title: article.title,
+          content: article.content,
+          status: article.status,
+          authorId: article.authorId,
+          categoryId: article.categoryId,
+          tags: {
+            set: [],
+            connectOrCreate: article.tags.map((tagName) => ({
+              where: { name: tagName },
+              create: { name: tagName },
+            })),
+          },
         },
-      },
-      include: {
-        tags: true,
-        author: { select: { id: true, login: true, role: true } },
-        category: true,
-      },
+        include: {
+          tags: true,
+          author: { select: { id: true, login: true, role: true } },
+          category: true,
+        },
+      });
     });
 
     return articleTransform(updated);
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.article.delete({
-      where: { id },
+    await this.prisma.$transaction(async (tx) => {
+      await tx.comment.deleteMany({
+        where: { articleId: id },
+      });
+      await tx.article.delete({
+        where: { id },
+      });
     });
   }
 }
