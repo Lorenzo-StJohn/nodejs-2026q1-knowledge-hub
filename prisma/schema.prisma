@@ -36,6 +36,8 @@ model Article {
   tags        Tag[]     @relation("ArticleTags")
 
   @@map("articles")
+  @@index([status])
+  @@index([categoryId])
 }
 
 model Category {
@@ -70,6 +72,7 @@ model Tag {
   articles  Article[] @relation("ArticleTags")
 
   @@map("tags")
+  @@index([name])
 }
 
 enum Role {
