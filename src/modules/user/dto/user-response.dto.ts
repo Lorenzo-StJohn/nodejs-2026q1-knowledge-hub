@@ -1,6 +1,5 @@
-import { Exclude, Expose } from 'class-transformer';
-
-import { UserRole } from 'src/domain/entities/user.interface';
+import { Role } from '@prisma/client';
+import { Exclude, Expose, Transform } from 'class-transformer';
 
 export class UserResponseDto {
   @Expose()
@@ -10,12 +9,14 @@ export class UserResponseDto {
   login: string;
 
   @Expose()
-  role: (typeof UserRole)[keyof typeof UserRole];
+  role: Role;
 
   @Expose()
+  @Transform(({ value }) => (value instanceof Date ? value.getTime() : value))
   createdAt: number;
 
   @Expose()
+  @Transform(({ value }) => (value instanceof Date ? value.getTime() : value))
   updatedAt: number;
 
   @Exclude()

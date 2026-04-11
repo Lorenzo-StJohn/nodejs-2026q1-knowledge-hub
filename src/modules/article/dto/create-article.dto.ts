@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ArticleStatus } from '@prisma/client';
 import {
   IsArray,
   IsEnum,
@@ -8,12 +9,6 @@ import {
   IsUUID,
   ValidateIf,
 } from 'class-validator';
-
-export enum ArticleStatus {
-  DRAFT = 'draft',
-  PUBLISHED = 'published',
-  ARCHIVED = 'archived',
-}
 
 export class CreateArticleDto {
   @ApiProperty({ example: 'string' })

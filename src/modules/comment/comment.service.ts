@@ -16,6 +16,8 @@ import {
   ARTICLE_REPOSITORY,
   ArticleRepository,
 } from 'src/domain/repositories/article.repository.interface';
+import { plainToInstance } from 'class-transformer';
+import { CommentResponseDto } from './dto/comment-response.dto';
 
 @Injectable()
 export class CommentService {
@@ -35,7 +37,8 @@ export class CommentService {
       );
     }
     const commentEntity = new Comment(createCommentDto);
-    return await this.commentRepo.create(commentEntity);
+    const comment = await this.commentRepo.create(commentEntity);
+    return plainToInstance(CommentResponseDto, comment);
   }
 
   async findOne(id: string) {
@@ -43,11 +46,12 @@ export class CommentService {
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${id} not found!`);
     }
-    return comment;
+    return plainToInstance(CommentResponseDto, comment);
   }
 
   async findAll(filters: CommentFilters) {
-    return await this.commentRepo.findAll(filters);
+    const comments = await this.commentRepo.findAll(filters);
+    return plainToInstance(CommentResponseDto, comments);
   }
 
   async remove(id: string) {

@@ -8,6 +8,8 @@ import {
   type ArticleRepository,
 } from 'src/domain/repositories/article.repository.interface';
 import { Article } from 'src/domain/entities/article.entity';
+import { ArticleResponseDto } from './dto/article-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ArticleService {
@@ -18,12 +20,13 @@ export class ArticleService {
 
   async create(createArticleDto: CreateArticleDto) {
     const articleEntity = new Article(createArticleDto);
-    return await this.articleRepo.create(articleEntity);
+    const article = await this.articleRepo.create(articleEntity);
+    return plainToInstance(ArticleResponseDto, article);
   }
 
   async findAll(filters: ArticleFilters) {
     const articles = await this.articleRepo.findAll(filters);
-    return articles;
+    return plainToInstance(ArticleResponseDto, articles);
   }
 
   async findOne(id: string) {
@@ -31,7 +34,7 @@ export class ArticleService {
     if (!article) {
       throw new NotFoundException(`Article with ID ${id} not found!`);
     }
-    return article;
+    return plainToInstance(ArticleResponseDto, article);
   }
 
   async update(id: string, updateArticleDto: UpdateArticleDto) {
@@ -40,7 +43,11 @@ export class ArticleService {
       throw new NotFoundException(`Article with ID ${id} not found!`);
     }
     const updatedArticleEntity = Article.update(article, updateArticleDto);
-    return await this.articleRepo.update(id, updatedArticleEntity);
+    const updatedArticle = await this.articleRepo.update(
+      id,
+      updatedArticleEntity,
+    );
+    return plainToInstance(ArticleResponseDto, updatedArticle);
   }
 
   async remove(id: string) {

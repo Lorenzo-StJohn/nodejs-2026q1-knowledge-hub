@@ -7,6 +7,6 @@ export class Configuration {
   }
 
   get isMemoryMode(): boolean {
-    return true;
+    return process.env.NODE_ENV !== 'production';
   }
 }

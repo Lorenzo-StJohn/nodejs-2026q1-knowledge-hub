@@ -39,10 +39,10 @@ export class InMemoryCategoryRepository implements CategoryRepository {
         if (a[sortBy] === null) return 1;
         if (b[sortBy] === null) return -1;
         return order === Order[0]
-          ? typeof a[sortBy] === 'number' && typeof b[sortBy] === 'number'
+          ? typeof a[sortBy] !== 'string' && typeof b[sortBy] !== 'string'
             ? a[sortBy] - b[sortBy]
             : a[sortBy].localeCompare(b[sortBy])
-          : typeof a[sortBy] === 'number' && typeof b[sortBy] === 'number'
+          : typeof a[sortBy] !== 'string' && typeof b[sortBy] !== 'string'
             ? b[sortBy] - a[sortBy]
             : b[sortBy].localeCompare(a[sortBy]);
       });

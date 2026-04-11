@@ -29,7 +29,7 @@ export class FindCommentQueryDto extends PaginationQueryDto {
   })
   @IsOptional()
   @IsIn(CommentFields)
-  sortBy?: (typeof CommentFields)[number];
+  sortBy?: (typeof CommentFields)[number] = 'createdAt';
 
   @ApiPropertyOptional({
     description: 'Sorting direction',

@@ -15,7 +15,7 @@ export interface CommentRepository {
     filters: CommentFilters,
   ): Promise<PaginatedResponse<CommentInterface>>;
   findById(id: string): Promise<CommentInterface | null>;
-  findByAuthorId(id: string): Promise<Set<string> | null>;
+  findByAuthorId?(id: string): Promise<Set<string> | null>;
   create(user: CommentInterface): Promise<CommentInterface>;
   delete(id: string): Promise<void>;
 }

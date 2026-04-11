@@ -1,11 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-
-export enum UserRole {
-  ADMIN = 'admin',
-  EDITOR = 'editor',
-  VIEWER = 'viewer',
-}
+import { Role } from '@prisma/client';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'string' })
@@ -20,9 +15,9 @@ export class CreateUserDto {
 
   @ApiPropertyOptional({ example: 'admin' })
   @IsOptional()
-  @IsEnum(UserRole, {
+  @IsEnum(Role, {
     message:
       'Role should be one of the following: administrator, editor, or viewer',
   })
-  role?: UserRole;
+  role?: Role;
 }

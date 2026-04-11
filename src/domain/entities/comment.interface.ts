@@ -3,5 +3,5 @@ export interface CommentInterface {
   content: string;
   articleId: string;
   authorId: string | null;
-  createdAt: number;
+  createdAt: Date;
 }

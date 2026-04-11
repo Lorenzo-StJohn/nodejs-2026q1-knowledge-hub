@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { ArticleStatus, CreateArticleDto } from './create-article.dto';
+import { CreateArticleDto } from './create-article.dto';
 import {
   IsArray,
   IsEnum,
@@ -10,6 +10,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ArticleStatus } from '@prisma/client';
 
 export class UpdateArticleDto extends PartialType(CreateArticleDto) {
   @ApiPropertyOptional({ example: 'string' })

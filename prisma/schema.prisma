@@ -10,7 +10,7 @@ model User {
   id        String   @id @default(uuid())
   login     String   @unique
   password  String
-  role      Role     @default(VIEWER)
+  role      Role     @default(viewer)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -24,7 +24,7 @@ model Article {
   id          String    @id @default(uuid())
   title       String
   content     String
-  status      ArticleStatus @default(DRAFT)
+  status      ArticleStatus @default(draft)
   authorId    String?
   categoryId  String?
   createdAt   DateTime  @default(now())
@@ -40,10 +40,9 @@ model Article {
 
 model Category {
   id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  name        String
+  description String
+
 
   articles    Article[]
 
@@ -53,12 +52,11 @@ model Category {
 model Comment {
   id        String   @id @default(uuid())
   content   String
-  authorId  String
+  authorId  String?
   articleId String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   @@map("comments")
@@ -75,13 +73,13 @@ model Tag {
 }
 
 enum Role {
-  ADMIN
-  EDITOR
-  VIEWER
+  admin
+  editor
+  viewer
 }
 
 enum ArticleStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
+  draft
+  published
+  archived
 }

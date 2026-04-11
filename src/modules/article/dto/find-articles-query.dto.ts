@@ -7,10 +7,10 @@ import {
   IsUUID,
 } from 'class-validator';
 
-import { ArticleStatus } from './create-article.dto';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { Order } from 'src/common/entities/sort.interface';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ArticleStatus } from '@prisma/client';
 
 export const ArticleFields = [
   'id',
@@ -66,7 +66,7 @@ export class FindArticlesQueryDto extends PaginationQueryDto {
   })
   @IsOptional()
   @IsIn(ArticleFields)
-  sortBy?: (typeof ArticleFields)[number];
+  sortBy?: (typeof ArticleFields)[number] = 'createdAt';
 
   @ApiPropertyOptional({
     description: 'Sorting direction',
