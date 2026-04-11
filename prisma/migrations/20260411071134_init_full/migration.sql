@@ -1,15 +1,15 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'EDITOR', 'VIEWER');
+CREATE TYPE "Role" AS ENUM ('admin', 'editor', 'viewer');
 
 -- CreateEnum
-CREATE TYPE "ArticleStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED');
+CREATE TYPE "ArticleStatus" AS ENUM ('archived', 'draft', 'published');
 
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "login" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "role" "Role" NOT NULL DEFAULT 'VIEWER',
+    "role" "Role" NOT NULL DEFAULT 'viewer',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -21,7 +21,7 @@ CREATE TABLE "articles" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "status" "ArticleStatus" NOT NULL DEFAULT 'DRAFT',
+    "status" "ArticleStatus" NOT NULL DEFAULT 'draft',
     "authorId" TEXT,
     "categoryId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -34,9 +34,7 @@ CREATE TABLE "articles" (
 CREATE TABLE "categories" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "description" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "description" TEXT NOT NULL,
 
     CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
 );
@@ -45,10 +43,9 @@ CREATE TABLE "categories" (
 CREATE TABLE "comments" (
     "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "authorId" TEXT NOT NULL,
+    "authorId" TEXT,
     "articleId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "comments_pkey" PRIMARY KEY ("id")
 );
@@ -72,9 +69,6 @@ CREATE TABLE "_ArticleTags" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_login_key" ON "users"("login");
-
--- CreateIndex
-CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tags_name_key" ON "tags"("name");

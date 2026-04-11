@@ -79,7 +79,7 @@ enum Role {
 }
 
 enum ArticleStatus {
+  archived
   draft
   published
-  archived
 }

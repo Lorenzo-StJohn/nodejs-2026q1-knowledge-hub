@@ -220,7 +220,11 @@ describe('Article (e2e)', () => {
         expect(Array.isArray(response.body)).toBe(true);
 
         const titles = response.body.map((a: any) => a.title);
-        const sortedTitles = [...titles].sort((a, b) => a.localeCompare(b));
+        const sortedTitles = [...titles].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
         expect(titles).toEqual(sortedTitles);
       });
 
@@ -233,7 +237,11 @@ describe('Article (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const titles = response.body.map((a: any) => a.title);
-        const sortedTitles = [...titles].sort((a, b) => b.localeCompare(a));
+        const sortedTitles = [...titles].sort((a, b) => {
+          if (a < b) return 1;
+          if (a > b) return -1;
+          return 0;
+        });
         expect(titles).toEqual(sortedTitles);
       });
 
@@ -272,7 +280,11 @@ describe('Article (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const statuses = response.body.map((a: any) => a.status);
-        const sorted = [...statuses].sort((a, b) => a.localeCompare(b));
+        const sorted = [...statuses].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
         expect(statuses).toEqual(sorted);
       });
 
@@ -312,7 +324,11 @@ describe('Article (e2e)', () => {
         expect(Array.isArray(response.body.data)).toBe(true);
 
         const titles = response.body.data.map((a: any) => a.title);
-        const sortedTitles = [...titles].sort((a, b) => a.localeCompare(b));
+        const sortedTitles = [...titles].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
 
         expect(titles).toEqual(sortedTitles);
       });

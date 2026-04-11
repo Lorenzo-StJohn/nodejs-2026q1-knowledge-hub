@@ -207,7 +207,11 @@ describe('Category (e2e)', () => {
         expect(Array.isArray(response.body)).toBe(true);
 
         const names = response.body.map((c: any) => c.name);
-        const sortedNames = [...names].sort((a, b) => a.localeCompare(b));
+        const sortedNames = [...names].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
         expect(names).toEqual(sortedNames);
       });
 
@@ -220,7 +224,11 @@ describe('Category (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const names = response.body.map((c: any) => c.name);
-        const sortedNames = [...names].sort((a, b) => b.localeCompare(a));
+        const sortedNames = [...names].sort((a, b) => {
+          if (a < b) return 1;
+          if (a > b) return -1;
+          return 0;
+        });
         expect(names).toEqual(sortedNames);
       });
 
@@ -233,7 +241,11 @@ describe('Category (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const ids = response.body.map((c: any) => c.id);
-        const sortedIds = [...ids].sort((a, b) => a.localeCompare(b));
+        const sortedIds = [...ids].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
         expect(ids).toEqual(sortedIds);
       });
 
@@ -246,7 +258,11 @@ describe('Category (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const ids = response.body.map((c: any) => c.id);
-        const sortedIds = [...ids].sort((a, b) => b.localeCompare(a));
+        const sortedIds = [...ids].sort((a, b) => {
+          if (a < b) return 1;
+          if (a > b) return -1;
+          return 0;
+        });
         expect(ids).toEqual(sortedIds);
       });
 
@@ -259,7 +275,11 @@ describe('Category (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const descriptions = response.body.map((c: any) => c.description);
-        const sorted = [...descriptions].sort((a, b) => a.localeCompare(b));
+        const sorted = [...descriptions].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
         expect(descriptions).toEqual(sorted);
       });
 
@@ -279,7 +299,11 @@ describe('Category (e2e)', () => {
         expect(Array.isArray(response.body.data)).toBe(true);
 
         const names = response.body.data.map((c: any) => c.name);
-        const sortedNames = [...names].sort((a, b) => a.localeCompare(b));
+        const sortedNames = [...names].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
 
         expect(names).toEqual(sortedNames);
       });

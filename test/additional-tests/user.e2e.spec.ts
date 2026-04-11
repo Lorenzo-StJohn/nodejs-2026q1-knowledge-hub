@@ -222,7 +222,11 @@ describe('User (e2e)', () => {
         expect(Array.isArray(response.body)).toBe(true);
 
         const logins = response.body.map((user: any) => user.login);
-        const sortedLogins = [...logins].sort((a, b) => a.localeCompare(b));
+        const sortedLogins = [...logins].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
 
         expect(logins).toEqual(sortedLogins);
       });
@@ -236,7 +240,11 @@ describe('User (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const logins = response.body.map((user: any) => user.login);
-        const sortedLogins = [...logins].sort((a, b) => b.localeCompare(a));
+        const sortedLogins = [...logins].sort((a, b) => {
+          if (a < b) return 1;
+          if (a > b) return -1;
+          return 0;
+        });
 
         expect(logins).toEqual(sortedLogins);
       });
@@ -278,7 +286,11 @@ describe('User (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const ids = response.body.map((user: any) => user.id);
-        const sortedIds = [...ids].sort((a, b) => a.localeCompare(b));
+        const sortedIds = [...ids].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
 
         expect(ids).toEqual(sortedIds);
       });
@@ -292,7 +304,11 @@ describe('User (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const ids = response.body.map((user: any) => user.id);
-        const sortedIds = [...ids].sort((a, b) => b.localeCompare(a));
+        const sortedIds = [...ids].sort((a, b) => {
+          if (a < b) return 1;
+          if (a > b) return -1;
+          return 0;
+        });
 
         expect(ids).toEqual(sortedIds);
       });
@@ -362,7 +378,11 @@ describe('User (e2e)', () => {
         expect(Array.isArray(response.body.data)).toBe(true);
 
         const logins = response.body.data.map((user: any) => user.login);
-        const sortedLogins = [...logins].sort((a, b) => a.localeCompare(b));
+        const sortedLogins = [...logins].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
 
         expect(logins).toEqual(sortedLogins);
         expect(response.body.page).toBe(1);

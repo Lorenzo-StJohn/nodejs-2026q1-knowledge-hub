@@ -50,15 +50,25 @@ export class InMemoryCommentRepository implements CommentRepository {
 
     if (sortBy) {
       comments = comments.sort((a, b) => {
-        if (a[sortBy] === null) return 1;
-        if (b[sortBy] === null) return -1;
-        return order === Order[0]
-          ? typeof a[sortBy] !== 'string' && typeof b[sortBy] !== 'string'
-            ? a[sortBy] - b[sortBy]
-            : a[sortBy].localeCompare(b[sortBy])
-          : typeof a[sortBy] !== 'string' && typeof b[sortBy] !== 'string'
-            ? b[sortBy] - a[sortBy]
-            : b[sortBy].localeCompare(a[sortBy]);
+        const valA = a[sortBy];
+        const valB = b[sortBy];
+
+        if (valA === null) return 1;
+        if (valB === null) return -1;
+
+        const isAsc = order === Order[0];
+
+        if (typeof valA !== 'string' || typeof valB !== 'string') {
+          return isAsc ? valA - valB : valB - valA;
+        }
+
+        if (valA === valB) return 0;
+
+        if (isAsc) {
+          return valA > valB ? 1 : -1;
+        } else {
+          return valB > valA ? 1 : -1;
+        }
       });
     }
 
