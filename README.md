@@ -24,6 +24,7 @@ To check 6b task "Database & Prisma ORM" use `database-prisma` branch, [6b PR Li
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+- Docker
 
 ## How to install
 
@@ -85,9 +86,16 @@ docker compose build --no-cache
 docker compose up -d db
 ```
 
-#### Start local app:
+#### Apply database migrations
+
 
 Change in `.env` file DATABASE_URL, for local app it should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
+
+```bash
+npx prisma migrate deploy
+```
+
+#### Start local app:
 
 ```bash
 npm run start:dev
@@ -103,11 +111,27 @@ npx prisma db seed
 
 ### Start docker app + docker db
 
+#### Start docker db
+
 Make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
 
 
 ```bash
-docker compose up
+docker compose up -d db
+```
+
+#### Apply database migrations from docker
+
+Please, wait a few seconds after starting the db before running migrations to ensure PostgreSQL is ready.
+
+```bash
+docker compose run --rm app npx prisma migrate deploy
+```
+
+#### Start docker app
+
+```bash
+docker compose up -d
 ```
 
 ### Run seed script from docker app
