@@ -18,7 +18,7 @@ To check 6a task "Containerization & Docker (Foundation)" use `docker` branch, [
 
 ## Database & Prisma ORM assignment
 
-To check 6b task "Database & Prisma ORM" use `database-prisma` branch, [6b PR Link](https://github.com/Lorenzo-StJohn/nodejs-2026q1-knowledge-hub/pull/6) and continue to read this instruction.
+To check 6b task "Database & Prisma ORM" use `database-prisma` branch, [6b PR Link](https://github.com/Lorenzo-StJohn/nodejs-2026q1-knowledge-hub/pull/3) and continue to read this instruction.
 
 ## Prerequisites
 
