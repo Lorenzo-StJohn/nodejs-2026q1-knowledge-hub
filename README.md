@@ -2,7 +2,7 @@
 
 ## Description
 
-This repository contains solution for [Assignment: Nest.js Knowledge Hub API](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/05-kh-rest-api/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
+This repository contains solution for [Assignment: Nest.js Knowledge Hub API](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/06a-docker/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
 
 ## Docker Hub Image
 
@@ -73,7 +73,7 @@ docker scout cves nodejs-2026q1-knowledge-hub-app:latest
 | **Unspecified**| 2     | ❓ Unspecified          |
 | **Total**      | **56**    | **24 packages affected** |
 
-Scanning Summary: 24 packages checked
+Scanning Summary: 24 packages checked, **no critical vulnerabilities**
 
 
 ## Image size 
