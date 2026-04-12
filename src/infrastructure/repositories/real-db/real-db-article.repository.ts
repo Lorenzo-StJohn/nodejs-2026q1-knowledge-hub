@@ -134,29 +134,27 @@ export class RealDbArticleRepository implements ArticleRepository {
     id: string,
     article: ArticleInterface,
   ): Promise<ArticleInterface> {
-    const updated = await this.prisma.$transaction(async (tx) => {
-      return tx.article.update({
-        where: { id },
-        data: {
-          title: article.title,
-          content: article.content,
-          status: article.status,
-          authorId: article.authorId,
-          categoryId: article.categoryId,
-          tags: {
-            set: [],
-            connectOrCreate: article.tags.map((tagName) => ({
-              where: { name: tagName },
-              create: { name: tagName },
-            })),
-          },
+    const updated = await this.prisma.article.update({
+      where: { id },
+      data: {
+        title: article.title,
+        content: article.content,
+        status: article.status,
+        authorId: article.authorId,
+        categoryId: article.categoryId,
+        tags: {
+          set: [],
+          connectOrCreate: article.tags.map((tagName) => ({
+            where: { name: tagName },
+            create: { name: tagName },
+          })),
         },
-        include: {
-          tags: true,
-          author: { select: { id: true, login: true, role: true } },
-          category: true,
-        },
-      });
+      },
+      include: {
+        tags: true,
+        author: { select: { id: true, login: true, role: true } },
+        category: true,
+      },
     });
 
     return articleTransform(updated);
@@ -164,12 +162,30 @@ export class RealDbArticleRepository implements ArticleRepository {
 
   async delete(id: string): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
-      await tx.comment.deleteMany({
-        where: { articleId: id },
-      });
-      await tx.article.delete({
+      const deletedArticle = await tx.article.delete({
         where: { id },
+        include: { tags: true },
       });
+
+      const tagNames = deletedArticle.tags.map((tag) => tag.name);
+
+      if (tagNames.length === 0) return;
+
+      try {
+        await tx.tag.deleteMany({
+          where: {
+            name: { in: tagNames },
+            articles: { none: {} },
+          },
+        });
+      } catch (error) {
+        if (
+          !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+          error.code !== 'P2025'
+        ) {
+          throw error;
+        }
+      }
     });
   }
 }
