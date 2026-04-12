@@ -79,15 +79,15 @@ docker compose build --no-cache
 
 ### Start local app + docker db
 
-Change in `.env` file DATABASE_URL, for local app it should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
-
-Start docker db:
+#### Start docker db:
 
 ```bash
 docker compose up -d db
 ```
 
-Start local app:
+#### Start local app:
+
+Change in `.env` file DATABASE_URL, for local app it should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
 
 ```bash
 npm run start:dev
