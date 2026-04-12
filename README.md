@@ -192,3 +192,15 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
   > [!WARNING]
   > If you want to get **all items** via one of list endpoints make sure **you've cleared all the filters**!
+
+  ## Prisma Studio
+
+  1. Make sure that docker db is running.
+
+  2. Before running this command make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
+
+  ```bash
+  npx prisma studio
+  ```
+
+  <img width="1440" height="900" alt="Screenshot 2026-04-12 at 10 07 25" src="https://github.com/user-attachments/assets/09a6e1bf-fdae-4960-8fe4-fb0d998f0b5a" />
