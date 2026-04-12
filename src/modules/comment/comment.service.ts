@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
@@ -19,6 +20,10 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { CommentResponseDto } from './dto/comment-response.dto';
 import { CommentPaginationResponseDto } from './dto/comment-pagination-response.dto';
+import {
+  USER_REPOSITORY,
+  UserRepository,
+} from 'src/domain/repositories/user.repository.interface';
 
 @Injectable()
 export class CommentService {
@@ -27,6 +32,8 @@ export class CommentService {
     private readonly commentRepo: CommentRepository,
     @Inject(ARTICLE_REPOSITORY)
     private readonly articleRepo: ArticleRepository,
+    @Inject(USER_REPOSITORY)
+    private readonly userRepo: UserRepository,
   ) {}
 
   async create(createCommentDto: CreateCommentDto) {
@@ -37,7 +44,18 @@ export class CommentService {
         `Article with ID ${articleId} not found!`,
       );
     }
+
     const commentEntity = new Comment(createCommentDto);
+
+    if (commentEntity.authorId) {
+      const author = await this.userRepo.findById(commentEntity.authorId);
+      if (!author) {
+        throw new BadRequestException(
+          `User with ID ${commentEntity.authorId} does not exist!`,
+        );
+      }
+    }
+
     const comment = await this.commentRepo.create(commentEntity);
     return plainToInstance(CommentResponseDto, comment);
   }
