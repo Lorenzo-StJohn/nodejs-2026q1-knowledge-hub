@@ -37,7 +37,7 @@ export class UpdateArticleDto extends PartialType(CreateArticleDto) {
   })
   status?: ArticleStatus;
 
-  @ApiPropertyOptional({ example: 'b1b73593-2445-421a-af42-359114d6c536' })
+  @ApiPropertyOptional({ example: null })
   @IsOptional()
   @ValidateIf((obj) => obj.authorId !== null)
   @IsUUID('4', {
@@ -45,7 +45,7 @@ export class UpdateArticleDto extends PartialType(CreateArticleDto) {
   })
   authorId?: string | null;
 
-  @ApiPropertyOptional({ example: 'f3d2f4c6-5376-48df-b4a7-9fe825559db9' })
+  @ApiPropertyOptional({ example: null })
   @IsOptional()
   @ValidateIf((obj) => obj.categoryId !== null)
   @IsUUID('4', {
