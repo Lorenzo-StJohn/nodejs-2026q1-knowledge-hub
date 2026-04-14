@@ -8,6 +8,7 @@ import { PersistenceModule } from './infrastructure/persistence.module';
 import { ArticleModule } from './modules/article/article.module';
 import { CategoryModule } from './modules/category/category.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CommentModule } from './modules/comment/comment.module';
     ArticleModule,
     CategoryModule,
     CommentModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

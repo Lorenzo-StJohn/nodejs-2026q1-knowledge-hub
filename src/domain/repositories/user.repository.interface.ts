@@ -11,6 +11,7 @@ export interface UserFilters
 export interface UserRepository {
   findAll(filters: UserFilters): Promise<PaginatedResponse<UserInterface>>;
   findById(id: string): Promise<UserInterface | null>;
+  findByLogin(login: string): Promise<UserInterface | null>;
   create(user: UserInterface): Promise<UserInterface>;
   update(id: string, user: UserInterface): Promise<UserInterface>;
   delete(id: string): Promise<void>;
