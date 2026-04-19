@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import type { CategoryInterface } from 'src/domain/entities/category.interface';
 import type {
@@ -6,10 +6,19 @@ import type {
   CategoryRepository,
 } from 'src/domain/repositories/category.repository.interface';
 import { Order } from 'src/common/entities/sort.interface';
+import {
+  ARTICLE_REPOSITORY,
+  ArticleRepository,
+} from 'src/domain/repositories/article.repository.interface';
 
 @Injectable()
 export class InMemoryCategoryRepository implements CategoryRepository {
   private categories = new Map<string, CategoryInterface>();
+
+  constructor(
+    @Inject(ARTICLE_REPOSITORY)
+    private readonly articleRepo: ArticleRepository,
+  ) {}
 
   async create(category: CategoryInterface) {
     this.categories.set(category.id, category);
@@ -27,15 +36,25 @@ export class InMemoryCategoryRepository implements CategoryRepository {
 
     if (sortBy) {
       categories = categories.sort((a, b) => {
-        if (a[sortBy] === null) return 1;
-        if (b[sortBy] === null) return -1;
-        return order === Order[0]
-          ? typeof a[sortBy] === 'number' && typeof b[sortBy] === 'number'
-            ? a[sortBy] - b[sortBy]
-            : a[sortBy].localeCompare(b[sortBy])
-          : typeof a[sortBy] === 'number' && typeof b[sortBy] === 'number'
-            ? b[sortBy] - a[sortBy]
-            : b[sortBy].localeCompare(a[sortBy]);
+        const valA = a[sortBy];
+        const valB = b[sortBy];
+
+        if (valA === null) return 1;
+        if (valB === null) return -1;
+
+        const isAsc = order === Order[0];
+
+        if (typeof valA !== 'string' || typeof valB !== 'string') {
+          return isAsc ? valA - valB : valB - valA;
+        }
+
+        if (valA === valB) return 0;
+
+        if (isAsc) {
+          return valA > valB ? 1 : -1;
+        } else {
+          return valB > valA ? 1 : -1;
+        }
       });
     }
 
@@ -57,6 +76,14 @@ export class InMemoryCategoryRepository implements CategoryRepository {
   }
 
   async delete(id: string) {
+    const articlesByCategory = await this.articleRepo.findByCategoryId(id);
+    if (articlesByCategory) {
+      articlesByCategory.forEach(async (articleId) => {
+        const article = await this.articleRepo.findById(articleId);
+        const updatedArticle = { ...article, categoryId: null };
+        this.articleRepo.update(articleId, updatedArticle);
+      });
+    }
     this.categories.delete(id);
   }
 }

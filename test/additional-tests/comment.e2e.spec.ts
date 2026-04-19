@@ -255,7 +255,11 @@ describe('Comments (e2e)', () => {
         expect(Array.isArray(response.body)).toBe(true);
 
         const contents = response.body.map((c: any) => c.content);
-        const sortedContents = [...contents].sort((a, b) => a.localeCompare(b));
+        const sortedContents = [...contents].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
         expect(contents).toEqual(sortedContents);
       });
 
@@ -268,7 +272,11 @@ describe('Comments (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const contents = response.body.map((c: any) => c.content);
-        const sortedContents = [...contents].sort((a, b) => b.localeCompare(a));
+        const sortedContents = [...contents].sort((a, b) => {
+          if (a < b) return 1;
+          if (a > b) return -1;
+          return 0;
+        });
         expect(contents).toEqual(sortedContents);
       });
 
@@ -307,7 +315,11 @@ describe('Comments (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const ids = response.body.map((c: any) => c.id);
-        const sortedIds = [...ids].sort((a, b) => a.localeCompare(b));
+        const sortedIds = [...ids].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
         expect(ids).toEqual(sortedIds);
       });
 
@@ -327,7 +339,11 @@ describe('Comments (e2e)', () => {
         expect(Array.isArray(response.body.data)).toBe(true);
 
         const contents = response.body.data.map((c: any) => c.content);
-        const sortedContents = [...contents].sort((a, b) => a.localeCompare(b));
+        const sortedContents = [...contents].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
 
         expect(contents).toEqual(sortedContents);
         expect(

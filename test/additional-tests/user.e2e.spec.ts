@@ -222,7 +222,11 @@ describe('User (e2e)', () => {
         expect(Array.isArray(response.body)).toBe(true);
 
         const logins = response.body.map((user: any) => user.login);
-        const sortedLogins = [...logins].sort((a, b) => a.localeCompare(b));
+        const sortedLogins = [...logins].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
 
         expect(logins).toEqual(sortedLogins);
       });
@@ -236,7 +240,11 @@ describe('User (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const logins = response.body.map((user: any) => user.login);
-        const sortedLogins = [...logins].sort((a, b) => b.localeCompare(a));
+        const sortedLogins = [...logins].sort((a, b) => {
+          if (a < b) return 1;
+          if (a > b) return -1;
+          return 0;
+        });
 
         expect(logins).toEqual(sortedLogins);
       });
@@ -278,7 +286,11 @@ describe('User (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const ids = response.body.map((user: any) => user.id);
-        const sortedIds = [...ids].sort((a, b) => a.localeCompare(b));
+        const sortedIds = [...ids].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
 
         expect(ids).toEqual(sortedIds);
       });
@@ -292,19 +304,31 @@ describe('User (e2e)', () => {
         expect(response.status).toBe(StatusCodes.OK);
 
         const ids = response.body.map((user: any) => user.id);
-        const sortedIds = [...ids].sort((a, b) => b.localeCompare(a));
+        const sortedIds = [...ids].sort((a, b) => {
+          if (a < b) return 1;
+          if (a > b) return -1;
+          return 0;
+        });
 
         expect(ids).toEqual(sortedIds);
       });
 
-      it('should sort by role (all users have same role)', async () => {
+      it('should sort by role', async () => {
         const response = await unauthorizedRequest
           .get(usersRoutes.getAll)
           .query({ sortBy: 'role', order: 'ASC' })
           .set(commonHeaders);
 
         expect(response.status).toBe(StatusCodes.OK);
-        expect(response.body.every((u: any) => u.role === 'viewer')).toBe(true);
+
+        const roles = response.body.map((user: any) => user.role);
+        const sortedRoles = [...roles].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
+
+        expect(roles).toEqual(sortedRoles);
       });
 
       it('should sort by updatedAt ASC/DESC', async () => {
@@ -362,7 +386,11 @@ describe('User (e2e)', () => {
         expect(Array.isArray(response.body.data)).toBe(true);
 
         const logins = response.body.data.map((user: any) => user.login);
-        const sortedLogins = [...logins].sort((a, b) => a.localeCompare(b));
+        const sortedLogins = [...logins].sort((a, b) => {
+          if (a > b) return 1;
+          if (a < b) return -1;
+          return 0;
+        });
 
         expect(logins).toEqual(sortedLogins);
         expect(response.body.page).toBe(1);

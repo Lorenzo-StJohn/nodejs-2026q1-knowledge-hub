@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
@@ -16,6 +17,13 @@ import {
   ARTICLE_REPOSITORY,
   ArticleRepository,
 } from 'src/domain/repositories/article.repository.interface';
+import { plainToInstance } from 'class-transformer';
+import { CommentResponseDto } from './dto/comment-response.dto';
+import { CommentPaginationResponseDto } from './dto/comment-pagination-response.dto';
+import {
+  USER_REPOSITORY,
+  UserRepository,
+} from 'src/domain/repositories/user.repository.interface';
 
 @Injectable()
 export class CommentService {
@@ -24,6 +32,8 @@ export class CommentService {
     private readonly commentRepo: CommentRepository,
     @Inject(ARTICLE_REPOSITORY)
     private readonly articleRepo: ArticleRepository,
+    @Inject(USER_REPOSITORY)
+    private readonly userRepo: UserRepository,
   ) {}
 
   async create(createCommentDto: CreateCommentDto) {
@@ -34,8 +44,20 @@ export class CommentService {
         `Article with ID ${articleId} not found!`,
       );
     }
+
     const commentEntity = new Comment(createCommentDto);
-    return await this.commentRepo.create(commentEntity);
+
+    if (commentEntity.authorId) {
+      const author = await this.userRepo.findById(commentEntity.authorId);
+      if (!author) {
+        throw new BadRequestException(
+          `User with ID ${commentEntity.authorId} does not exist!`,
+        );
+      }
+    }
+
+    const comment = await this.commentRepo.create(commentEntity);
+    return plainToInstance(CommentResponseDto, comment);
   }
 
   async findOne(id: string) {
@@ -43,11 +65,12 @@ export class CommentService {
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${id} not found!`);
     }
-    return comment;
+    return plainToInstance(CommentResponseDto, comment);
   }
 
   async findAll(filters: CommentFilters) {
-    return await this.commentRepo.findAll(filters);
+    const comments = await this.commentRepo.findAll(filters);
+    return plainToInstance(CommentPaginationResponseDto, comments);
   }
 
   async remove(id: string) {

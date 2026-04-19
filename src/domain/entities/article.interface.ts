@@ -1,17 +1,13 @@
-export const ArticleStatus = {
-  DRAFT: 'draft',
-  PUBLISHED: 'published',
-  ARCHIVED: 'archived',
-} as const;
+import { ArticleStatus } from '@prisma/client';
 
 export interface ArticleInterface {
   id: string;
   title: string;
   content: string;
-  status: (typeof ArticleStatus)[keyof typeof ArticleStatus];
+  status: ArticleStatus;
   authorId: string | null;
   categoryId: string | null;
   tags: string[];
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
 }

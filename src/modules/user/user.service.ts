@@ -14,14 +14,6 @@ import {
   USER_REPOSITORY,
   type UserFilters,
 } from 'src/domain/repositories/user.repository.interface';
-import {
-  ARTICLE_REPOSITORY,
-  ArticleRepository,
-} from 'src/domain/repositories/article.repository.interface';
-import {
-  COMMENT_REPOSITORY,
-  CommentRepository,
-} from 'src/domain/repositories/comment.repository.interface';
 import { User } from 'src/domain/entities/user.entity';
 import { UserPaginationResponseDto } from './dto/user-pagination-response.dto';
 
@@ -30,10 +22,6 @@ export class UserService {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepo: UserRepository,
-    @Inject(ARTICLE_REPOSITORY)
-    private readonly articleRepo: ArticleRepository,
-    @Inject(COMMENT_REPOSITORY)
-    private readonly commentRepo: CommentRepository,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -86,21 +74,5 @@ export class UserService {
       throw new NotFoundException(`User with ID ${id} not found!`);
     }
     await this.userRepo.delete(id);
-
-    const articlesByUser = await this.articleRepo.findByAuthorId(id);
-    if (articlesByUser) {
-      articlesByUser.forEach(async (articleId) => {
-        const article = await this.articleRepo.findById(articleId);
-        const updatedArticle = { ...article, authorId: null };
-        await this.articleRepo.update(articleId, updatedArticle);
-      });
-    }
-
-    const commentsByUser = await this.commentRepo.findByAuthorId(id);
-    if (commentsByUser) {
-      commentsByUser.forEach(async (commentId) => {
-        await this.commentRepo.delete(commentId);
-      });
-    }
   }
 }

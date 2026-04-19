@@ -14,7 +14,7 @@ export class FindUserQueryDto extends PaginationQueryDto {
   })
   @IsOptional()
   @IsIn(UserFields)
-  sortBy?: (typeof UserFields)[number];
+  sortBy?: (typeof UserFields)[number] = 'createdAt';
 
   @ApiPropertyOptional({
     description: 'Sorting direction',
@@ -23,5 +23,5 @@ export class FindUserQueryDto extends PaginationQueryDto {
   })
   @IsOptional()
   @IsIn(Order)
-  order: (typeof Order)[number] = Order[0];
+  order?: (typeof Order)[number] = Order[0];
 }

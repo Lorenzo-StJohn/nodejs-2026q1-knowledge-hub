@@ -14,7 +14,7 @@ export class FindCategoryQueryDto extends PaginationQueryDto {
   })
   @IsOptional()
   @IsIn(CategoryFields)
-  sortBy?: (typeof CategoryFields)[number];
+  sortBy?: (typeof CategoryFields)[number] = 'id';
 
   @ApiPropertyOptional({
     description: 'Sorting direction',

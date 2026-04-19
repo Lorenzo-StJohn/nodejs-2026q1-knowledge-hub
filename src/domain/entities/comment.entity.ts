@@ -8,10 +8,10 @@ export class Comment implements CommentInterface {
   public content: string;
   public articleId: string;
   public authorId: string | null;
-  public readonly createdAt: number;
+  public readonly createdAt: Date;
 
   constructor(createComment: CreateCommentDto) {
-    const timestamp = Date.now();
+    const timestamp = new Date();
     this.id = randomUUID();
     this.content = createComment.content;
     this.articleId = createComment.articleId;

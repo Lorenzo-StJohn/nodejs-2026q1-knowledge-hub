@@ -1,4 +1,4 @@
-import { ArticleStatus } from 'src/modules/article/dto/create-article.dto';
+import { ArticleStatus } from '@prisma/client';
 import type { ArticleInterface } from '../entities/article.interface';
 import type { FilterInterface } from 'src/common/entities/filter.interface';
 import type { PaginatedResponse } from 'src/common/entities/paginated-response.interface';
@@ -18,8 +18,8 @@ export interface ArticleRepository {
     filters: ArticleFilters,
   ): Promise<PaginatedResponse<ArticleInterface>>;
   findById(id: string): Promise<ArticleInterface | null>;
-  findByAuthorId(id: string): Promise<Set<string> | null>;
-  findByCategoryId(id: string): Promise<Set<string> | null>;
+  findByAuthorId?(id: string): Promise<Set<string> | null>;
+  findByCategoryId?(id: string): Promise<Set<string> | null>;
   create(article: ArticleInterface): Promise<ArticleInterface>;
   update(id: string, article: ArticleInterface): Promise<ArticleInterface>;
   delete(id: string): Promise<void>;
