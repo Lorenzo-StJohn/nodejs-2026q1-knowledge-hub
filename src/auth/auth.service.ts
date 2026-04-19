@@ -25,7 +25,7 @@ export class AuthService {
   ) {}
 
   async signup(dto: SignupDto) {
-    const existing = await this.userRepo.findByLogin(dto.login); // нужно добавить этот метод в UserRepository
+    const existing = await this.userRepo.findByLogin(dto.login);
     if (existing)
       throw new BadRequestException('User with this login already exists');
 
@@ -45,7 +45,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.userRepo.findByLogin(dto.login);
     if (!user || !(await compare(dto.password, user.password))) {
-      throw new UnauthorizedException('Invalid login or password');
+      throw new ForbiddenException('Invalid login or password');
     }
 
     return this.generateTokens(user);
