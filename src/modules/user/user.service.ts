@@ -18,6 +18,7 @@ import {
 } from 'src/domain/repositories/user.repository.interface';
 import { User } from 'src/domain/entities/user.entity';
 import { UserPaginationResponseDto } from './dto/user-pagination-response.dto';
+import { Role } from '@prisma/client';
 
 const CRYPT_SALT = parseInt(process.env.CRYPT_SALT ?? '10');
 
@@ -74,8 +75,13 @@ export class UserService {
     });
   }
 
-  async update(id: string, updateUserDto: UpdatePasswordDto) {
+  async update(id: string, updateUserDto: UpdatePasswordDto, currentUser: any) {
     const user = await this.userRepo.findById(id);
+
+    if (currentUser.role === Role.editor && id !== currentUser.id) {
+      throw new ForbiddenException('You can only update your own password');
+    }
+
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found!`);
     }
@@ -100,8 +106,11 @@ export class UserService {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string, currentUser: any) {
     const user = await this.userRepo.findById(id);
+    if (currentUser.role === Role.editor && id !== currentUser.id) {
+      throw new ForbiddenException('You can only delete your own profile');
+    }
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found!`);
     }
