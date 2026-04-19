@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,6 +13,20 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: 'short',
+          ttl: 60000,
+          limit: 20,
+        },
+        {
+          name: 'long',
+          ttl: 3600000,
+          limit: 200,
+        },
+      ],
+    }),
     ConfigModule,
     UserModule,
     PersistenceModule,
