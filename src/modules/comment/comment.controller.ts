@@ -55,6 +55,10 @@ export class CommentController {
     status: 422,
     description: "Unprocessable entity. Referenced articleId doesn't exist",
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   async create(@Body() createCommentDto: CreateCommentDto) {
     return this.commentService.create(createCommentDto);
   }
@@ -109,6 +113,10 @@ export class CommentController {
     status: 400,
     description: 'Bad request. Wrong query parameters (hacker scope)',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindCommentQueryDto) {
     return this.commentService.findAll(filters);
@@ -143,6 +151,10 @@ export class CommentController {
     status: 404,
     description: 'Comment not found',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   async findById(@Param() params: IdParamDto) {
     return this.commentService.findOne(params.id);
   }
@@ -170,6 +182,10 @@ export class CommentController {
   @ApiResponse({
     status: 404,
     description: 'Comment not found',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return this.commentService.remove(params.id, user);

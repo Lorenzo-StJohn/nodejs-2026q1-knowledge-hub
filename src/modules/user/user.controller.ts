@@ -50,6 +50,10 @@ export class UserController {
     status: 400,
     description: 'Bad request. Body does not contain required fields',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.userService.create(createUserDto);
   }
@@ -103,6 +107,10 @@ export class UserController {
     status: 400,
     description: 'Bad request. Wrong query parameters (hacker scope)',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindUserQueryDto) {
     return await this.userService.findAll(filters);
@@ -137,6 +145,10 @@ export class UserController {
     status: 404,
     description: 'User not found',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   async findOne(@Param() params: IdParamDto) {
     return await this.userService.findOne(params.id);
   }
@@ -168,7 +180,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 403,
-    description: 'oldPassword is wrong',
+    description: 'oldPassword is wrong or insufficient permissions',
   })
   @ApiResponse({
     status: 404,
@@ -206,6 +218,10 @@ export class UserController {
   @ApiResponse({
     status: 404,
     description: 'User not found',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return await this.userService.remove(params.id, user);

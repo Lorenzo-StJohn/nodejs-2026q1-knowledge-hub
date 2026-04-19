@@ -50,6 +50,10 @@ export class CategoryController {
     status: 400,
     description: 'Bad request. Body does not contain required fields',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
   }
@@ -99,6 +103,10 @@ export class CategoryController {
     status: 400,
     description: 'Bad request. Wrong query parameters (hacker scope)',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindCategoryQueryDto) {
     return this.categoryService.findAll(filters);
@@ -131,6 +139,10 @@ export class CategoryController {
     status: 404,
     description: 'Category not found',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   async findOne(@Param() params: IdParamDto) {
     return this.categoryService.findOne(params.id);
   }
@@ -161,6 +173,10 @@ export class CategoryController {
   @ApiResponse({
     status: 404,
     description: 'Category not found',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
   })
   async update(
     @Param() params: IdParamDto,
@@ -193,6 +209,10 @@ export class CategoryController {
   @ApiResponse({
     status: 404,
     description: 'Category not found',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
   })
   async remove(@Param() params: IdParamDto) {
     return this.categoryService.remove(params.id);

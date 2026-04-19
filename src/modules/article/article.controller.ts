@@ -57,6 +57,10 @@ export class ArticleController {
     status: 400,
     description: 'Bad request. Body does not contain required fields',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   async create(@Body() createArticleDto: CreateArticleDto) {
     return await this.articleService.create(createArticleDto);
   }
@@ -119,6 +123,10 @@ export class ArticleController {
     status: 400,
     description: 'Bad request. Wrong query parameters (hacker scope)',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindArticlesQueryDto) {
     return await this.articleService.findAll(filters);
@@ -157,6 +165,10 @@ export class ArticleController {
     status: 404,
     description: 'Article not found',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   async findOne(@Param() params: IdParamDto) {
     return await this.articleService.findOne(params.id);
   }
@@ -194,6 +206,10 @@ export class ArticleController {
     status: 404,
     description: 'Article not found',
   })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
+  })
   async update(
     @Param() params: IdParamDto,
     @Body() updateArticleDto: UpdateArticleDto,
@@ -225,6 +241,10 @@ export class ArticleController {
   @ApiResponse({
     status: 404,
     description: 'Article not found',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient permissions',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return await this.articleService.remove(params.id, user);
