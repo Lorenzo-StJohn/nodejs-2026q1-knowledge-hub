@@ -2,36 +2,14 @@
 
 ## Description
 
-This repository contains solution for [Assignment: Nest.js Knowledge Hub API](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/05-kh-rest-api/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
-
-## Docker Hub Image
-
-Docker Hub image link: https://hub.docker.com/r/lorenzostjohn/nodejs-2026q1-knowledge-hub-app
-
-```bash
-docker pull lorenzostjohn/nodejs-2026q1-knowledge-hub-app
-```
+This repository contains solution for [Assignment: Authentication & Authorization](hhttps://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/07a-auth-jwt/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
 
 
 ## Prerequisites
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
-
-## Implemented features:
-- Full CRUD operations for `User`, `Article`, `Category`, and `Comment` entities
-- In-memory data storage (designed to be easily replaced with a database in future tasks)
-- Request validation using DTOs with Nest decorators + global `ValidationPipe`
-- Article filtering by `status`, `categoryId`, and `tag` query parameters
-- **Pagination** (`?page=1&limit=10`) and **sorting** (`?sortBy=createdAt&order=desc`) for all list endpoints
-- Correct cascading delete behavior:
-  - Deleting a User → `authorId` becomes `null` in Articles + all their Comments are removed
-  - Deleting a Category → `categoryId` becomes `null` in Articles
-  - Deleting an Article → all related Comments are removed
-- OpenAPI/Swagger documentation
-- Additional automated tests
-- The application code for `Users`, `Articles`, `Categories`, and `Comments` is organized into Nest module/controller/service
-- User's password is always excluded from server response
+- Docker
 
 ## How to install
 
@@ -47,10 +25,10 @@ git clone https://github.com/Lorenzo-StJohn/nodejs-2026q1-knowledge-hub
 cd nodejs-2026q1-knowledge-hub
 ```
 
-### 3. Checkout to the development branch
+### 3. Checkout to the auth-jwt branch
 
 ```bash
-git checkout development
+git checkout auth-jwt
 ```
 
 ### 4. Install dependencies
@@ -65,71 +43,144 @@ npm ci
 cp .env.example .env
 ```
 
-## Running application
+## How to run application
 
-### Standard mode
+### Generate Prisma client
 
+```bash
+npx prisma generate
 ```
-npm start
+
+### Build application via docker 
+
+> [!WARNING]
+> Even if you have docker container from the previous task you still need to follow this step in order to apply prisma configuration
+
+> [!WARNING]
+> Before running this command make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
+
+```bash
+docker compose build --no-cache
 ```
 
-### Development Mode
+### Start local app + docker db
 
+#### Start docker db:
+
+```bash
+docker compose up -d db
 ```
+
+#### Apply database migrations
+
+
+Change in `.env` file DATABASE_URL, for local app it should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
+
+```bash
+npx prisma migrate deploy
+```
+
+#### Start local app:
+
+```bash
 npm run start:dev
 ```
 
-### Production Mode
+### Run seed script from local app
 
+Make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
+
+```bash
+npx prisma db seed
 ```
-npm run build
-npm run start:prod
+
+After running the script, the following users will exist:
+
+- login: `admin` password: `password123`
+- login: `editor` password: `password123`
+- login: `viewer` password: `password123`
+
+### Start docker app + docker db
+
+#### Start docker db
+
+Make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
+
+
+```bash
+docker compose up -d db
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+#### Apply database migrations from docker
 
-  > [!WARNING]
-  > The pre-written tests expect a simple array in GET list endpoints. Therefore, a **ConditionalPaginationInterceptor** has been added that automatically converts the paginated response in case there ara no `limit` and `page` query parameters.   
-  > `{ total, page, limit, data }` → `data` (array only).  
-  > If you add `page` and `limit` query parameters for GET list endpoints, you will receive the **full paginated response**: `{ total, page, limit, data }`.
+Please, wait a few seconds after starting the db before running migrations to ensure PostgreSQL is ready.
 
-<img width="1440" height="900" alt="Screenshot 2026-04-05 at 04 12 44" src="https://github.com/user-attachments/assets/b69b9caf-21da-4cd3-92b5-3d84707239d2" />
+```bash
+docker compose run --rm app npx prisma migrate deploy
+```
 
-<img width="1380" height="600" alt="Screenshot 2026-04-05 at 23 24 52" src="https://github.com/user-attachments/assets/aa65a5aa-11b4-4828-98d2-709a60714826" />
+#### Start docker app
 
-<img width="1381" height="519" alt="Screenshot 2026-04-05 at 23 25 07" src="https://github.com/user-attachments/assets/ee014cc7-ee88-4686-8b7f-c338ee42abcd" />
+```bash
+docker compose up -d
+```
 
+### Run seed script from docker app
 
-  > [!WARNING]
-  > If you want to get **all items** via one of list endpoints make sure **you've cleared all the filters**!
+Make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
 
+```bash
+npm run seed:docker
+```
+
+P.S. It will run `npx prisma db seed` under the hood: `docker compose run --rm app npx prisma db seed`
+
+After running the script, the following users will exist:
+
+- login: `admin` password: `password123`
+- login: `editor` password: `password123`
+- login: `viewer` password: `password123`
 
 ## Testing
 
-1. In order to test the application you need to start it first (if you haven't done it before):
+> [!WARNING]
+> In order to test the application you need to start it first 
 
+> [!WARNING]
+> There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
+
+- To run all test with authorization
+```bash
+npm run test:auth
 ```
-npm start
+
+<img width="1440" height="900" alt="Screenshot 2026-04-19 at 23 59 57" src="https://github.com/user-attachments/assets/4fc4e667-55ac-4a8e-b5b0-950c07d55b75" />
+
+
+> [!WARNING]
+> There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
+- To run refresh token tests
+```bash
+npm run test:refresh
 ```
 
-2. Then run one of the scripts:  
-   -  To run all pre-written tests for this task:
+<img width="1440" height="900" alt="Screenshot 2026-04-20 at 00 02 13" src="https://github.com/user-attachments/assets/f4ae37bc-93d0-411a-92ae-485d3634c049" />
 
-   ```
-   npm run test
-   ```
-   -  To run all additional tests for this task:
 
-   ```
-   npm run test:additional
-   ```
-
-## Running linter
-
+> [!WARNING]
+> There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
+- To run RBAC (role-based access control) tests
+```bash
+npm run test:rbac
 ```
-npm run lint
+
+<img width="1440" height="900" alt="Screenshot 2026-04-20 at 00 04 38" src="https://github.com/user-attachments/assets/b697fe94-6960-408c-90c6-ad0b3c9c02f1" />
+
+
+## How to stop application 
+
+```bash
+docker compose down
 ```
 
 ## API Endpoints
@@ -138,37 +189,65 @@ npm run lint
 
 | Method | Endpoint              | Success | Error Codes                           |
 |--------|-----------------------|---------|---------------------------------------|
-| GET    | `/user`               | 200     | 400 (wrong query params, hacker scope)|
-| GET    | `/user/:id`           | 200     | 400, 404                              |
-| POST   | `/user`               | 201     | 400                                   |
-| PUT    | `/user/:id`           | 200     | 400, 403, 404                         |
-| DELETE | `/user/:id`           | 204     | 400, 404                              |
+| GET    | `/user`               | 200     | 400, 401                              |
+| GET    | `/user/:id`           | 200     | 400, 401, 404                         |
+| POST   | `/user`               | 201     | 400, 401                              |
+| PUT    | `/user/:id`           | 200     | 400, 401, 403, 404                    |
+| DELETE | `/user/:id`           | 204     | 400, 401, 404                         |
 
 ### Articles (`/article`)
 
 | Method | Endpoint              | Success | Error Codes                           |
 |--------|-----------------------|---------|---------------------------------------|
-| GET    | `/article`            | 200     | 400 (wrong query params, hacker scope)|
-| GET    | `/article/:id`        | 200     | 400, 404                              |
-| POST   | `/article`            | 201     | 400                                   |
-| PUT    | `/article/:id`        | 200     | 400, 404                              |
-| DELETE | `/article/:id`        | 204     | 400, 404                              |
+| GET    | `/article`            | 200     | 400, 401                              |
+| GET    | `/article/:id`        | 200     | 400, 401, 404                         |
+| POST   | `/article`            | 201     | 400, 401                              |
+| PUT    | `/article/:id`        | 200     | 400, 401, 404                         |
+| DELETE | `/article/:id`        | 204     | 400, 401, 404                         |
 
 ### Categories (`/category`)
 
 | Method | Endpoint              | Success | Error Codes                           |
 |--------|-----------------------|---------|---------------------------------------|
-| GET    | `/category`           | 200     | 400 (wrong query params, hacker scope)|
-| GET    | `/category/:id`       | 200     | 400, 404                              |
-| POST   | `/category`           | 201     | 400                                   |
-| PUT    | `/category/:id`       | 200     | 400, 404                              |
-| DELETE | `/category/:id`       | 204     | 400, 404                              |
+| GET    | `/category`           | 200     | 400, 401                              |
+| GET    | `/category/:id`       | 200     | 400, 401, 404                         |
+| POST   | `/category`           | 201     | 400, 401                              |
+| PUT    | `/category/:id`       | 200     | 400, 401, 404                         |
+| DELETE | `/category/:id`       | 204     | 400, 401, 404                         |
 
 ### Comments (`/comment`)
 
-| Method | Endpoint                        | Success | Error Codes             |
-|--------|---------------------------------|---------|-------------------------|
-| GET    | `/comment?articleId={id}`       | 200     | 400                     |
-| GET    | `/comment/:id`                  | 200     | 400, 404                |
-| POST   | `/comment`                      | 201     | 400, 422                |
-| DELETE | `/comment/:id`                  | 204     | 400, 404                |
+| Method | Endpoint                        | Success | Error Codes                |
+|--------|---------------------------------|---------|----------------------------|
+| GET    | `/comment?articleId={id}`       | 200     | 400, 401                   |
+| GET    | `/comment/:id`                  | 200     | 400, 401, 404              |
+| POST   | `/comment`                      | 201     | 400, 401, 422              |
+| DELETE | `/comment/:id`                  | 204     | 400, 401, 404              |
+
+### Auth (`/auth`)
+
+| Method | Endpoint              | Success | Error Codes                           |
+|--------|-----------------------|---------|---------------------------------------|
+| POST   | `/auth/signup`        | 201     | 400, 429                              |
+| POST   | `/auth/login`         | 200     | 400, 403, 429                         |
+| POST   | `/auth/refresh`       | 200     | 401, 403                              |
+| POST   | `/auth/logout `       | 200     | 401                                   |
+
+
+## Swagger (from the first part of the task)
+
+After starting the app on port (4000 as default) you can open in your browser OpenAPI documentation by typing `http://localhost:4000/doc/`.
+For more information about OpenAPI/Swagger please visit https://swagger.io/.
+
+  > [!WARNING]
+  > The pre-written tests expect a simple array in GET list endpoints. Therefore, a **ConditionalPaginationInterceptor** has been added that automatically converts the paginated response in case there ara no `limit` and `page` query parameters.   
+  > `{ total, page, limit, data }` → `data` (array only).  
+  > If you add `page` and `limit` query parameters for GET list endpoints, you will receive the **full paginated response**: `{ total, page, limit, data }`.
+
+<img width="1440" height="900" alt="Screenshot 2026-04-19 at 23 44 41" src="https://github.com/user-attachments/assets/ed58cc6e-d260-447f-8e35-1692e43da086" />
+
+> [!WARNING]
+> Don't forget to enter **access token** in order to all endpoints work!
+
+> [!WARNING]
+> If you want to get **all items** via one of list endpoints make sure **you've cleared all the filters**!
