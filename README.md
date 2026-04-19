@@ -149,6 +149,9 @@ After running the script, the following users will exist:
 > [!WARNING]
 > There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
 
+> [!WARNING]
+> For testing DATABASE_URL in .env file should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
+
 - To run all test with authorization
 ```bash
 npm run test:auth
