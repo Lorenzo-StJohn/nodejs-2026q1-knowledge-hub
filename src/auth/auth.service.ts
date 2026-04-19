@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { hash, compare } from '@node-rs/bcrypt';
+import { hash, compare } from 'bcryptjs';
 import {
   USER_REPOSITORY,
   UserRepository,
