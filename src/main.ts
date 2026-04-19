@@ -1,10 +1,11 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import 'dotenv/config';
 
 import { AppModule } from './app.module';
 import { Configuration } from './config/configuration';
+import { JwtAuthGuard } from './auth/guards/auth.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,18 +17,22 @@ async function bootstrap() {
     }),
   );
 
+  const reflector = app.get(Reflector);
+  app.useGlobalGuards(new JwtAuthGuard(reflector));
+
   const configSwagger = new DocumentBuilder()
     .setTitle('Knowledge Hub')
     .setDescription(
       'Knowledge hub service for managing articles, categories, and comments',
     )
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, configSwagger);
 
   SwaggerModule.setup('doc', app, document, {
-    swaggerOptions: {},
+    swaggerOptions: { persistAuthorization: true },
     customSiteTitle: 'Knowledge Hub',
   });
 

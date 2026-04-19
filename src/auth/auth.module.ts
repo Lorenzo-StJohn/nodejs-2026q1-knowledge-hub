@@ -3,9 +3,13 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { PersistenceModule } from 'src/infrastructure/persistence.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtAuthGuard } from './guards/auth.guard';
 
 @Module({
   imports: [
+    PassportModule,
     PersistenceModule,
     JwtModule.register({
       global: true,
@@ -14,7 +18,7 @@ import { PersistenceModule } from 'src/infrastructure/persistence.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard],
+  exports: [JwtAuthGuard, AuthService],
 })
 export class AuthModule {}
