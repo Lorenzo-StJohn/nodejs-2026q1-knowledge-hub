@@ -26,7 +26,16 @@ async function bootstrap() {
       'Knowledge hub service for managing articles, categories, and comments',
     )
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Enter JWT token (without "Bearer " prefix)',
+      },
+      'JWT-auth',
+    )
+    .addSecurityRequirements('JWT-auth')
     .build();
 
   const document = SwaggerModule.createDocument(app, configSwagger);
