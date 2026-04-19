@@ -20,15 +20,6 @@ To check 6a task "Containerization & Docker (Foundation)" use `docker` branch, [
 
 To check 6b task "Database & Prisma ORM" use `database-prisma` branch, [6b PR Link](https://github.com/Lorenzo-StJohn/nodejs-2026q1-knowledge-hub/pull/3) and continue to read this instruction.
 
-## Docker Hub Image
-
-Docker Hub image link: https://hub.docker.com/r/lorenzostjohn/nodejs-2026q1-knowledge-hub-app
-
-```bash
-docker pull lorenzostjohn/nodejs-2026q1-knowledge-hub-app
-```
-
-
 ## Prerequisites
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
