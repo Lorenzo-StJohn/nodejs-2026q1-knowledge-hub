@@ -135,7 +135,7 @@ export class ArticleService {
       currentUser.role === Role.editor &&
       article.authorId !== currentUser.id
     ) {
-      throw new ForbiddenException('You can only edit your own articles');
+      throw new ForbiddenException('You can only delete your own articles');
     }
     return await this.articleRepo.delete(id);
   }

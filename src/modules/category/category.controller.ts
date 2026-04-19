@@ -10,6 +10,7 @@ import {
   Put,
   UseInterceptors,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -19,13 +20,18 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { IdParamDto } from 'src/common/dto/id-param.dto';
 import { ConditionalPaginationInterceptor } from 'src/common/interceptors/conditional-pagination.interceptor';
 import { FindCategoryQueryDto } from './dto/find-category-query.dto';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Role } from '@prisma/client';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller('category')
+@UseGuards(RolesGuard)
 @ApiTags('Categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Add new category ',
@@ -49,6 +55,7 @@ export class CategoryController {
   }
 
   @Get()
+  @Roles(Role.viewer, Role.editor, Role.admin)
   @ApiOperation({
     summary: 'Get all categories',
     description: 'Gets all categories',
@@ -98,6 +105,7 @@ export class CategoryController {
   }
 
   @Get(':id')
+  @Roles(Role.viewer, Role.editor, Role.admin)
   @ApiOperation({
     summary: 'Get single category by id',
     description: 'Get single category by id',
@@ -128,6 +136,7 @@ export class CategoryController {
   }
 
   @Put(':id')
+  @Roles(Role.admin)
   @ApiOperation({
     summary: 'Update category information',
     description: 'Updates category information by ID',
@@ -161,6 +170,7 @@ export class CategoryController {
   }
 
   @Delete(':id')
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete category',
