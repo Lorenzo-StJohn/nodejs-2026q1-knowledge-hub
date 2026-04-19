@@ -106,6 +106,9 @@ export class AuthService {
   }
 
   async logout(refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is required');
+    }
     await this.tokenRepo.delete(refreshToken);
     return { message: 'Logged out successfully' };
   }
