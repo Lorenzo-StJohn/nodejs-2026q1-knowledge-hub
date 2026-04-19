@@ -15,6 +15,10 @@ import { SignupDto } from './dto/signup.dto';
 import { User } from 'src/domain/entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { UserInterface } from 'src/domain/entities/user.interface';
+import {
+  TOKEN_REPOSITORY,
+  TokenRepository,
+} from 'src/domain/repositories/token.repository.interface';
 
 const CRYPT_SALT = parseInt(process.env.CRYPT_SALT ?? '10');
 
@@ -23,6 +27,8 @@ export class AuthService {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepo: UserRepository,
+    @Inject(TOKEN_REPOSITORY)
+    private readonly tokenRepo: TokenRepository,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -86,10 +92,22 @@ export class AuthService {
       const user = await this.userRepo.findById(payload.userId);
       if (!user) throw new UnauthorizedException();
 
+      const stored = await this.tokenRepo.findByToken(refreshToken);
+
+      if (!stored || stored.expiresAt < new Date()) {
+        throw new ForbiddenException('Invalid or expired refresh token');
+      }
+      await this.tokenRepo.delete(refreshToken);
+
       return this.generateTokens(user);
     } catch {
       throw new ForbiddenException('Invalid or expired refresh token');
     }
+  }
+
+  async logout(refreshToken: string) {
+    await this.tokenRepo.delete(refreshToken);
+    return { message: 'Logged out successfully' };
   }
 
   private async generateTokens(user: UserInterface) {
@@ -117,6 +135,13 @@ export class AuthService {
         },
       ),
     ]);
+
+    const expiresAt = new Date();
+    expiresAt.setDate(
+      expiresAt.getDate() + parseInt(process.env.JWT_REFRESH_TTL),
+    );
+
+    await this.tokenRepo.create(refreshToken, user.id, expiresAt);
 
     return { accessToken, refreshToken };
   }
