@@ -55,12 +55,12 @@ export class AuthService {
       role: 'viewer',
     });
 
-    await this.userRepo.create(userEntity);
+    const user = await this.userRepo.create(userEntity);
 
     return {
-      id: userEntity.id,
-      login: userEntity.login,
-      role: userEntity.role,
+      id: user.id,
+      login: user.login,
+      role: user.role,
     };
   }
 

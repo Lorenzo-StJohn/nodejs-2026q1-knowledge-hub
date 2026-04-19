@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -24,6 +25,7 @@ import {
   CATEGORY_REPOSITORY,
   CategoryRepository,
 } from 'src/domain/repositories/category.repository.interface';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class ArticleService {
@@ -76,10 +78,21 @@ export class ArticleService {
     return plainToInstance(ArticleResponseDto, article);
   }
 
-  async update(id: string, updateArticleDto: UpdateArticleDto) {
+  async update(
+    id: string,
+    updateArticleDto: UpdateArticleDto,
+    currentUser: any,
+  ) {
     const article = await this.articleRepo.findById(id);
     if (!article) {
       throw new NotFoundException(`Article with ID ${id} not found!`);
+    }
+
+    if (
+      currentUser.role === Role.editor &&
+      article.authorId !== currentUser.id
+    ) {
+      throw new ForbiddenException('You can only edit your own articles');
     }
 
     const updatedArticleEntity = Article.update(article, updateArticleDto);
@@ -113,10 +126,16 @@ export class ArticleService {
     return plainToInstance(ArticleResponseDto, updatedArticle);
   }
 
-  async remove(id: string) {
+  async remove(id: string, currentUser: any) {
     const article = await this.articleRepo.findById(id);
     if (!article) {
       throw new NotFoundException(`Article with ID ${id} not found!`);
+    }
+    if (
+      currentUser.role === Role.editor &&
+      article.authorId !== currentUser.id
+    ) {
+      throw new ForbiddenException('You can only edit your own articles');
     }
     return await this.articleRepo.delete(id);
   }

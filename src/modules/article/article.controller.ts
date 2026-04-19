@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -19,13 +20,19 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 import { FindArticlesQueryDto } from './dto/find-articles-query.dto';
 import { IdParamDto } from 'src/common/dto/id-param.dto';
 import { ConditionalPaginationInterceptor } from 'src/common/interceptors/conditional-pagination.interceptor';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Role } from '@prisma/client';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @Controller('article')
+@UseGuards(RolesGuard)
 @ApiTags('Articles')
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
   @Post()
+  @Roles(Role.editor, Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create article',
@@ -55,6 +62,7 @@ export class ArticleController {
   }
 
   @Get()
+  @Roles(Role.viewer, Role.editor, Role.admin)
   @ApiOperation({
     summary: 'Get all articles',
     description:
@@ -117,6 +125,7 @@ export class ArticleController {
   }
 
   @Get(':id')
+  @Roles(Role.viewer, Role.editor, Role.admin)
   @ApiOperation({
     summary: 'Get single article by id',
     description: 'Get single article by id',
@@ -153,6 +162,7 @@ export class ArticleController {
   }
 
   @Put(':id')
+  @Roles(Role.editor, Role.admin)
   @ApiOperation({
     summary: 'Update article information',
     description: 'Updates article by ID',
@@ -187,11 +197,13 @@ export class ArticleController {
   async update(
     @Param() params: IdParamDto,
     @Body() updateArticleDto: UpdateArticleDto,
+    @CurrentUser() user: any,
   ) {
-    return await this.articleService.update(params.id, updateArticleDto);
+    return await this.articleService.update(params.id, updateArticleDto, user);
   }
 
   @Delete(':id')
+  @Roles(Role.admin, Role.editor)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Deletes article',
@@ -214,7 +226,7 @@ export class ArticleController {
     status: 404,
     description: 'Article not found',
   })
-  async remove(@Param() params: IdParamDto) {
-    return await this.articleService.remove(params.id);
+  async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
+    return await this.articleService.remove(params.id, user);
   }
 }
