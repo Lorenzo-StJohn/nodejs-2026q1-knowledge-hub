@@ -2,7 +2,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { hash } from 'bcryptjs';
 
-const CRYPT_SALT = process.env.CRYPT_SALT;
+const CRYPT_SALT = parseInt(process.env.CRYPT_SALT ?? '10');
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
