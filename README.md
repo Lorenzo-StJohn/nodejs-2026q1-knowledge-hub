@@ -2,7 +2,15 @@
 
 ## Description
 
-This repository contains solution for [Assignment: Nest.js Knowledge Hub API](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/05-kh-rest-api/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
+This repository contains solution for [Assignment: Nest.js Knowledge Hub API](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/06a-docker/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
+
+## Docker Hub Image
+
+Docker Hub image link: https://hub.docker.com/r/lorenzostjohn/nodejs-2026q1-knowledge-hub-app
+
+```bash
+docker pull lorenzostjohn/nodejs-2026q1-knowledge-hub-app
+```
 
 ## Docker Hub Image
 
@@ -18,21 +26,6 @@ docker pull lorenzostjohn/nodejs-2026q1-knowledge-hub-app
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
 
-## Implemented features:
-- Full CRUD operations for `User`, `Article`, `Category`, and `Comment` entities
-- In-memory data storage (designed to be easily replaced with a database in future tasks)
-- Request validation using DTOs with Nest decorators + global `ValidationPipe`
-- Article filtering by `status`, `categoryId`, and `tag` query parameters
-- **Pagination** (`?page=1&limit=10`) and **sorting** (`?sortBy=createdAt&order=desc`) for all list endpoints
-- Correct cascading delete behavior:
-  - Deleting a User → `authorId` becomes `null` in Articles + all their Comments are removed
-  - Deleting a Category → `categoryId` becomes `null` in Articles
-  - Deleting an Article → all related Comments are removed
-- OpenAPI/Swagger documentation
-- Additional automated tests
-- The application code for `Users`, `Articles`, `Categories`, and `Comments` is organized into Nest module/controller/service
-- User's password is always excluded from server response
-
 ## How to install
 
 ### 1. Clone repository
@@ -47,10 +40,10 @@ git clone https://github.com/Lorenzo-StJohn/nodejs-2026q1-knowledge-hub
 cd nodejs-2026q1-knowledge-hub
 ```
 
-### 3. Checkout to the development branch
+### 3. Checkout to the docker branch
 
 ```bash
-git checkout development
+git checkout docker
 ```
 
 ### 4. Install dependencies
@@ -67,70 +60,51 @@ cp .env.example .env
 
 ## Running application
 
-### Standard mode
+### Application startup
 
 ```
-npm start
+docker-compose up --build
 ```
 
-### Development Mode
+## Security scanning
 
-```
-npm run start:dev
-```
-
-### Production Mode
-
-```
-npm run build
-npm run start:prod
+```bash
+docker scout cves nodejs-2026q1-knowledge-hub-app:latest
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
-  > [!WARNING]
-  > The pre-written tests expect a simple array in GET list endpoints. Therefore, a **ConditionalPaginationInterceptor** has been added that automatically converts the paginated response in case there ara no `limit` and `page` query parameters.   
-  > `{ total, page, limit, data }` → `data` (array only).  
-  > If you add `page` and `limit` query parameters for GET list endpoints, you will receive the **full paginated response**: `{ total, page, limit, data }`.
+| Severity       | Count | Status                  |
+|----------------|-------|-------------------------|
+| **Critical**   | 0     | ✅ No critical issues   |
+| **High**       | 36    | ⚠️ High severity        |
+| **Medium**     | 14    | ⚡ Medium severity      |
+| **Low**        | 4     | ℹ️ Low severity         |
+| **Unspecified**| 2     | ❓ Unspecified          |
+| **Total**      | **56**    | **24 packages affected** |
 
-<img width="1440" height="900" alt="Screenshot 2026-04-05 at 04 12 44" src="https://github.com/user-attachments/assets/b69b9caf-21da-4cd3-92b5-3d84707239d2" />
-
-<img width="1380" height="600" alt="Screenshot 2026-04-05 at 23 24 52" src="https://github.com/user-attachments/assets/aa65a5aa-11b4-4828-98d2-709a60714826" />
-
-<img width="1381" height="519" alt="Screenshot 2026-04-05 at 23 25 07" src="https://github.com/user-attachments/assets/ee014cc7-ee88-4686-8b7f-c338ee42abcd" />
+Scanning Summary: 24 packages checked, **no critical vulnerabilities**
 
 
-  > [!WARNING]
-  > If you want to get **all items** via one of list endpoints make sure **you've cleared all the filters**!
+## Image size 
 
-
-## Testing
-
-1. In order to test the application you need to start it first (if you haven't done it before):
-
-```
-npm start
+```bash
+docker images nodejs-2026q1-knowledge-hub-app:latest 
 ```
 
-2. Then run one of the scripts:  
-   -  To run all pre-written tests for this task:
+| ID                                | Image                                      | Disk Usage | Content Size | Extra |
+|-----------------------------------|-------------------------------------------------------|------------|--------------|-------|
+| `5d89d77b1452`                    | `nodejs-2026q1-knowledge-hub-app:latest`              | **273MB**  | **62.9MB**   | U     |
 
-   ```
-   npm run test
-   ```
-   -  To run all additional tests for this task:
 
-   ```
-   npm run test:additional
-   ```
+<img width="960" height="260" alt="Screenshot 2026-04-12 at 06 46 59" src="https://github.com/user-attachments/assets/f45aa544-0b16-4c46-b8da-84e54b6d155a" />
 
-## Running linter
+## Adminer service 
 
+```bash
+docker compose --profile debug up -d adminer
 ```
-npm run lint
-```
+
+<img width="1440" height="900" alt="Screenshot 2026-04-12 at 06 44 21" src="https://github.com/user-attachments/assets/ad6bc968-19af-4c6a-a18b-a1caa56c8b0d" />
 
 ## API Endpoints
 
