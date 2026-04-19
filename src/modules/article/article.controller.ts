@@ -58,7 +58,7 @@ export class ArticleController {
     description: 'Bad request. Body does not contain required fields',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: 'Insufficient permissions',
   })
   async create(@Body() createArticleDto: CreateArticleDto) {
@@ -124,7 +124,7 @@ export class ArticleController {
     description: 'Bad request. Wrong query parameters (hacker scope)',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: 'Insufficient permissions',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
@@ -166,7 +166,7 @@ export class ArticleController {
     description: 'Article not found',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: 'Insufficient permissions',
   })
   async findOne(@Param() params: IdParamDto) {
@@ -207,7 +207,7 @@ export class ArticleController {
     description: 'Article not found',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: 'Insufficient permissions',
   })
   async update(
@@ -243,7 +243,7 @@ export class ArticleController {
     description: 'Article not found',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: 'Insufficient permissions',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {

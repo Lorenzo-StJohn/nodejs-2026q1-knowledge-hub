@@ -32,7 +32,7 @@ paths:
                 updatedAt: 1775287579998
         '400':
           description: Bad request. Body does not contain required fields
-        '403':
+        '401':
           description: Insufficient permissions
       tags:
         - Users
@@ -106,7 +106,7 @@ paths:
                   description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
-        '403':
+        '401':
           description: Insufficient permissions
       tags:
         - Users
@@ -134,7 +134,7 @@ paths:
                 updatedAt: 1775287579998
         '400':
           description: Bad request. User id is invalid (not uuid)
-        '403':
+        '401':
           description: Insufficient permissions
         '404':
           description: User not found
@@ -169,8 +169,10 @@ paths:
                 updatedAt: 1775288465881
         '400':
           description: Bad request. User id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '403':
-          description: oldPassword is wrong or insufficient permissions
+          description: oldPassword is wrong
         '404':
           description: User not found
       tags:
@@ -193,7 +195,7 @@ paths:
           example: ''
         '400':
           description: Bad request. User id is invalid (not uuid)
-        '403':
+        '401':
           description: Insufficient permissions
         '404':
           description: User not found
@@ -231,7 +233,7 @@ paths:
                 updatedAt: 1775299578964
         '400':
           description: Bad request. Body does not contain required fields
-        '403':
+        '401':
           description: Insufficient permissions
       tags:
         - Articles
@@ -349,7 +351,7 @@ paths:
                   description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
-        '403':
+        '401':
           description: Insufficient permissions
       tags:
         - Articles
@@ -384,7 +386,7 @@ paths:
                 updatedAt: 1775299578964
         '400':
           description: Bad request. Article id is invalid (not uuid)
-        '403':
+        '401':
           description: Insufficient permissions
         '404':
           description: Article not found
@@ -426,7 +428,7 @@ paths:
                 updatedAt: 1775300238971
         '400':
           description: Bad request. Article id is invalid (not uuid)
-        '403':
+        '401':
           description: Insufficient permissions
         '404':
           description: Article not found
@@ -448,7 +450,7 @@ paths:
           example: ''
         '400':
           description: Bad request. Article id is invalid (not uuid)
-        '403':
+        '401':
           description: Insufficient permissions
         '404':
           description: Article not found
@@ -477,7 +479,7 @@ paths:
                 description: string
         '400':
           description: Bad request. Body does not contain required fields
-        '403':
+        '401':
           description: Insufficient permissions
       tags:
         - Categories
@@ -545,7 +547,7 @@ paths:
                   description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
-        '403':
+        '401':
           description: Insufficient permissions
       tags:
         - Categories
@@ -571,7 +573,7 @@ paths:
                 description: string
         '400':
           description: Bad request. Category id is invalid (not uuid)
-        '403':
+        '401':
           description: Insufficient permissions
         '404':
           description: Category not found
@@ -604,7 +606,7 @@ paths:
                 description: string
         '400':
           description: Bad request. Category id is invalid (not uuid)
-        '403':
+        '401':
           description: Insufficient permissions
         '404':
           description: Category not found
@@ -626,7 +628,7 @@ paths:
           example: ''
         '400':
           description: Bad request. Category id is invalid (not uuid)
-        '403':
+        '401':
           description: Insufficient permissions
         '404':
           description: Category not found
@@ -657,7 +659,7 @@ paths:
                 createdAt: 1775287579998
         '400':
           description: Bad request. Body does not contain required fields
-        '403':
+        '401':
           description: Insufficient permissions
         '422':
           description: Unprocessable entity. Referenced articleId doesn't exist
@@ -742,7 +744,7 @@ paths:
                   description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
-        '403':
+        '401':
           description: Insufficient permissions
       tags:
         - Comments
@@ -770,7 +772,7 @@ paths:
                 createdAt: 1775287579998
         '400':
           description: Bad request. Comment id is invalid (not uuid)
-        '403':
+        '401':
           description: Insufficient permissions
         '404':
           description: Comment not found
@@ -792,7 +794,7 @@ paths:
           example: ''
         '400':
           description: Bad request. Comment id is invalid (not uuid)
-        '403':
+        '401':
           description: Insufficient permissions
         '404':
           description: Comment not found

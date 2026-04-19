@@ -56,7 +56,7 @@ export class CommentController {
     description: "Unprocessable entity. Referenced articleId doesn't exist",
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: 'Insufficient permissions',
   })
   async create(@Body() createCommentDto: CreateCommentDto) {
@@ -114,7 +114,7 @@ export class CommentController {
     description: 'Bad request. Wrong query parameters (hacker scope)',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: 'Insufficient permissions',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
@@ -152,7 +152,7 @@ export class CommentController {
     description: 'Comment not found',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: 'Insufficient permissions',
   })
   async findById(@Param() params: IdParamDto) {
@@ -184,7 +184,7 @@ export class CommentController {
     description: 'Comment not found',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: 'Insufficient permissions',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
