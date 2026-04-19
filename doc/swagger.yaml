@@ -823,6 +823,8 @@ paths:
           description: >-
             Bad request. Body does not contain required fields or login is
             already taken
+        '429':
+          description: Too many requests
       tags:
         - Auth
   /auth/login:
@@ -853,6 +855,8 @@ paths:
             strings
         '403':
           description: Incorrect login or password
+        '429':
+          description: Too many requests
       tags:
         - Auth
   /auth/refresh:

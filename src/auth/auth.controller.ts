@@ -38,6 +38,10 @@ export class AuthController {
     description:
       'Bad request. Body does not contain required fields or login is already taken',
   })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many requests',
+  })
   async signup(@Body() dto: SignupDto) {
     return this.authService.signup(dto);
   }
@@ -64,6 +68,10 @@ export class AuthController {
   @ApiResponse({
     status: 403,
     description: 'Incorrect login or password',
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many requests',
   })
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);

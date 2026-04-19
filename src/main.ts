@@ -7,6 +7,9 @@ import { AppModule } from './app.module';
 import { Configuration } from './config/configuration';
 import { JwtAuthGuard } from './auth/guards/auth.guard';
 
+import * as fs from 'fs';
+import * as yaml from 'js-yaml';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -35,6 +38,9 @@ async function bootstrap() {
     swaggerOptions: { persistAuthorization: true },
     customSiteTitle: 'Knowledge Hub',
   });
+
+  const yamlString = yaml.dump(document, { noRefs: true });
+  fs.writeFileSync('./swagger.yaml', yamlString);
 
   const config = app.get(Configuration);
   await app.listen(config.port);
