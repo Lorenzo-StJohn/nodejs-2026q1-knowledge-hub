@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -24,6 +25,7 @@ import {
   USER_REPOSITORY,
   UserRepository,
 } from 'src/domain/repositories/user.repository.interface';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class CommentService {
@@ -73,10 +75,16 @@ export class CommentService {
     return plainToInstance(CommentPaginationResponseDto, comments);
   }
 
-  async remove(id: string) {
+  async remove(id: string, currentUser: any) {
     const comment = await this.commentRepo.findById(id);
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${id} not found!`);
+    }
+    if (
+      currentUser.role === Role.editor &&
+      comment.authorId !== currentUser.id
+    ) {
+      throw new ForbiddenException('You can only delete your own articles');
     }
     return await this.commentRepo.delete(id);
   }
