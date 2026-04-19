@@ -32,6 +32,8 @@ paths:
                 updatedAt: 1775287579998
         '400':
           description: Bad request. Body does not contain required fields
+        '401':
+          description: Insufficient permissions
       tags:
         - Users
     get:
@@ -104,6 +106,8 @@ paths:
                   description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
+        '401':
+          description: Insufficient permissions
       tags:
         - Users
   /user/{id}:
@@ -130,6 +134,8 @@ paths:
                 updatedAt: 1775287579998
         '400':
           description: Bad request. User id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '404':
           description: User not found
       tags:
@@ -163,6 +169,8 @@ paths:
                 updatedAt: 1775288465881
         '400':
           description: Bad request. User id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '403':
           description: oldPassword is wrong
         '404':
@@ -187,6 +195,8 @@ paths:
           example: ''
         '400':
           description: Bad request. User id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '404':
           description: User not found
       tags:
@@ -213,8 +223,8 @@ paths:
                 title: string
                 content: string
                 status: draft
-                authorId: b1b73593-2445-421a-af42-359114d6c536
-                categoryId: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+                authorId: null
+                categoryId: null
                 tags:
                   - nestjs
                   - typescript
@@ -223,6 +233,8 @@ paths:
                 updatedAt: 1775299578964
         '400':
           description: Bad request. Body does not contain required fields
+        '401':
+          description: Insufficient permissions
       tags:
         - Articles
     get:
@@ -253,9 +265,9 @@ paths:
           schema:
             example: draft
             enum:
+              - archived
               - draft
               - published
-              - archived
             type: string
         - name: categoryId
           required: false
@@ -309,8 +321,8 @@ paths:
                       title: string
                       content: string
                       status: draft
-                      authorId: b1b73593-2445-421a-af42-359114d6c536
-                      categoryId: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+                      authorId: null
+                      categoryId: null
                       tags:
                         - nestjs
                         - typescript
@@ -328,8 +340,8 @@ paths:
                         title: string
                         content: string
                         status: draft
-                        authorId: b1b73593-2445-421a-af42-359114d6c536
-                        categoryId: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+                        authorId: null
+                        categoryId: null
                         tags:
                           - nestjs
                           - typescript
@@ -339,6 +351,8 @@ paths:
                   description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
+        '401':
+          description: Insufficient permissions
       tags:
         - Articles
   /article/{id}:
@@ -362,8 +376,8 @@ paths:
                 title: string
                 content: string
                 status: draft
-                authorId: b1b73593-2445-421a-af42-359114d6c536
-                categoryId: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+                authorId: null
+                categoryId: null
                 tags:
                   - nestjs
                   - typescript
@@ -372,6 +386,8 @@ paths:
                 updatedAt: 1775299578964
         '400':
           description: Bad request. Article id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '404':
           description: Article not found
       tags:
@@ -402,8 +418,8 @@ paths:
                 title: string
                 content: string
                 status: draft
-                authorId: b1b73593-2445-421a-af42-359114d6c536
-                categoryId: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+                authorId: null
+                categoryId: null
                 tags:
                   - nestjs
                   - typescript
@@ -412,6 +428,8 @@ paths:
                 updatedAt: 1775300238971
         '400':
           description: Bad request. Article id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '404':
           description: Article not found
       tags:
@@ -432,6 +450,8 @@ paths:
           example: ''
         '400':
           description: Bad request. Article id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '404':
           description: Article not found
       tags:
@@ -459,6 +479,8 @@ paths:
                 description: string
         '400':
           description: Bad request. Body does not contain required fields
+        '401':
+          description: Insufficient permissions
       tags:
         - Categories
     get:
@@ -525,6 +547,8 @@ paths:
                   description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
+        '401':
+          description: Insufficient permissions
       tags:
         - Categories
   /category/{id}:
@@ -549,6 +573,8 @@ paths:
                 description: string
         '400':
           description: Bad request. Category id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '404':
           description: Category not found
       tags:
@@ -580,6 +606,8 @@ paths:
                 description: string
         '400':
           description: Bad request. Category id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '404':
           description: Category not found
       tags:
@@ -600,6 +628,8 @@ paths:
           example: ''
         '400':
           description: Bad request. Category id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '404':
           description: Category not found
       tags:
@@ -629,6 +659,8 @@ paths:
                 createdAt: 1775287579998
         '400':
           description: Bad request. Body does not contain required fields
+        '401':
+          description: Insufficient permissions
         '422':
           description: Unprocessable entity. Referenced articleId doesn't exist
       tags:
@@ -712,6 +744,8 @@ paths:
                   description: With page and limit query parameters
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
+        '401':
+          description: Insufficient permissions
       tags:
         - Comments
   /comment/{id}:
@@ -738,6 +772,8 @@ paths:
                 createdAt: 1775287579998
         '400':
           description: Bad request. Comment id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '404':
           description: Comment not found
       tags:
@@ -758,10 +794,124 @@ paths:
           example: ''
         '400':
           description: Bad request. Comment id is invalid (not uuid)
+        '401':
+          description: Insufficient permissions
         '404':
           description: Comment not found
       tags:
         - Comments
+  /auth/signup:
+    post:
+      operationId: AuthController_signup
+      summary: User signup
+      description: User signup
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupDto'
+      responses:
+        '201':
+          description: The user has been signed up
+          content:
+            application/json:
+              example:
+                id: a34b1e7c-b589-443c-a55e-3b916e1dfd3f
+                login: string
+                role: viewer
+        '400':
+          description: >-
+            Bad request. Body does not contain required fields or login is
+            already taken
+        '429':
+          description: Too many requests
+      tags:
+        - Auth
+  /auth/login:
+    post:
+      operationId: AuthController_login
+      summary: User login
+      description: User login
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '200':
+          description: The user has been logged in
+          content:
+            application/json:
+              example:
+                accessToken: >-
+                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzRiMWU3Yy1iNTg5LTQ0M2MtYTU1ZS0zYjkxNmUxZGZkM2YiLCJsb2dpbiI6InN0cmluZzIyMiIsInJvbGUiOiJ2aWV3ZXIiLCJpYXQiOjE3NzY2MjA2NDMsImV4cCI6MTc3NjYyMTU0M30.RtER_uBkCul6hPnSUJWSE0dBtwv7BYiooq4aX3anEVs
+                refreshToken: >-
+                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzRiMWU3Yy1iNTg5LTQ0M2MtYTU1ZS0zYjkxNmUxZGZkM2YiLCJsb2dpbiI6InN0cmluZzIyMiIsInJvbGUiOiJ2aWV3ZXIiLCJpYXQiOjE3NzY2MjA2NDMsImV4cCI6MTc3NzIyNTQ0M30.aaRmwcAngHNnG7kn_QHv8Udu_IPWOmKNh-fQyFKno2A
+        '400':
+          description: >-
+            Bad request. Body contains no login or password, or they are not
+            strings
+        '403':
+          description: Incorrect login or password
+        '429':
+          description: Too many requests
+      tags:
+        - Auth
+  /auth/refresh:
+    post:
+      operationId: AuthController_refresh
+      summary: Get a new pair of Access token and Refresh token
+      description: Get a new pair of Access token and Refresh token
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshDto'
+      responses:
+        '200':
+          description: Gets a new pair of Access token and Refresh token
+          content:
+            application/json:
+              example:
+                accessToken: >-
+                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzRiMWU3Yy1iNTg5LTQ0M2MtYTU1ZS0zYjkxNmUxZGZkM2YiLCJsb2dpbiI6InN0cmluZzIyMiIsInJvbGUiOiJ2aWV3ZXIiLCJpYXQiOjE3NzY2MjA4MzQsImV4cCI6MTc3NjYyMTczNH0.VcdsWaJRBP2Ymyun26V6Fg1IH0pZWGJ9GlDaDAhJtT8
+                refreshToken: >-
+                  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzRiMWU3Yy1iNTg5LTQ0M2MtYTU1ZS0zYjkxNmUxZGZkM2YiLCJsb2dpbiI6InN0cmluZzIyMiIsInJvbGUiOiJ2aWV3ZXIiLCJpYXQiOjE3NzY2MjA4MzQsImV4cCI6MTc3NzIyNTYzNH0.KEF3QcYd5DpFUH7oxO9Ys7AvsnocMaOUazWjXctH4OM
+        '401':
+          description: Bad request. Body does not contain refreshToken
+        '403':
+          description: Refresh token is invalid or expired
+      tags:
+        - Auth
+  /auth/logout:
+    post:
+      operationId: AuthController_logout
+      summary: Logout
+      description: Invalidates the refresh token
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshDto'
+      responses:
+        '200':
+          description: Invalidates the refresh token
+          content:
+            application/json:
+              example:
+                message: Logged out successfully
+        '401':
+          description: Bad request. Body does not contain refreshToken
+      tags:
+        - Auth
 info:
   title: Knowledge Hub
   description: Knowledge hub service for managing articles, categories, and comments
@@ -770,6 +920,11 @@ info:
 tags: []
 servers: []
 components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
   schemas:
     CreateUserDto:
       type: object
@@ -811,16 +966,16 @@ components:
           type: string
           description: Article status
           enum:
+            - archived
             - draft
             - published
-            - archived
           example: draft
         authorId:
           type: string
-          example: b1b73593-2445-421a-af42-359114d6c536
+          example: null
         categoryId:
           type: string
-          example: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+          example: null
         tags:
           description: 'Article tags list '
           example:
@@ -846,16 +1001,16 @@ components:
           type: string
           description: Article status
           enum:
+            - archived
             - draft
             - published
-            - archived
           example: draft
         authorId:
           type: string
-          example: b1b73593-2445-421a-af42-359114d6c536
+          example: null
         categoryId:
           type: string
-          example: f3d2f4c6-5376-48df-b4a7-9fe825559db9
+          example: null
         tags:
           description: 'Article tags list '
           example:
@@ -902,3 +1057,36 @@ components:
         - content
         - articleId
         - authorId
+    SignupDto:
+      type: object
+      properties:
+        login:
+          type: string
+          example: string
+        password:
+          type: string
+          example: string
+      required:
+        - login
+        - password
+    LoginDto:
+      type: object
+      properties:
+        login:
+          type: string
+          example: string
+        password:
+          type: string
+          example: string
+      required:
+        - login
+        - password
+    RefreshDto:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzRiMWU3Yy1iNTg5LTQ0M2MtYTU1ZS0zYjkxNmUxZGZkM2YiLCJsb2dpbiI6InN0cmluZzIyMiIsInJvbGUiOiJ2aWV3ZXIiLCJpYXQiOjE3NzY2MjA2NDMsImV4cCI6MTc3NzIyNTQ0M30.aaRmwcAngHNnG7kn_QHv8Udu_IPWOmKNh-fQyFKno2A
+      required:
+        - refreshToken

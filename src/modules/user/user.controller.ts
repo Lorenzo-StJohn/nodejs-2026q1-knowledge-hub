@@ -10,6 +10,7 @@ import {
   Put,
   UseInterceptors,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
@@ -19,13 +20,19 @@ import { UpdatePasswordDto } from './dto/update-user.dto';
 import { IdParamDto } from 'src/common/dto/id-param.dto';
 import { ConditionalPaginationInterceptor } from 'src/common/interceptors/conditional-pagination.interceptor';
 import { FindUserQueryDto } from './dto/find-user-query.dto';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Role } from '@prisma/client';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @Controller('user')
+@UseGuards(RolesGuard)
 @ApiTags('Users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @Roles(Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create user', description: 'Creates a new user' })
   @ApiResponse({
@@ -43,11 +50,16 @@ export class UserController {
     status: 400,
     description: 'Bad request. Body does not contain required fields',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Insufficient permissions',
+  })
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.userService.create(createUserDto);
   }
 
   @Get()
+  @Roles(Role.viewer, Role.editor, Role.admin)
   @ApiOperation({
     summary: 'Get all users',
     description: 'Gets all users. Supports pagination and sorting',
@@ -95,12 +107,17 @@ export class UserController {
     status: 400,
     description: 'Bad request. Wrong query parameters (hacker scope)',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Insufficient permissions',
+  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindUserQueryDto) {
     return await this.userService.findAll(filters);
   }
 
   @Get(':id')
+  @Roles(Role.viewer, Role.editor, Role.admin)
   @ApiOperation({
     summary: 'Get single user by id',
     description: 'Get single user by id',
@@ -128,11 +145,16 @@ export class UserController {
     status: 404,
     description: 'User not found',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Insufficient permissions',
+  })
   async findOne(@Param() params: IdParamDto) {
     return await this.userService.findOne(params.id);
   }
 
   @Put(':id')
+  @Roles(Role.editor, Role.admin)
   @ApiOperation({
     summary: "Update a user's password",
     description: "Updates a user's password by ID",
@@ -157,6 +179,10 @@ export class UserController {
     description: 'Bad request. User id is invalid (not uuid)',
   })
   @ApiResponse({
+    status: 401,
+    description: 'Insufficient permissions',
+  })
+  @ApiResponse({
     status: 403,
     description: 'oldPassword is wrong',
   })
@@ -167,11 +193,13 @@ export class UserController {
   async update(
     @Param() params: IdParamDto,
     @Body() updateUserDto: UpdatePasswordDto,
+    @CurrentUser() user: any,
   ) {
-    return await this.userService.update(params.id, updateUserDto);
+    return await this.userService.update(params.id, updateUserDto, user);
   }
 
   @Delete(':id')
+  @Roles(Role.editor, Role.admin)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Deletes user',
@@ -195,7 +223,11 @@ export class UserController {
     status: 404,
     description: 'User not found',
   })
-  async remove(@Param() params: IdParamDto) {
-    return await this.userService.remove(params.id);
+  @ApiResponse({
+    status: 401,
+    description: 'Insufficient permissions',
+  })
+  async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
+    return await this.userService.remove(params.id, user);
   }
 }

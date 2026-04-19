@@ -23,6 +23,8 @@ import { RealDbCategoryRepository } from './repositories/real-db/real-db-categor
 import { RealDbCommentRepository } from './repositories/real-db/real-db-comment.repository';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { RealDbTokenRepository } from './repositories/real-db/real-db-token.repository';
+import { TOKEN_REPOSITORY } from 'src/domain/repositories/token.repository.interface';
 
 @Module({
   providers: [
@@ -90,6 +92,14 @@ import { PrismaService } from '../prisma/prisma.service';
       },
       inject: [Configuration, PrismaService],
     },
+
+    {
+      provide: TOKEN_REPOSITORY,
+      useFactory: (prisma: PrismaService) => {
+        return new RealDbTokenRepository(prisma);
+      },
+      inject: [PrismaService],
+    },
   ],
 
   exports: [
@@ -97,6 +107,7 @@ import { PrismaService } from '../prisma/prisma.service';
     ARTICLE_REPOSITORY,
     CATEGORY_REPOSITORY,
     COMMENT_REPOSITORY,
+    TOKEN_REPOSITORY,
   ],
 })
 export class PersistenceModule {}

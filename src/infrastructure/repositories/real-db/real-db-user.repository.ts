@@ -28,6 +28,12 @@ export class RealDbUserRepository implements UserRepository {
     });
   }
 
+  async findByLogin(login: string): Promise<UserInterface | null> {
+    return this.prisma.user.findUnique({
+      where: { login },
+    });
+  }
+
   async findAll(filters: UserFilters): Promise<{
     total: number;
     page: number;

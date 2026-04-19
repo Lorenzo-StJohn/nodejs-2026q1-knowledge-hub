@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -17,13 +18,19 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { FindCommentQueryDto } from './dto/find-comment-query.dto';
 import { IdParamDto } from 'src/common/dto/id-param.dto';
 import { ConditionalPaginationInterceptor } from 'src/common/interceptors/conditional-pagination.interceptor';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Role } from '@prisma/client';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @Controller('comment')
+@UseGuards(RolesGuard)
 @ApiTags('Comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post()
+  @Roles(Role.editor, Role.admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Add new comment',
@@ -48,11 +55,16 @@ export class CommentController {
     status: 422,
     description: "Unprocessable entity. Referenced articleId doesn't exist",
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Insufficient permissions',
+  })
   async create(@Body() createCommentDto: CreateCommentDto) {
     return this.commentService.create(createCommentDto);
   }
 
   @Get()
+  @Roles(Role.viewer, Role.editor, Role.admin)
   @ApiOperation({
     summary: 'Get comments for an article',
     description:
@@ -101,12 +113,17 @@ export class CommentController {
     status: 400,
     description: 'Bad request. Wrong query parameters (hacker scope)',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Insufficient permissions',
+  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindCommentQueryDto) {
     return this.commentService.findAll(filters);
   }
 
   @Get(':id')
+  @Roles(Role.viewer, Role.editor, Role.admin)
   @ApiOperation({
     summary: 'Get single comment by id',
     description: 'Gets single comment by id',
@@ -134,11 +151,16 @@ export class CommentController {
     status: 404,
     description: 'Comment not found',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Insufficient permissions',
+  })
   async findById(@Param() params: IdParamDto) {
     return this.commentService.findOne(params.id);
   }
 
   @Delete(':id')
+  @Roles(Role.editor, Role.admin)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Delete comment',
@@ -161,7 +183,11 @@ export class CommentController {
     status: 404,
     description: 'Comment not found',
   })
-  async remove(@Param() params: IdParamDto) {
-    return this.commentService.remove(params.id);
+  @ApiResponse({
+    status: 401,
+    description: 'Insufficient permissions',
+  })
+  async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
+    return this.commentService.remove(params.id, user);
   }
 }

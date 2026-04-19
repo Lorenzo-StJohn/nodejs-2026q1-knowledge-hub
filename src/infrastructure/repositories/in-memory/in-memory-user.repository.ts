@@ -18,6 +18,7 @@ import {
 @Injectable()
 export class InMemoryUserRepository implements UserRepository {
   private users = new Map<string, UserInterface>();
+  private loginMap = new Map<string, string>();
 
   constructor(
     @Inject(ARTICLE_REPOSITORY)
@@ -28,10 +29,17 @@ export class InMemoryUserRepository implements UserRepository {
 
   async create(user: UserInterface) {
     this.users.set(user.id, user);
+    this.loginMap.set(user.login, user.id);
     return user;
   }
 
   async findById(id: string) {
+    return this.users.get(id) ?? null;
+  }
+
+  async findByLogin(login: string) {
+    const id = this.loginMap.get(login);
+    if (!id) return null;
     return this.users.get(id) ?? null;
   }
 
@@ -82,6 +90,7 @@ export class InMemoryUserRepository implements UserRepository {
   }
 
   async delete(id: string) {
+    this.loginMap.delete(this.users.get(id).login);
     this.users.delete(id);
     const articlesByUser = await this.articleRepo.findByAuthorId(id);
     if (articlesByUser) {
