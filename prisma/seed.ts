@@ -2,6 +2,8 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { hash } from 'bcryptjs';
 
+const CRYPT_SALT = process.env.CRYPT_SALT;
+
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
 });
@@ -11,7 +13,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('🌱 Starting database seeding...');
 
-  const hashedPassword = await hash('password123', 10);
+  const hashedPassword = await hash('password123', CRYPT_SALT);
 
   const admin = await prisma.user.upsert({
     where: { login: 'admin' },

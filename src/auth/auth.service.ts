@@ -16,6 +16,8 @@ import { User } from 'src/domain/entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { UserInterface } from 'src/domain/entities/user.interface';
 
+const CRYPT_SALT = process.env.CRYPT_SALT;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,7 +31,7 @@ export class AuthService {
     if (existing)
       throw new BadRequestException('User with this login already exists');
 
-    const hashedPassword = await hash(dto.password, 10);
+    const hashedPassword = await hash(dto.password, CRYPT_SALT);
 
     const userEntity = new User({
       login: dto.login,
