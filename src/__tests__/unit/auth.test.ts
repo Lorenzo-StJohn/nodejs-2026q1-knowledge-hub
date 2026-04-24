@@ -172,7 +172,7 @@ describe('AuthService', () => {
       password: 'hashed',
     });
 
-    it('should generate new tokens and delete old refresh token on valid refresh', async () => {
+    it('should generate new tokens on valid refresh', async () => {
       mockJwtService.verify.mockReturnValue(mockPayload);
       mockUserRepo.findById.mockResolvedValue(mockUser);
 
@@ -196,8 +196,6 @@ describe('AuthService', () => {
         refreshToken: newRefreshToken,
       });
 
-      expect(mockTokenRepo.delete).toHaveBeenCalledWith(refreshToken);
-
       const expectedPayload = {
         userId: mockUser.id,
         login: mockUser.login,
@@ -219,12 +217,6 @@ describe('AuthService', () => {
           secret: process.env.JWT_REFRESH_SECRET,
           expiresIn: process.env.JWT_REFRESH_TTL,
         },
-      );
-
-      expect(mockTokenRepo.create).toHaveBeenCalledWith(
-        newRefreshToken,
-        mockUser.id,
-        expect.any(Date),
       );
     });
 
@@ -280,6 +272,69 @@ describe('AuthService', () => {
 
       await expect(service.refresh(refreshToken)).rejects.toThrow(
         ForbiddenException,
+      );
+    });
+
+    it('should delete the old refresh token and save a new one (rotation)', async () => {
+      mockJwtService.verify.mockReturnValue(mockPayload);
+      mockUserRepo.findById.mockResolvedValue(mockUser);
+      const storedToken = {
+        token: refreshToken,
+        userId: mockUser.id,
+        expiresAt: new Date(Date.now() + 100000),
+      };
+      mockTokenRepo.findByToken.mockResolvedValue(storedToken);
+
+      const newAccess = 'new-access';
+      const newRefresh = 'new-refresh';
+      mockJwtService.signAsync
+        .mockResolvedValueOnce(newAccess)
+        .mockResolvedValueOnce(newRefresh);
+
+      await service.refresh(refreshToken);
+
+      expect(mockTokenRepo.delete).toHaveBeenCalledWith(refreshToken);
+      expect(mockTokenRepo.create).toHaveBeenCalledWith(
+        newRefresh,
+        mockUser.id,
+        expect.any(Date),
+      );
+    });
+
+    it('should not generate new tokens if deletion of old token fails', async () => {
+      mockTokenRepo.delete.mockRejectedValue(new Error());
+
+      await expect(service.refresh(refreshToken)).rejects.toThrow();
+
+      expect(mockJwtService.signAsync).not.toHaveBeenCalled();
+      expect(mockTokenRepo.create).not.toHaveBeenCalled();
+    });
+
+    it('should invalidate the old token after a successful rotation', async () => {
+      mockJwtService.verify.mockReturnValue(mockPayload);
+      mockUserRepo.findById.mockResolvedValue(mockUser);
+      const storedToken = {
+        token: refreshToken,
+        userId: mockUser.id,
+        expiresAt: new Date(Date.now() + 100000),
+      };
+      mockTokenRepo.findByToken.mockResolvedValue(storedToken);
+
+      const newAccess = 'new-access';
+      const newRefresh = 'new-refresh';
+      mockJwtService.signAsync
+        .mockResolvedValueOnce(newAccess)
+        .mockResolvedValueOnce(newRefresh);
+
+      await service.refresh(refreshToken);
+
+      mockTokenRepo.findByToken.mockResolvedValue(null);
+
+      await expect(service.refresh(refreshToken)).rejects.toThrow(
+        ForbiddenException,
+      );
+      await expect(service.refresh(refreshToken)).rejects.toThrow(
+        'Invalid or expired refresh token',
       );
     });
   });
