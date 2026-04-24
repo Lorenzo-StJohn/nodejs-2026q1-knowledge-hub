@@ -110,7 +110,6 @@ describe('UserService', () => {
       mockUserRepo.create.mockResolvedValue(createdUser);
 
       const result = await service.create(createdUserDto);
-      console.log(result);
 
       expect(result.id).toMatch(uuidV4Regex);
       expect(result.login).toEqual(createdUserDto.login);
