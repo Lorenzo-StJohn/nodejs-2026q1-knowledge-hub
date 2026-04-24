@@ -1,6 +1,6 @@
 import { validate } from 'class-validator';
-import { IdParamDto } from 'src/common/dto/id-param.dto';
 import { describe, it, expect } from 'vitest';
+import { IdParamDto } from 'src/common/dto/id-param.dto';
 
 describe('IdParamDto', () => {
   it('should pass with a valid UUID v4', async () => {

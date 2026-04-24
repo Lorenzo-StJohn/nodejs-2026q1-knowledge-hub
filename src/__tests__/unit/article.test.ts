@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import {
@@ -56,6 +56,7 @@ describe('ArticleService', () => {
       create: vi.fn(),
       update: vi.fn(),
       findAll: vi.fn(),
+      delete: vi.fn(),
     } as any;
 
     mockUserRepo = {
@@ -93,9 +94,9 @@ describe('ArticleService', () => {
           ? safe.createdAt.getTime()
           : safe.createdAt;
       safe.updatedAt =
-        safe.createdAt instanceof Date
-          ? safe.createdAt.getTime()
-          : safe.createdAt;
+        safe.updatedAt instanceof Date
+          ? safe.updatedAt.getTime()
+          : safe.updatedAt;
       return safe;
     });
   });
@@ -148,6 +149,28 @@ describe('ArticleService', () => {
       expect(mockCategoryRepo.findById).toHaveBeenCalledWith(categoryId);
       expect(mockArticleRepo.create).not.toHaveBeenCalled();
     });
+
+    it('should successfully create article with valid authorId and categoryId', async () => {
+      const validUuid = '550e8400-e29b-41d4-a716-446655440000';
+      const validCategoryUuid = '550e8400-e29b-41d4-a716-446655440001';
+
+      const dto = {
+        ...createdArticleDto,
+        authorId: validUuid,
+        categoryId: validCategoryUuid,
+      };
+      const createdArticle = new Article(dto);
+
+      mockUserRepo.findById.mockResolvedValue({ id: validUuid });
+      mockCategoryRepo.findById.mockResolvedValue({ id: validCategoryUuid });
+      mockArticleRepo.create.mockResolvedValue(createdArticle);
+
+      const result = await service.create(dto);
+
+      expect(mockUserRepo.findById).toHaveBeenCalledWith(validUuid);
+      expect(mockCategoryRepo.findById).toHaveBeenCalledWith(validCategoryUuid);
+      expect(result.id).toBeDefined();
+    });
   });
 
   describe('update', () => {
@@ -175,9 +198,48 @@ describe('ArticleService', () => {
       expect(result.status).toBe(newStatus);
     });
 
-    it('should throw BadRequestException if status transition is invalid', async () => {
+    it('should throw NotFoundException if article not found', async () => {
+      mockArticleRepo.findById.mockResolvedValue(null);
+      await expect(
+        service.update(id, {} as UpdateArticleDto, currentUser),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw BadRequestException  when transitioning from draft to archived (invalid)', async () => {
       const article = new Article(createdArticleDto);
       const newStatus = ArticleStatus.archived;
+      const updateArticleDto: UpdateArticleDto = {
+        status: newStatus,
+      };
+      mockArticleRepo.findById.mockResolvedValue(article);
+
+      const updatePromise = service.update(id, updateArticleDto, currentUser);
+
+      await expect(updatePromise).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException when transitioning from published to draft (invalid)', async () => {
+      const article = new Article({
+        ...createdArticleDto,
+        status: ArticleStatus.published,
+      });
+      mockArticleRepo.findById.mockResolvedValue(article);
+
+      await expect(
+        service.update(
+          id,
+          { status: ArticleStatus.draft } as UpdateArticleDto,
+          currentUser,
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException for any transition from archived', async () => {
+      const article = new Article({
+        ...createdArticleDto,
+        status: ArticleStatus.archived,
+      });
+      const newStatus = ArticleStatus.published;
       const updateArticleDto: UpdateArticleDto = {
         status: newStatus,
       };
@@ -203,6 +265,26 @@ describe('ArticleService', () => {
       const result = await service.update(id, updateArticleDto, currentUser);
 
       expect(result.tags).toBe(newTags);
+    });
+
+    it('should update article with a valid new authorId', async () => {
+      const article = new Article(createdArticleDto);
+      const newAuthorId = '550e8400-e29b-41d4-a716-446655440000';
+      const updateDto: UpdateArticleDto = { authorId: newAuthorId };
+
+      mockArticleRepo.findById.mockResolvedValue(article);
+      mockUserRepo.findById.mockResolvedValue({ id: newAuthorId });
+      const updatedArticle = { ...article, authorId: newAuthorId };
+      mockArticleRepo.update.mockResolvedValue(updatedArticle);
+
+      const result = await service.update(article.id, updateDto, currentUser);
+
+      expect(mockUserRepo.findById).toHaveBeenCalledWith(newAuthorId);
+      expect(mockArticleRepo.update).toHaveBeenCalledWith(
+        article.id,
+        expect.objectContaining({ authorId: newAuthorId }),
+      );
+      expect(result.authorId).toBe(newAuthorId);
     });
   });
 
@@ -329,6 +411,42 @@ describe('ArticleService', () => {
       expect(mockArticleRepo.findAll).toHaveBeenCalledWith(filters);
       expect(result.data).toEqual([]);
       expect(result.total).toBe(0);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return the article if found', async () => {
+      const article = new Article(createdArticleDto);
+      mockArticleRepo.findById.mockResolvedValue(article);
+
+      const result = await service.findOne(article.id);
+
+      expect(result.id).toBe(article.id);
+      expect(result.title).toBe(article.title);
+    });
+
+    it('should throw NotFoundException if article not found', async () => {
+      mockArticleRepo.findById.mockResolvedValue(null);
+
+      await expect(service.findOne('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('remove', () => {
+    const id = 'fakeId';
+    const currentAdmin = new User({
+      login: 'admin',
+      password: 'hashedPassword',
+      role: Role.admin,
+    });
+
+    it('should throw NotFoundException if article not found', async () => {
+      mockArticleRepo.findById.mockResolvedValue(null);
+      await expect(service.remove(id, currentAdmin)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

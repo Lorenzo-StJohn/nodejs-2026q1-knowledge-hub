@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -359,6 +359,12 @@ describe('AuthService', () => {
         'Invalid or expired refresh token',
       );
     });
+
+    it('should throw UnauthorizedException if token is missing', async () => {
+      await expect(service.refresh()).rejects.toThrow(UnauthorizedException);
+      expect(mockTokenRepo.delete).not.toHaveBeenCalled();
+      expect(mockJwtService.signAsync).not.toHaveBeenCalled();
+    });
   });
 });
 
@@ -375,7 +381,7 @@ describe('ArticleService', () => {
       findById: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
-      remove: vi.fn(),
+      delete: vi.fn(),
     } as any;
 
     mockUserRepo = {
@@ -414,6 +420,16 @@ describe('ArticleService', () => {
       password: 'hashedPassword',
       role: Role.editor,
     });
+    const currentAdmin = new User({
+      login: 'admin',
+      password: 'hashedPassword',
+      role: Role.admin,
+    });
+    const currentEditor = new User({
+      login: 'editor',
+      password: 'hashedPassword',
+      role: Role.editor,
+    });
     const createdArticleDto: CreateArticleDto = {
       title: 'TEST_ARTICLE',
       content: 'Test article content',
@@ -444,6 +460,30 @@ describe('ArticleService', () => {
 
       await expect(deletePromise).rejects.toThrow(ForbiddenException);
     });
+
+    it('should allow admin to delete any article', async () => {
+      const article = new Article({
+        ...createdArticleDto,
+        authorId: 'another-author',
+      });
+      mockArticleRepo.findById.mockResolvedValue(article);
+      mockArticleRepo.delete.mockResolvedValue(undefined);
+
+      await expect(service.remove(id, currentAdmin)).resolves.toBeUndefined();
+      expect(mockArticleRepo.delete).toHaveBeenCalledWith(id);
+    });
+
+    it('should allow editor to delete own article', async () => {
+      const article = new Article({
+        ...createdArticleDto,
+        authorId: currentEditor.id,
+      });
+      mockArticleRepo.findById.mockResolvedValue(article);
+      mockArticleRepo.delete.mockResolvedValue(undefined);
+
+      await service.remove(id, currentEditor);
+      expect(mockArticleRepo.delete).toHaveBeenCalledWith(id);
+    });
   });
 });
 
@@ -466,6 +506,7 @@ describe('CommentService', () => {
 
     mockCommentRepo = {
       findById: vi.fn(),
+      delete: vi.fn(),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -509,6 +550,30 @@ describe('CommentService', () => {
 
       await expect(deletePromise).rejects.toThrow(ForbiddenException);
     });
+
+    const commentId = 'c1';
+    const currentUserEditorOwn = { id: 'author-1', role: Role.editor };
+    const currentUserAdmin = { id: 'admin-1', role: Role.admin };
+
+    it('should allow admin to delete any comment', async () => {
+      const comment = { id: commentId, authorId: 'author-1' };
+      mockCommentRepo.findById.mockResolvedValue(comment as any);
+      mockCommentRepo.delete.mockResolvedValue(undefined);
+
+      await expect(
+        service.remove(commentId, currentUserAdmin),
+      ).resolves.toBeUndefined();
+      expect(mockCommentRepo.delete).toHaveBeenCalledWith(commentId);
+    });
+
+    it('should allow editor to delete own comment', async () => {
+      const comment = { id: commentId, authorId: currentUserEditorOwn.id };
+      mockCommentRepo.findById.mockResolvedValue(comment as any);
+      mockCommentRepo.delete.mockResolvedValue(undefined);
+
+      await service.remove(commentId, currentUserEditorOwn);
+      expect(mockCommentRepo.delete).toHaveBeenCalledWith(commentId);
+    });
   });
 });
 
@@ -540,6 +605,7 @@ describe('UserService', () => {
       findById: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      delete: vi.fn(),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -559,6 +625,17 @@ describe('UserService', () => {
     process.env = originalEnv;
   });
   describe('update and delete', () => {
+    const user = new User({
+      login: 'test',
+      password: 'hashedpassword',
+      role: Role.viewer,
+    });
+    const currentUserAdmin = {
+      login: 'admin',
+      password: 'hashedpassword',
+      role: Role.admin,
+    };
+
     it('should throw ForbiddenException in update method if no permissions due to RBAC', async () => {
       const user = new User(createdUserDto);
       const updatedUserDto: UpdatePasswordDto = {
@@ -579,6 +656,15 @@ describe('UserService', () => {
       const deletePromise = service.remove(id, currentUser);
 
       await expect(deletePromise).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should allow admin to delete any user', async () => {
+      mockUserRepo.findById.mockResolvedValue(user);
+      mockUserRepo.delete.mockResolvedValue(undefined);
+
+      await service.remove(id, currentUserAdmin);
+
+      expect(mockUserRepo.delete).toHaveBeenCalledWith(id);
     });
   });
 });

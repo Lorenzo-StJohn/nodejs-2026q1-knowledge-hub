@@ -9,7 +9,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['src/**/*.ts'],
+      include: [
+        'src/**/*.service.ts',
+        'src/**/*.dto.ts',
+        'src/**/*.interceptor.ts',
+        'src/**/*.filter.ts',
+        'src/**/*.pipe.ts',
+      ],
+      exclude: ['src/prisma'],
       reportsDirectory: './coverage',
       thresholds: {
         lines: 90,

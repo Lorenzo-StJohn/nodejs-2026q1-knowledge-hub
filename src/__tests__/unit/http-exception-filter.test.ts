@@ -156,4 +156,48 @@ describe('HttpExceptionFilter', () => {
     expect(responseBody).toHaveProperty('path', '/test/url');
     expect(new Date(responseBody.timestamp).getTime()).not.toBeNaN();
   });
+
+  it('should handle HttpException with an object response (e.g. from ValidationPipe)', () => {
+    const complexMessage = ['email must be an email', 'password too short'];
+    const exception = new BadRequestException({
+      message: complexMessage,
+      error: 'Bad Request',
+    });
+
+    filter.catch(exception, mockArgumentsHost);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(400);
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: complexMessage,
+      }),
+    );
+  });
+
+  it('should handle HttpException with a response object that has no message property', () => {
+    const customObj = { customError: 'Something went wrong' };
+    const exception = new BadRequestException(customObj);
+
+    filter.catch(exception, mockArgumentsHost);
+
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: customObj,
+      }),
+    );
+  });
+
+  it('should log error when handling non-HttpException', () => {
+    const error = new Error('Database connection failed');
+    error.stack = 'test-stack-trace';
+    const loggerSpy = vi.spyOn((filter as any).logger, 'error');
+
+    filter.catch(error, mockArgumentsHost);
+
+    expect(loggerSpy).toHaveBeenCalledWith(
+      'Unhandled exception: Error: Database connection failed',
+      'test-stack-trace',
+    );
+    expect(mockResponse.status).toHaveBeenCalledWith(500);
+  });
 });

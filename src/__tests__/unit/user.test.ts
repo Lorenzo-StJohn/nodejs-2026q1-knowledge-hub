@@ -41,6 +41,8 @@ import { UserService } from 'src/modules/user/user.service';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import { UpdatePasswordDto } from 'src/modules/user/dto/update-user.dto';
 import { LoginDto } from 'src/auth/dto/login.dto';
+import { UserPaginationResponseDto } from 'src/modules/user/dto/user-pagination-response.dto';
+import { UserResponseDto } from 'src/modules/user/dto/user-response.dto';
 
 const originalEnv = process.env;
 
@@ -62,6 +64,7 @@ describe('UserService', () => {
     mockUserRepo = {
       findByLogin: vi.fn(),
       findById: vi.fn(),
+      findAll: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
     } as any;
@@ -85,9 +88,9 @@ describe('UserService', () => {
           ? safe.createdAt.getTime()
           : safe.createdAt;
       safe.updatedAt =
-        safe.createdAt instanceof Date
-          ? safe.createdAt.getTime()
-          : safe.createdAt;
+        safe.updatedAt instanceof Date
+          ? safe.updatedAt.getTime()
+          : safe.updatedAt;
       if (password || !password) {
         return safe;
       }
@@ -214,6 +217,30 @@ describe('UserService', () => {
 
       await expect(findOnePromise).rejects.toThrow(NotFoundException);
     });
+
+    it('should return user if found', async () => {
+      const hashPassword = 'hashpassword';
+      const user = new User({
+        login: 'test',
+        password: hashPassword,
+        role: Role.viewer,
+      });
+      mockUserRepo.findById.mockResolvedValue(user);
+
+      const result = await service.findOne(id);
+
+      expect(mockUserRepo.findById).toHaveBeenCalledWith(id);
+      expect(plainToInstance).toHaveBeenCalledWith(UserResponseDto, user, {
+        excludeExtraneousValues: true,
+      });
+      expect(result).toEqual({
+        id: user.id,
+        login: user.login,
+        role: user.role,
+        createdAt: user.createdAt.getTime(),
+        updatedAt: user.updatedAt.getTime(),
+      });
+    });
   });
 
   describe('update', () => {
@@ -262,6 +289,14 @@ describe('UserService', () => {
       const userArg = mockUserRepo.update.mock.calls[0][1];
       expect(userArg.password).toBe(newHashedPassword);
     });
+
+    it('should throw ForbiddenException if old password is wrong', async () => {
+      mockUserRepo.findById.mockResolvedValue(currentUser);
+      vi.mocked(compare as Mock).mockResolvedValue(false);
+
+      const updatePromise = service.update(id, updatedUserDto, currentUser);
+      await expect(updatePromise).rejects.toThrow(ForbiddenException);
+    });
   });
 
   describe('remove', () => {
@@ -279,6 +314,31 @@ describe('UserService', () => {
       const removePromise = service.remove(id, currentUser);
 
       await expect(removePromise).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return paginated users', async () => {
+      const filters = { page: 1, limit: 10 };
+      const users = {
+        data: [new User({ login: 'testuser', password: 'hashedPassword' })],
+        total: 1,
+        page: 1,
+        limit: 10,
+      };
+      mockUserRepo.findAll.mockResolvedValue(users);
+
+      const result = await service.findAll(filters);
+
+      expect(mockUserRepo.findAll).toHaveBeenCalledWith(filters);
+      expect(plainToInstance).toHaveBeenCalledWith(
+        UserPaginationResponseDto,
+        users,
+        {
+          excludeExtraneousValues: true,
+        },
+      );
+      expect(result).toEqual(users);
     });
   });
 });
@@ -422,6 +482,11 @@ describe('AuthService', () => {
       login: 'testuser',
       password: 'plainPassword',
     };
+    const hashedPassword = 'hashedpassword';
+    const mockUser = new User({
+      login: loginDto.login,
+      password: hashedPassword,
+    });
 
     it('should throw ForbiddenException if user not found', async () => {
       mockUserRepo.findByLogin.mockResolvedValue(null);
@@ -429,6 +494,34 @@ describe('AuthService', () => {
       const loginPromise = service.login(loginDto);
 
       await expect(loginPromise).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw ForbiddenException if password is incorrect', async () => {
+      mockUserRepo.findByLogin.mockResolvedValue(mockUser);
+      vi.mocked(compare as Mock).mockResolvedValue(false);
+
+      await expect(service.login(loginDto)).rejects.toThrow(ForbiddenException);
+      expect(compare).toHaveBeenCalledWith(
+        loginDto.password,
+        mockUser.password,
+      );
+      expect(mockJwtService.signAsync).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('logout', () => {
+    it('should delete token and return success message', async () => {
+      const token = 'some-refresh-token';
+      mockTokenRepo.delete.mockResolvedValue(undefined);
+
+      const result = await service.logout(token);
+      expect(result).toEqual({ message: 'Logged out successfully' });
+      expect(mockTokenRepo.delete).toHaveBeenCalledWith(token);
+    });
+
+    it('should throw UnauthorizedException if refresh token is empty', async () => {
+      await expect(service.logout('')).rejects.toThrow(UnauthorizedException);
+      expect(mockTokenRepo.delete).not.toHaveBeenCalled();
     });
   });
 
