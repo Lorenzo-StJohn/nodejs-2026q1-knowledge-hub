@@ -186,5 +186,22 @@ describe('UserService', () => {
 
       await expect(updatePromise).rejects.toThrow(BadRequestException);
     });
+
+    it('should update tags', async () => {
+      const article = new Article(createdArticleDto);
+      const newTags = ['testtag'];
+      const updateArticleDto: UpdateArticleDto = {
+        tags: newTags,
+      };
+      mockArticleRepo.findById.mockResolvedValue(article);
+      mockArticleRepo.update.mockResolvedValue({
+        ...article,
+        tags: newTags,
+      });
+
+      const result = await service.update(id, updateArticleDto, currentUser);
+
+      expect(result.tags).toBe(newTags);
+    });
   });
 });
