@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -159,7 +160,7 @@ describe('AuthService', () => {
   });
 
   describe('refresh', () => {
-    const oldRefreshToken = 'old-refresh-token';
+    const refreshToken = 'refresh-token';
     const id = 'fakeId';
     const mockPayload = {
       userId: id,
@@ -176,7 +177,7 @@ describe('AuthService', () => {
       mockUserRepo.findById.mockResolvedValue(mockUser);
 
       const storedToken = {
-        token: oldRefreshToken,
+        token: refreshToken,
         userId: mockUser.id,
         expiresAt: new Date(Date.now() + 100000),
       };
@@ -188,14 +189,14 @@ describe('AuthService', () => {
         .mockResolvedValueOnce(newAccessToken)
         .mockResolvedValueOnce(newRefreshToken);
 
-      const result = await service.refresh(oldRefreshToken);
+      const result = await service.refresh(refreshToken);
 
       expect(result).toEqual({
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
       });
 
-      expect(mockTokenRepo.delete).toHaveBeenCalledWith(oldRefreshToken);
+      expect(mockTokenRepo.delete).toHaveBeenCalledWith(refreshToken);
 
       const expectedPayload = {
         userId: mockUser.id,
@@ -224,6 +225,61 @@ describe('AuthService', () => {
         newRefreshToken,
         mockUser.id,
         expect.any(Date),
+      );
+    });
+
+    it('should throw ForbiddenException if stored token is expired', async () => {
+      mockJwtService.verify.mockReturnValue(mockPayload);
+      mockUserRepo.findById.mockResolvedValue(mockUser);
+
+      const expiredToken = {
+        token: refreshToken,
+        userId: mockUser.id,
+        expiresAt: new Date(Date.now() - 1000),
+      };
+      mockTokenRepo.findByToken.mockResolvedValue(expiredToken);
+
+      await expect(service.refresh(refreshToken)).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(mockTokenRepo.delete).not.toHaveBeenCalled();
+      expect(mockJwtService.signAsync).not.toHaveBeenCalled();
+    });
+
+    it('should verify token with correct secret and throw ForbiddenException if verification fails', async () => {
+      mockJwtService.verify.mockImplementation(() => {
+        throw new Error('Invalid token');
+      });
+
+      await expect(service.refresh(refreshToken)).rejects.toThrow(
+        ForbiddenException,
+      );
+      await expect(service.refresh(refreshToken)).rejects.toThrow(
+        'Invalid or expired refresh token',
+      );
+
+      expect(mockJwtService.verify).toHaveBeenCalledWith(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET,
+      });
+
+      expect(mockUserRepo.findById).not.toHaveBeenCalled();
+      expect(mockTokenRepo.findByToken).not.toHaveBeenCalled();
+    });
+
+    it('should throw ForbiddenException if token verification returns null payload', async () => {
+      mockJwtService.verify.mockReturnValue(null);
+      await expect(service.refresh(refreshToken)).rejects.toThrow();
+      expect(mockUserRepo.findById).not.toHaveBeenCalled();
+    });
+
+    it('should throw ForbiddenException if token not found in repository', async () => {
+      mockJwtService.verify.mockReturnValue(mockPayload);
+      mockUserRepo.findById.mockResolvedValue(mockUser);
+
+      mockTokenRepo.findByToken.mockResolvedValue(null);
+
+      await expect(service.refresh(refreshToken)).rejects.toThrow(
+        ForbiddenException,
       );
     });
   });

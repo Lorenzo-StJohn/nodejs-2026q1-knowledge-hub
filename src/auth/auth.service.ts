@@ -92,6 +92,11 @@ export class AuthService {
     } catch {
       throw new ForbiddenException('Invalid or expired refresh token');
     }
+
+    if (!payload) {
+      throw new ForbiddenException('Invalid or expired refresh token');
+    }
+
     const user = await this.userRepo.findById(payload.userId);
     if (!user) throw new UnauthorizedException();
 
