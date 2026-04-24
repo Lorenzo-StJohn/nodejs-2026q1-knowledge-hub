@@ -7,6 +7,9 @@ import {
   removeTokenUser,
 } from './utils';
 import { commentsRoutes, articlesRoutes } from './endpoints';
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import { AppModule } from '../src/app.module';
 
 // Probability of collisions for UUID is almost zero
 const randomUUID = '0a35dd62-e09f-444b-a628-f4e7c6954f57';
@@ -16,8 +19,15 @@ describe('Comments (e2e)', () => {
   const commonHeaders = { Accept: 'application/json' };
   let mockUserId: string | undefined;
   let testArticleId: string;
+  let app: INestApplication;
 
   beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
     if (shouldAuthorizationBeTested) {
       const result = await getTokenAndUserId(unauthorizedRequest);
       commonHeaders['Authorization'] = result.token;
@@ -56,6 +66,7 @@ describe('Comments (e2e)', () => {
     if (commonHeaders['Authorization']) {
       delete commonHeaders['Authorization'];
     }
+    await app.close();
   });
 
   describe('GET', () => {
@@ -172,9 +183,15 @@ describe('Comments (e2e)', () => {
       expect(hasComment2).toBe(false);
 
       // Cleanup
-      await unauthorizedRequest.delete(commentsRoutes.delete(comment1Id)).set(commonHeaders);
-      await unauthorizedRequest.delete(commentsRoutes.delete(comment2Id)).set(commonHeaders);
-      await unauthorizedRequest.delete(articlesRoutes.delete(anotherArticleId)).set(commonHeaders);
+      await unauthorizedRequest
+        .delete(commentsRoutes.delete(comment1Id))
+        .set(commonHeaders);
+      await unauthorizedRequest
+        .delete(commentsRoutes.delete(comment2Id))
+        .set(commonHeaders);
+      await unauthorizedRequest
+        .delete(articlesRoutes.delete(anotherArticleId))
+        .set(commonHeaders);
     });
   });
 

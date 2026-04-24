@@ -5,5 +5,8 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "globalSetup": "<rootDir>/setup/seedAdmin.ts"
+  "globalSetup": "<rootDir>/setup/seedAdmin.ts",
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/../src/$1"
+  }
 }
