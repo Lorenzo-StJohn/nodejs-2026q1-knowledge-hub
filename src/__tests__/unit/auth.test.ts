@@ -28,7 +28,29 @@ vi.mock('class-transformer', async (importOriginal) => {
 });
 
 import { LoginDto } from 'src/auth/dto/login.dto';
-import { Role } from '@prisma/client';
+import { ArticleStatus, Role } from '@prisma/client';
+import { ArticleService } from 'src/modules/article/article.service';
+import {
+  ARTICLE_REPOSITORY,
+  ArticleRepository,
+} from 'src/domain/repositories/article.repository.interface';
+import {
+  CATEGORY_REPOSITORY,
+  CategoryRepository,
+} from 'src/domain/repositories/category.repository.interface';
+import { CreateArticleDto } from 'src/modules/article/dto/create-article.dto';
+import { UpdateArticleDto } from 'src/modules/article/dto/update-article.dto';
+import { Article } from 'src/domain/entities/article.entity';
+import { CommentService } from 'src/modules/comment/comment.service';
+import {
+  COMMENT_REPOSITORY,
+  CommentRepository,
+} from 'src/domain/repositories/comment.repository.interface';
+import { CreateCommentDto } from 'src/modules/comment/dto/create-comment.dto';
+import { Comment } from 'src/domain/entities/comment.entity';
+import { UserService } from 'src/modules/user/user.service';
+import { UpdatePasswordDto } from 'src/modules/user/dto/update-user.dto';
+import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 
 const originalEnv = process.env;
 
@@ -336,6 +358,227 @@ describe('AuthService', () => {
       await expect(service.refresh(refreshToken)).rejects.toThrow(
         'Invalid or expired refresh token',
       );
+    });
+  });
+});
+
+describe('ArticleService', () => {
+  let service: ArticleService;
+  let mockArticleRepo: Record<keyof ArticleRepository, any>;
+  let mockUserRepo: Record<keyof UserRepository, any>;
+  let mockCategoryRepo: Record<keyof CategoryRepository, any>;
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+
+    mockArticleRepo = {
+      findById: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    } as any;
+
+    mockUserRepo = {
+      findById: vi.fn(),
+    } as any;
+
+    mockCategoryRepo = {
+      findById: vi.fn(),
+    } as any;
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ArticleService,
+        {
+          provide: ARTICLE_REPOSITORY,
+          useValue: mockArticleRepo,
+        },
+        {
+          provide: USER_REPOSITORY,
+          useValue: mockUserRepo,
+        },
+        {
+          provide: CATEGORY_REPOSITORY,
+          useValue: mockCategoryRepo,
+        },
+      ],
+    }).compile();
+
+    service = module.get<ArticleService>(ArticleService);
+  });
+
+  describe('update and delete', () => {
+    const id = 'fakeId';
+    const currentUser = new User({
+      login: 'admin',
+      password: 'hashedPassword',
+      role: Role.editor,
+    });
+    const createdArticleDto: CreateArticleDto = {
+      title: 'TEST_ARTICLE',
+      content: 'Test article content',
+      status: 'draft',
+      authorId: null,
+      categoryId: null,
+      tags: [],
+    };
+
+    it('should throw ForbiddenException in update method if no permissions due to RBAC', async () => {
+      const article = new Article(createdArticleDto);
+      const newStatus = ArticleStatus.published;
+      const updateArticleDto: UpdateArticleDto = {
+        status: newStatus,
+      };
+      mockArticleRepo.findById.mockResolvedValue(article);
+
+      const updatePromise = service.update(id, updateArticleDto, currentUser);
+
+      await expect(updatePromise).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw ForbiddenException in delete method if no permissions due to RBAC', async () => {
+      const article = new Article(createdArticleDto);
+      mockArticleRepo.findById.mockResolvedValue(article);
+
+      const deletePromise = service.remove(id, currentUser);
+
+      await expect(deletePromise).rejects.toThrow(ForbiddenException);
+    });
+  });
+});
+
+describe('CommentService', () => {
+  let service: CommentService;
+  let mockArticleRepo: Record<keyof ArticleRepository, any>;
+  let mockUserRepo: Record<keyof UserRepository, any>;
+  let mockCommentRepo: Record<keyof CommentRepository, any>;
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+
+    mockArticleRepo = {
+      findById: vi.fn(),
+    } as any;
+
+    mockUserRepo = {
+      findById: vi.fn(),
+    } as any;
+
+    mockCommentRepo = {
+      findById: vi.fn(),
+    } as any;
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CommentService,
+        {
+          provide: ARTICLE_REPOSITORY,
+          useValue: mockArticleRepo,
+        },
+        {
+          provide: USER_REPOSITORY,
+          useValue: mockUserRepo,
+        },
+        {
+          provide: COMMENT_REPOSITORY,
+          useValue: mockCommentRepo,
+        },
+      ],
+    }).compile();
+
+    service = module.get<CommentService>(CommentService);
+  });
+
+  describe('delete', () => {
+    const id = 'fakeId';
+    const currentUser = new User({
+      login: 'admin',
+      password: 'hashedPassword',
+      role: Role.editor,
+    });
+    const createCommentDto: CreateCommentDto = {
+      content: 'Test article content',
+      articleId: 'fakeIf',
+    };
+
+    it('should throw ForbiddenException if no permissions due to RBAC', async () => {
+      const comment = new Comment(createCommentDto);
+      mockCommentRepo.findById.mockResolvedValue(comment);
+
+      const deletePromise = service.remove(id, currentUser);
+
+      await expect(deletePromise).rejects.toThrow(ForbiddenException);
+    });
+  });
+});
+
+describe('UserService', () => {
+  let service: UserService;
+  let mockUserRepo: Record<keyof UserRepository, any>;
+  const id = 'fakeId';
+  const currentUser = new User({
+    login: 'admin',
+    password: 'hashedPassword',
+    role: Role.editor,
+  });
+  const createdUserDto: CreateUserDto = {
+    login: 'testuser',
+    password: 'plainPassword',
+    role: Role.admin,
+  };
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+
+    process.env = {
+      ...originalEnv,
+      CRYPT_SALT: '10',
+    };
+
+    mockUserRepo = {
+      findByLogin: vi.fn(),
+      findById: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    } as any;
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UserService,
+        {
+          provide: USER_REPOSITORY,
+          useValue: mockUserRepo,
+        },
+      ],
+    }).compile();
+
+    service = module.get<UserService>(UserService);
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+  describe('update and delete', () => {
+    it('should throw ForbiddenException in update method if no permissions due to RBAC', async () => {
+      const user = new User(createdUserDto);
+      const updatedUserDto: UpdatePasswordDto = {
+        oldPassword: 'plainPassword',
+        newPassword: 'newPlainPassword',
+      };
+      mockUserRepo.findById.mockResolvedValue(user);
+
+      const updatePromise = service.update(id, updatedUserDto, currentUser);
+
+      await expect(updatePromise).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should throw ForbiddenException in delete method if no permissions due to RBAC', async () => {
+      const user = new User(createdUserDto);
+      mockUserRepo.findById.mockResolvedValue(user);
+
+      const deletePromise = service.remove(id, currentUser);
+
+      await expect(deletePromise).rejects.toThrow(ForbiddenException);
     });
   });
 });
