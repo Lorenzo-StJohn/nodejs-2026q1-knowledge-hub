@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 
@@ -34,6 +39,8 @@ import { hash } from 'bcryptjs';
 import { Role } from '@prisma/client';
 import { UserService } from 'src/modules/user/user.service';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
+import { UpdatePasswordDto } from 'src/modules/user/dto/update-user.dto';
+import { LoginDto } from 'src/auth/dto/login.dto';
 
 const originalEnv = process.env;
 
@@ -195,6 +202,58 @@ describe('UserService', () => {
       expect(mockUserRepo.create).not.toHaveBeenCalled();
     });
   });
+
+  describe('findOne', () => {
+    const id = 'fakeId';
+
+    it('should throw NotFoundException if user not found', async () => {
+      mockUserRepo.findById.mockResolvedValue(null);
+
+      const findOnePromise = service.findOne(id);
+
+      await expect(findOnePromise).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('update', () => {
+    const id = 'fakeId';
+    const updatedUserDto: UpdatePasswordDto = {
+      oldPassword: 'plainPassword',
+      newPassword: 'newPlainPassword',
+    };
+    const hashedPassword = 'hashedPassword';
+    const currentUser = new User({
+      login: 'admin',
+      password: hashedPassword,
+      role: Role.admin,
+    });
+
+    it('should throw NotFoundException if user not found', async () => {
+      mockUserRepo.findById.mockResolvedValue(null);
+
+      const updatePromise = service.update(id, updatedUserDto, currentUser);
+
+      await expect(updatePromise).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('remove', () => {
+    const id = 'fakeId';
+    const hashedPassword = 'hashedPassword';
+    const currentUser = new User({
+      login: 'admin',
+      password: hashedPassword,
+      role: Role.admin,
+    });
+
+    it('should throw NotFoundException if user not found', async () => {
+      mockUserRepo.findById.mockResolvedValue(null);
+
+      const removePromise = service.remove(id, currentUser);
+
+      await expect(removePromise).rejects.toThrow(NotFoundException);
+    });
+  });
 });
 
 describe('AuthService', () => {
@@ -328,6 +387,38 @@ describe('AuthService', () => {
 
       expect(mockUserRepo.findByLogin).toHaveBeenCalledWith(existingUser.login);
       expect(mockUserRepo.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('login', () => {
+    const loginDto: LoginDto = {
+      login: 'testuser',
+      password: 'plainPassword',
+    };
+
+    it('should throw ForbiddenException if user not found', async () => {
+      mockUserRepo.findByLogin.mockResolvedValue(null);
+
+      const loginPromise = service.login(loginDto);
+
+      await expect(loginPromise).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe('refresh', () => {
+    const refreshToken = 'fakeToken';
+
+    it('should throwUnauthorizedException if user not found', async () => {
+      const id = 'fakeId';
+      const payload = {
+        userId: id,
+      };
+      mockJwtService.verify.mockResolvedValue(payload);
+      mockUserRepo.findById.mockResolvedValue(null);
+
+      const refreshPromise = service.refresh(refreshToken);
+
+      await expect(refreshPromise).rejects.toThrow(UnauthorizedException);
     });
   });
 });
