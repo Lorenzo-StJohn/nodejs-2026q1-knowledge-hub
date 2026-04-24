@@ -18,7 +18,9 @@ import { ArticleService } from 'src/modules/article/article.service';
 import { CreateArticleDto } from 'src/modules/article/dto/create-article.dto';
 import { plainToInstance } from 'class-transformer';
 import { Article } from 'src/domain/entities/article.entity';
-import { ArticleStatus } from '@prisma/client';
+import { ArticleStatus, Role } from '@prisma/client';
+import { User } from 'src/domain/entities/user.entity';
+import { UpdateArticleDto } from 'src/modules/article/dto/update-article.dto';
 
 vi.mock('class-transformer', async (importOriginal) => {
   const actual = await importOriginal<typeof import('class-transformer')>();
@@ -36,6 +38,15 @@ describe('UserService', () => {
   let mockArticleRepo: Record<keyof ArticleRepository, any>;
   let mockUserRepo: Record<keyof UserRepository, any>;
   let mockCategoryRepo: Record<keyof CategoryRepository, any>;
+
+  const createdArticleDto: CreateArticleDto = {
+    title: 'TEST_ARTICLE',
+    content: 'Test article content',
+    status: 'draft',
+    authorId: null,
+    categoryId: null,
+    tags: [],
+  };
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -89,15 +100,6 @@ describe('UserService', () => {
   });
 
   describe('create', () => {
-    const createdArticleDto: CreateArticleDto = {
-      title: 'TEST_ARTICLE',
-      content: 'Test article content',
-      status: 'draft',
-      authorId: null,
-      categoryId: null,
-      tags: [],
-    };
-
     it('should return a valid ArticleResponseDto', async () => {
       const createdArticle = new Article(createdArticleDto);
       mockArticleRepo.create.mockResolvedValue(createdArticle);
@@ -144,6 +146,45 @@ describe('UserService', () => {
 
       expect(mockCategoryRepo.findById).toHaveBeenCalledWith(categoryId);
       expect(mockArticleRepo.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('update', () => {
+    const id = 'fakeId';
+    const currentUser = new User({
+      login: 'admin',
+      password: 'hashedPassword',
+      role: Role.admin,
+    });
+
+    it('should update article if status transition is valid', async () => {
+      const article = new Article(createdArticleDto);
+      const newStatus = ArticleStatus.published;
+      const updateArticleDto: UpdateArticleDto = {
+        status: newStatus,
+      };
+      mockArticleRepo.findById.mockResolvedValue(article);
+      mockArticleRepo.update.mockResolvedValue({
+        ...article,
+        status: newStatus,
+      });
+
+      const result = await service.update(id, updateArticleDto, currentUser);
+
+      expect(result.status).toBe(newStatus);
+    });
+
+    it('should throw BadRequestException if status transition is invalid', async () => {
+      const article = new Article(createdArticleDto);
+      const newStatus = ArticleStatus.archived;
+      const updateArticleDto: UpdateArticleDto = {
+        status: newStatus,
+      };
+      mockArticleRepo.findById.mockResolvedValue(article);
+
+      const updatePromise = service.update(id, updateArticleDto, currentUser);
+
+      await expect(updatePromise).rejects.toThrow(BadRequestException);
     });
   });
 });
