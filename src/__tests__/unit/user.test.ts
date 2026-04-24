@@ -140,6 +140,42 @@ describe('UserService', () => {
       expect(userArg.password).toBe(hashedPassword);
     });
 
+    it('should assign viewer role in case role is not provided', async () => {
+      mockUserRepo.findByLogin.mockResolvedValue(null);
+      vi.mocked(hash as Mock).mockResolvedValue(hashedPassword);
+
+      const createdUserDtoWithoutRole: CreateUserDto = {
+        login: 'testuser',
+        password: 'plainPassword',
+      };
+
+      const createdUser = new User({
+        login: createdUserDtoWithoutRole.login,
+        password: hashedPassword,
+      });
+      mockUserRepo.create.mockResolvedValue(createdUser);
+
+      const result = await service.create(createdUserDtoWithoutRole);
+
+      expect(result.role).toEqual(Role.viewer);
+    });
+
+    it('should assign provider role', async () => {
+      mockUserRepo.findByLogin.mockResolvedValue(null);
+      vi.mocked(hash as Mock).mockResolvedValue(hashedPassword);
+
+      const createdUser = new User({
+        login: createdUserDto.login,
+        password: hashedPassword,
+        role: createdUserDto.role,
+      });
+      mockUserRepo.create.mockResolvedValue(createdUser);
+
+      const result = await service.create(createdUserDto);
+
+      expect(result.role).toEqual(createdUserDto.role);
+    });
+
     it('should throw BadRequestException if login already exists', async () => {
       const existingUser = new User({
         login: 'testuser',
@@ -258,6 +294,21 @@ describe('AuthService', () => {
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1);
       const userArg = mockUserRepo.create.mock.calls[0][0];
       expect(userArg.password).toBe(hashedPassword);
+    });
+
+    it('should assign viewer role', async () => {
+      mockUserRepo.findByLogin.mockResolvedValue(null);
+      vi.mocked(hash as Mock).mockResolvedValue(hashedPassword);
+
+      const createdUser = new User({
+        login: signupDto.login,
+        password: hashedPassword,
+      });
+      mockUserRepo.create.mockResolvedValue(createdUser);
+
+      const result = await service.signup(signupDto);
+
+      expect(result.role).toEqual(Role.viewer);
     });
 
     it('should throw BadRequestException if login already exists', async () => {
