@@ -120,25 +120,6 @@ describe('UserService', () => {
       expect(result).not.toHaveProperty('password');
     });
 
-    it('should throw BadRequestException if login already exists', async () => {
-      const existingUser = new User({
-        login: 'testuser',
-        password: 'hashed',
-        role: 'viewer',
-      });
-      mockUserRepo.findByLogin.mockResolvedValue(existingUser);
-
-      const signupPromise = service.create(createdUserDto);
-
-      await expect(signupPromise).rejects.toThrow(BadRequestException);
-      await expect(signupPromise).rejects.toThrow(
-        'User with this login already exists',
-      );
-
-      expect(mockUserRepo.findByLogin).toHaveBeenCalledWith(existingUser.login);
-      expect(mockUserRepo.create).not.toHaveBeenCalled();
-    });
-
     it('should hash password', async () => {
       mockUserRepo.findByLogin.mockResolvedValue(null);
       vi.mocked(hash as Mock).mockResolvedValue(hashedPassword);
@@ -158,6 +139,25 @@ describe('UserService', () => {
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1);
       const userArg = mockUserRepo.create.mock.calls[0][0];
       expect(userArg.password).toBe(hashedPassword);
+    });
+
+    it('should throw BadRequestException if login already exists', async () => {
+      const existingUser = new User({
+        login: 'testuser',
+        password: 'hashed',
+        role: 'viewer',
+      });
+      mockUserRepo.findByLogin.mockResolvedValue(existingUser);
+
+      const signupPromise = service.create(createdUserDto);
+
+      await expect(signupPromise).rejects.toThrow(BadRequestException);
+      await expect(signupPromise).rejects.toThrow(
+        'User with this login already exists',
+      );
+
+      expect(mockUserRepo.findByLogin).toHaveBeenCalledWith(existingUser.login);
+      expect(mockUserRepo.create).not.toHaveBeenCalled();
     });
   });
 });
@@ -241,25 +241,6 @@ describe('AuthService', () => {
       expect(Object.values(Role)).toContain(result.role);
     });
 
-    it('should throw BadRequestException if login already exists', async () => {
-      const existingUser = new User({
-        login: 'testuser',
-        password: 'hashed',
-        role: 'viewer',
-      });
-      mockUserRepo.findByLogin.mockResolvedValue(existingUser);
-
-      const signupPromise = service.signup(signupDto);
-
-      await expect(signupPromise).rejects.toThrow(BadRequestException);
-      await expect(signupPromise).rejects.toThrow(
-        'User with this login already exists',
-      );
-
-      expect(mockUserRepo.findByLogin).toHaveBeenCalledWith(existingUser.login);
-      expect(mockUserRepo.create).not.toHaveBeenCalled();
-    });
-
     it('should hash password', async () => {
       mockUserRepo.findByLogin.mockResolvedValue(null);
       vi.mocked(hash as Mock).mockResolvedValue(hashedPassword);
@@ -278,6 +259,25 @@ describe('AuthService', () => {
       expect(mockUserRepo.create).toHaveBeenCalledTimes(1);
       const userArg = mockUserRepo.create.mock.calls[0][0];
       expect(userArg.password).toBe(hashedPassword);
+    });
+
+    it('should throw BadRequestException if login already exists', async () => {
+      const existingUser = new User({
+        login: 'testuser',
+        password: 'hashed',
+        role: 'viewer',
+      });
+      mockUserRepo.findByLogin.mockResolvedValue(existingUser);
+
+      const signupPromise = service.signup(signupDto);
+
+      await expect(signupPromise).rejects.toThrow(BadRequestException);
+      await expect(signupPromise).rejects.toThrow(
+        'User with this login already exists',
+      );
+
+      expect(mockUserRepo.findByLogin).toHaveBeenCalledWith(existingUser.login);
+      expect(mockUserRepo.create).not.toHaveBeenCalled();
     });
   });
 });
