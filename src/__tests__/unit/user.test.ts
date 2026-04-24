@@ -34,7 +34,7 @@ vi.mock('class-transformer', async (importOriginal) => {
   };
 });
 
-import { hash } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 
 import { Role } from '@prisma/client';
 import { UserService } from 'src/modules/user/user.service';
@@ -63,6 +63,7 @@ describe('UserService', () => {
       findByLogin: vi.fn(),
       findById: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -234,6 +235,32 @@ describe('UserService', () => {
       const updatePromise = service.update(id, updatedUserDto, currentUser);
 
       await expect(updatePromise).rejects.toThrow(NotFoundException);
+    });
+
+    it('should hash password', async () => {
+      const newHashedPassword = 'newhashedpassword';
+      const oldUser = new User({
+        login: 'testuser',
+        password: hashedPassword,
+      });
+      const updatedUser = new User({
+        login: oldUser.login,
+        password: newHashedPassword,
+      });
+
+      mockUserRepo.findById.mockResolvedValue(oldUser);
+      mockUserRepo.update.mockResolvedValue(updatedUser);
+      vi.mocked(hash as Mock).mockResolvedValue(newHashedPassword);
+      vi.mocked(compare as Mock).mockResolvedValue(true);
+
+      await service.update(id, updatedUserDto, currentUser);
+
+      expect(hash).toHaveBeenCalledTimes(1);
+      expect(hash).toHaveBeenCalledWith(updatedUserDto.newPassword, 10);
+
+      expect(mockUserRepo.update).toHaveBeenCalledTimes(1);
+      const userArg = mockUserRepo.update.mock.calls[0][1];
+      expect(userArg.password).toBe(newHashedPassword);
     });
   });
 
