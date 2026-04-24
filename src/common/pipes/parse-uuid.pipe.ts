@@ -9,6 +9,6 @@ export class ParseUUIDPipe implements PipeTransform<string, string> {
     if (!isValid) {
       throw new BadRequestException('ID should be valid UUID v4');
     }
-    return value;
+    return value.toLowerCase();
   }
 }

@@ -24,6 +24,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { ParseUUIDPipe } from 'src/common/pipes/parse-uuid.pipe';
 
 @Controller('user')
 @UseGuards(RolesGuard)
@@ -149,8 +150,8 @@ export class UserController {
     status: 401,
     description: 'Insufficient permissions',
   })
-  async findOne(@Param() params: IdParamDto) {
-    return await this.userService.findOne(params.id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.userService.findOne(id);
   }
 
   @Put(':id')
