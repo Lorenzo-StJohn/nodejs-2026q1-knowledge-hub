@@ -55,6 +55,7 @@ describe('UserService', () => {
       findById: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      findAll: vi.fn(),
     } as any;
 
     mockUserRepo = {
@@ -202,6 +203,132 @@ describe('UserService', () => {
       const result = await service.update(id, updateArticleDto, currentUser);
 
       expect(result.tags).toBe(newTags);
+    });
+  });
+
+  describe('findAll filtering logic', () => {
+    const article1 = new Article({
+      ...createdArticleDto,
+      title: 'Draft TS',
+      status: ArticleStatus.draft,
+      categoryId: 'cat-1',
+      tags: ['typescript'],
+    });
+
+    const article2 = new Article({
+      ...createdArticleDto,
+      title: 'Published Nest',
+      status: ArticleStatus.published,
+      categoryId: 'cat-2',
+      tags: ['nestjs'],
+    });
+
+    it('should filter articles by status', async () => {
+      const filters = {
+        status: ArticleStatus.published,
+        page: 1,
+        limit: 10,
+      };
+
+      mockArticleRepo.findAll.mockResolvedValue({
+        data: [article2],
+        total: 1,
+        page: 1,
+        limit: 10,
+      });
+
+      const result = await service.findAll(filters);
+
+      expect(mockArticleRepo.findAll).toHaveBeenCalledWith(filters);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].status).toBe(ArticleStatus.published);
+    });
+
+    it('should filter articles by categoryId', async () => {
+      const filters = {
+        categoryId: 'cat-1',
+        page: 1,
+        limit: 10,
+      };
+
+      mockArticleRepo.findAll.mockResolvedValue({
+        data: [article1],
+        total: 1,
+        page: 1,
+        limit: 10,
+      });
+
+      const result = await service.findAll(filters);
+
+      expect(mockArticleRepo.findAll).toHaveBeenCalledWith(filters);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].categoryId).toBe('cat-1');
+    });
+
+    it('should filter articles by tag', async () => {
+      const filters = {
+        tag: 'nestjs',
+        page: 1,
+        limit: 10,
+      };
+
+      mockArticleRepo.findAll.mockResolvedValue({
+        data: [article2],
+        total: 1,
+        page: 1,
+        limit: 10,
+      });
+
+      const result = await service.findAll(filters);
+
+      expect(mockArticleRepo.findAll).toHaveBeenCalledWith(filters);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].tags).toContain('nestjs');
+    });
+
+    it('should filter articles using combined filters', async () => {
+      const filters = {
+        status: ArticleStatus.published,
+        categoryId: 'cat-2',
+        tag: 'nestjs',
+        page: 1,
+        limit: 10,
+      };
+
+      mockArticleRepo.findAll.mockResolvedValue({
+        data: [article2],
+        total: 1,
+        page: 1,
+        limit: 10,
+      });
+
+      const result = await service.findAll(filters);
+
+      expect(mockArticleRepo.findAll).toHaveBeenCalledWith(filters);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].status).toBe(ArticleStatus.published);
+      expect(result.data[0].categoryId).toBe('cat-2');
+      expect(result.data[0].tags).toContain('nestjs');
+    });
+
+    it('should return empty result when no articles match filters', async () => {
+      const filters = {
+        tag: 'nonexistent',
+        page: 1,
+        limit: 10,
+      };
+
+      mockArticleRepo.findAll.mockResolvedValue({
+        data: [],
+        total: 0,
+        page: 1,
+      });
+
+      const result = await service.findAll(filters);
+
+      expect(mockArticleRepo.findAll).toHaveBeenCalledWith(filters);
+      expect(result.data).toEqual([]);
+      expect(result.total).toBe(0);
     });
   });
 });
