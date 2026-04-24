@@ -41,11 +41,9 @@ export class UserService {
         createUserDto.login === mockUserDto.login &&
         createUserDto.password === mockUserDto.password
       ) {
-        return {
-          id: existing.id,
-          login: existing.login,
-          role: existing.role,
-        };
+        return plainToInstance(UserResponseDto, existing, {
+          excludeExtraneousValues: true,
+        });
       }
       throw new BadRequestException('User with this login already exists');
     }

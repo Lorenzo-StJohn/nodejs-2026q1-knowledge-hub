@@ -14,11 +14,20 @@ import {
 import { User } from 'src/domain/entities/user.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { SignupDto } from 'src/auth/dto/signup.dto';
+import { plainToInstance } from 'class-transformer';
 
 vi.mock('bcryptjs', () => ({
   hash: vi.fn().mockResolvedValue(''),
   compare: vi.fn().mockResolvedValue(true),
 }));
+
+vi.mock('class-transformer', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('class-transformer')>();
+  return {
+    ...actual,
+    plainToInstance: vi.fn(),
+  };
+});
 
 import { hash } from 'bcryptjs';
 
@@ -60,6 +69,21 @@ describe('UserService', () => {
     }).compile();
 
     service = module.get<UserService>(UserService);
+
+    vi.mocked(plainToInstance).mockImplementation((cls, plain: any) => {
+      const { password, ...safe } = plain;
+      safe.createdAt =
+        safe.createdAt instanceof Date
+          ? safe.createdAt.getTime()
+          : safe.createdAt;
+      safe.updatedAt =
+        safe.createdAt instanceof Date
+          ? safe.createdAt.getTime()
+          : safe.createdAt;
+      if (password || !password) {
+        return safe;
+      }
+    });
   });
 
   afterEach(() => {
@@ -72,6 +96,29 @@ describe('UserService', () => {
       password: 'plainPassword',
       role: Role.admin,
     };
+    const hashedPassword = 'hashedPassword';
+
+    it('should return a valid UserResponseDto', async () => {
+      mockUserRepo.findByLogin.mockResolvedValue(null);
+      vi.mocked(hash as Mock).mockResolvedValue(hashedPassword);
+
+      const createdUser = new User({
+        login: createdUserDto.login,
+        password: hashedPassword,
+        role: createdUserDto.role,
+      });
+      mockUserRepo.create.mockResolvedValue(createdUser);
+
+      const result = await service.create(createdUserDto);
+      console.log(result);
+
+      expect(result.id).toMatch(uuidV4Regex);
+      expect(result.login).toEqual(createdUserDto.login);
+      expect(Object.values(Role)).toContain(result.role);
+      expect(typeof result.createdAt).toBe('number');
+      expect(typeof result.updatedAt).toBe('number');
+      expect(result).not.toHaveProperty('password');
+    });
 
     it('should throw BadRequestException if login already exists', async () => {
       const existingUser = new User({
@@ -94,7 +141,6 @@ describe('UserService', () => {
 
     it('should hash password', async () => {
       mockUserRepo.findByLogin.mockResolvedValue(null);
-      const hashedPassword = 'hashedPassword';
       vi.mocked(hash as Mock).mockResolvedValue(hashedPassword);
 
       const createdUser = new User({
@@ -177,10 +223,12 @@ describe('AuthService', () => {
       login: 'testuser',
       password: 'plainPassword',
     };
+    const hashedPassword = 'hashedPassword';
 
     it('should return user id, login and role', async () => {
       mockUserRepo.findByLogin.mockResolvedValue(null);
-      const hashedPassword = 'hashedPassword';
+      vi.mocked(hash as Mock).mockResolvedValue(hashedPassword);
+
       const createdUser = new User({
         login: signupDto.login,
         password: hashedPassword,
@@ -214,7 +262,6 @@ describe('AuthService', () => {
 
     it('should hash password', async () => {
       mockUserRepo.findByLogin.mockResolvedValue(null);
-      const hashedPassword = 'hashedPassword';
       vi.mocked(hash as Mock).mockResolvedValue(hashedPassword);
 
       const createdUser = new User({
