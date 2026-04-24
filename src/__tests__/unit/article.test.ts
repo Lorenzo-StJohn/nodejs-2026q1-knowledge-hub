@@ -33,7 +33,7 @@ vi.mock('class-transformer', async (importOriginal) => {
 const uuidV4Regex =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-describe('UserService', () => {
+describe('ArticleService', () => {
   let service: ArticleService;
   let mockArticleRepo: Record<keyof ArticleRepository, any>;
   let mockUserRepo: Record<keyof UserRepository, any>;
