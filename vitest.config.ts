@@ -6,6 +6,13 @@ export default defineConfig({
     globals: true,
     root: './',
     dir: 'src/__tests__',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.spec.ts', 'test/**/*'],
+      reportsDirectory: './coverage',
+    },
   },
   resolve: {
     tsconfigPaths: true,

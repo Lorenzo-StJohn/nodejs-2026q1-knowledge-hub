@@ -11,3 +11,4 @@ src/__tests__/
 **/*.spec.ts
 **/*.test.ts
 vitest.config.ts
+coverage/
