@@ -3,6 +3,7 @@ import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 import * as path from 'path';
 import { Configuration } from 'src/config/configuration';
+import { SizeRotatingFileTransport } from './size-rotating-file.transport';
 
 const customLevels = {
   error: 0,
@@ -42,13 +43,9 @@ export class AppLogger implements LoggerService {
                 winston.format.simple(),
               ),
         }),
-
-        new winston.transports.DailyRotateFile({
-          filename: path.join(logDir, 'app-%DATE%.log'),
-          datePattern: 'YYYY-MM-DD',
-          zippedArchive: true,
+        new SizeRotatingFileTransport({
+          filename: path.join(logDir, 'app.log'),
           maxSize: maxFileSize,
-          maxFiles: '14d',
           format: winston.format.json(),
         }),
       ],
