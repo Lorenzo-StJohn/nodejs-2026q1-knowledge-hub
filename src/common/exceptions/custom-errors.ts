@@ -29,3 +29,19 @@ export class ForbiddenError extends Error {
     this.name = 'ForbiddenError';
   }
 }
+
+export class UnprocessableEntityError extends Error {
+  statusCode = 422;
+  constructor(message = 'Unprocessable Entity') {
+    super(message);
+    this.name = 'UnprocessableEntityError';
+  }
+}
+
+export class TooManyRequestsError extends Error {
+  statusCode = 429;
+  constructor(message = 'Too Many Requests') {
+    super(message);
+    this.name = 'TooManyRequestsError';
+  }
+}

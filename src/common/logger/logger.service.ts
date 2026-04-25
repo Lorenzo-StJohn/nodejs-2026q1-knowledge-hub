@@ -47,7 +47,7 @@ export class AppLogger implements LoggerService {
           filename: path.join(logDir, 'app.log'),
           maxSize: maxFileSize,
           format: winston.format.json(),
-        }),
+        }) as any,
       ],
     });
   }

@@ -1,7 +1,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { Format } from 'logform';
-import Transport from 'winston-transport';
+
+import * as TransportModule from 'winston-transport';
+const Transport = (TransportModule as any).default || TransportModule;
 
 export interface SizeRotatingFileOptions {
   filename: string;
