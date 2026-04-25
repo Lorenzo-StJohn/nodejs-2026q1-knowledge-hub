@@ -2,6 +2,7 @@ import { Injectable, LoggerService } from '@nestjs/common';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 import * as path from 'path';
+import { Configuration } from 'src/config/configuration';
 
 const customLevels = {
   error: 0,
@@ -15,7 +16,8 @@ const customLevels = {
 export class AppLogger implements LoggerService {
   private logger: winston.Logger;
 
-  constructor() {
+  constructor(private readonly config: Configuration) {
+    const isProduction = this.config.isProduction;
     const logLevel = process.env.LOG_LEVEL || 'log';
     const maxFileSize =
       parseInt(process.env.LOG_MAX_FILE_SIZE || '1024', 10) * 1024;
@@ -33,10 +35,12 @@ export class AppLogger implements LoggerService {
       ),
       transports: [
         new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple(),
-          ),
+          format: isProduction
+            ? winston.format.json()
+            : winston.format.combine(
+                winston.format.colorize(),
+                winston.format.simple(),
+              ),
         }),
 
         new winston.transports.DailyRotateFile({
