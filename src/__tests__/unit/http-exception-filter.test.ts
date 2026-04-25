@@ -10,29 +10,35 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { ThrottlerException } from '@nestjs/throttler';
+import { AppLogger } from 'src/common/logger/logger.service';
 
-vi.mock('@nestjs/common', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@nestjs/common')>();
-  return {
-    ...actual,
-    Logger: vi.fn(function (this: any) {
-      this.error = vi.fn();
-      this.log = vi.fn();
-      this.warn = vi.fn();
-      this.debug = vi.fn();
-      this.verbose = vi.fn();
-    }),
-  };
-});
+vi.mock('../logger/logger.service', () => ({
+  AppLogger: vi.fn().mockImplementation(() => ({
+    error: vi.fn(),
+    log: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    verbose: vi.fn(),
+  })),
+}));
 
 describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;
   let mockResponse: any;
   let mockRequest: any;
   let mockArgumentsHost: ArgumentsHost;
+  let mockLogger: jest.Mocked<AppLogger>;
 
   beforeEach(() => {
-    filter = new HttpExceptionFilter();
+    mockLogger = {
+      error: vi.fn(),
+      log: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      verbose: vi.fn(),
+    } as any;
+
+    filter = new HttpExceptionFilter(mockLogger);
 
     mockResponse = {
       status: vi.fn().mockReturnThis(),

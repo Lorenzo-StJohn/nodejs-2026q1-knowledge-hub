@@ -7,9 +7,13 @@ import { AppModule } from './app.module';
 import { Configuration } from './config/configuration';
 import { JwtAuthGuard } from './auth/guards/auth.guard';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { AppLogger } from './common/logger/logger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const logger = app.get(AppLogger);
+  app.useLogger(logger);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -48,7 +52,7 @@ async function bootstrap() {
 
   const config = app.get(Configuration);
 
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new HttpExceptionFilter(logger));
 
   await app.listen(config.port);
 }
