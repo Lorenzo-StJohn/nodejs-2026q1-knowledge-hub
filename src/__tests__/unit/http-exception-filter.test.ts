@@ -11,6 +11,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { ThrottlerException } from '@nestjs/throttler';
 import { AppLogger } from 'src/common/logger/logger.service';
+import { NotFoundError } from 'src/common/exceptions/custom-errors';
 
 vi.mock('../logger/logger.service', () => ({
   AppLogger: vi.fn().mockImplementation(() => ({
@@ -189,5 +190,24 @@ describe('HttpExceptionFilter', () => {
       'ExceptionFilter',
     );
     expect(mockResponse.status).toHaveBeenCalledWith(500);
+  });
+
+  it('should handle custom error with statusCode (e.g. NotFoundError)', () => {
+    const exception = new NotFoundError('Resource not found');
+    exception.stack = 'custom-error-stack';
+
+    filter.catch(exception, mockArgumentsHost);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(404);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: 404,
+      error: 'Not Found',
+      message: 'Resource not found',
+    });
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'GET /test/url - 404 - Resource not found',
+      'custom-error-stack',
+      'ExceptionFilter',
+    );
   });
 });
