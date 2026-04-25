@@ -18,6 +18,35 @@ async function bootstrap() {
   const logger = app.get(AppLogger);
   app.useLogger(logger);
 
+  function gracefulShutdown(signal: string) {
+    logger.error(`Received ${signal}, shutting down gracefully...`);
+    app
+      .close()
+      .then(() => {
+        logger.log('HTTP server closed', 'Bootstrap');
+        process.exit(1);
+      })
+      .catch((err) => {
+        logger.error('Error during shutdown', err.stack);
+        process.exit(1);
+      });
+
+    setTimeout(() => {
+      logger.error('Forced shutdown');
+      process.exit(1);
+    }, 10000);
+  }
+
+  process.on('uncaughtException', (err: Error) => {
+    logger.error('Uncaught Exception', err.stack);
+    gracefulShutdown('uncaughtException');
+  });
+
+  process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+    logger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`);
+    gracefulShutdown('unhandledRejection');
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
