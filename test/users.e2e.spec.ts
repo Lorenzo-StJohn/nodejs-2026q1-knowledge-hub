@@ -6,10 +6,11 @@ import {
   shouldAuthorizationBeTested,
   removeTokenUser,
 } from './utils';
-import { usersRoutes, articlesRoutes, commentsRoutes } from './endpoints';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { AppModule } from '../src/app.module';
+import {
+  usersRoutes,
+  articlesRoutes,
+  commentsRoutes,
+} from './endpoints';
 
 const createUserDto = {
   login: 'TEST_LOGIN',
@@ -23,15 +24,8 @@ describe('Users (e2e)', () => {
   const unauthorizedRequest = request;
   const commonHeaders = { Accept: 'application/json' };
   let mockUserId: string | undefined;
-  let app: INestApplication;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
     if (shouldAuthorizationBeTested) {
       const result = await getTokenAndUserId(unauthorizedRequest);
       commonHeaders['Authorization'] = result.token;
@@ -48,7 +42,6 @@ describe('Users (e2e)', () => {
     if (commonHeaders['Authorization']) {
       delete commonHeaders['Authorization'];
     }
-    await app.close();
   });
 
   describe('GET', () => {

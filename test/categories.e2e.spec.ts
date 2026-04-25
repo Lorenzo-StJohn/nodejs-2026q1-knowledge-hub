@@ -7,9 +7,6 @@ import {
   removeTokenUser,
 } from './utils';
 import { categoriesRoutes, articlesRoutes } from './endpoints';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { AppModule } from '../src/app.module';
 
 const createCategoryDto = {
   name: 'TEST_CATEGORY',
@@ -23,15 +20,8 @@ describe('Category (e2e)', () => {
   const unauthorizedRequest = request;
   const commonHeaders = { Accept: 'application/json' };
   let mockUserId: string | undefined;
-  let app: INestApplication;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
     if (shouldAuthorizationBeTested) {
       const result = await getTokenAndUserId(unauthorizedRequest);
       commonHeaders['Authorization'] = result.token;
@@ -48,7 +38,6 @@ describe('Category (e2e)', () => {
     if (commonHeaders['Authorization']) {
       delete commonHeaders['Authorization'];
     }
-    await app.close();
   });
 
   describe('GET', () => {
@@ -179,7 +168,8 @@ describe('Category (e2e)', () => {
         .get(categoriesRoutes.getById(createdId))
         .set(commonHeaders);
 
-      const { id: updatedId, name, description } = updatedCategoryResponse.body;
+      const { id: updatedId, name, description } =
+        updatedCategoryResponse.body;
 
       expect(name).toBe(createCategoryDto.name);
       expect(description).toBe(updatedDescription);
