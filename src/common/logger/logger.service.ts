@@ -3,6 +3,14 @@ import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 import * as path from 'path';
 
+const customLevels = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  debug: 3,
+  verbose: 4,
+};
+
 @Injectable()
 export class AppLogger implements LoggerService {
   private logger: winston.Logger;
@@ -15,6 +23,7 @@ export class AppLogger implements LoggerService {
     const logDir = path.join(process.cwd(), 'logs');
 
     this.logger = winston.createLogger({
+      levels: customLevels,
       level: this.mapLogLevel(logLevel),
       format: winston.format.combine(
         winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),

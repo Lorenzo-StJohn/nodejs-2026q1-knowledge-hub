@@ -10,7 +10,10 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { AppLogger } from './common/logger/logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    rawBody: true,
+  });
 
   const logger = app.get(AppLogger);
   app.useLogger(logger);
@@ -55,5 +58,9 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter(logger));
 
   await app.listen(config.port);
+  logger.log(
+    `Application is running on: http://localhost:${config.port}`,
+    'Bootstrap',
+  );
 }
 bootstrap();
