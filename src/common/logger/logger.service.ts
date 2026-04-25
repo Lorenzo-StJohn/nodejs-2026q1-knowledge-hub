@@ -6,11 +6,12 @@ import { Configuration } from 'src/config/configuration';
 import { SizeRotatingFileTransport } from './size-rotating-file.transport';
 
 const customLevels = {
-  error: 0,
-  warn: 1,
-  info: 2,
-  debug: 3,
-  verbose: 4,
+  fatal: 0,
+  error: 1,
+  warn: 2,
+  info: 3,
+  debug: 4,
+  verbose: 5,
 };
 
 @Injectable()
@@ -54,6 +55,7 @@ export class AppLogger implements LoggerService {
 
   private mapLogLevel(level: string): string {
     const map: Record<string, string> = {
+      fatal: 'fatal',
       log: 'info',
       debug: 'debug',
       warn: 'warn',
@@ -81,5 +83,9 @@ export class AppLogger implements LoggerService {
 
   verbose(message: string, context?: string) {
     this.logger.verbose(message, { context });
+  }
+
+  fatal(message: string, trace?: string, context?: string) {
+    this.logger.log('fatal', message, { trace, context });
   }
 }
