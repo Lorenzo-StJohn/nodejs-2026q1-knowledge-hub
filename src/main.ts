@@ -43,7 +43,12 @@ async function bootstrap() {
   });
 
   process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
-    logger.error(`Unhandled Rejection at: ${promise}, reason: ${reason}`);
+    const error = reason instanceof Error ? reason : new Error(String(reason));
+    logger.error(
+      `Unhandled Rejection at: ${promise}, reason: ${reason}`,
+      error.stack,
+      'Process',
+    );
     gracefulShutdown('unhandledRejection');
   });
 
