@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import {
@@ -21,6 +20,10 @@ import { Article } from 'src/domain/entities/article.entity';
 import { ArticleStatus, Role } from '@prisma/client';
 import { User } from 'src/domain/entities/user.entity';
 import { UpdateArticleDto } from 'src/modules/article/dto/update-article.dto';
+import {
+  ValidationError,
+  NotFoundError,
+} from 'src/common/exceptions/custom-errors';
 
 vi.mock('class-transformer', async (importOriginal) => {
   const actual = await importOriginal<typeof import('class-transformer')>();
@@ -119,7 +122,7 @@ describe('ArticleService', () => {
       expect(typeof result.updatedAt).toBe('number');
     });
 
-    it('should throw BadRequestException if user id does not exist', async () => {
+    it('should throw ValidationError if user id does not exist', async () => {
       const authorId = 'fakeId';
       const createdArticle = new Article({ ...createdArticleDto, authorId });
       mockArticleRepo.create.mockResolvedValue(createdArticle);
@@ -127,13 +130,13 @@ describe('ArticleService', () => {
 
       const createPromise = service.create({ ...createdArticleDto, authorId });
 
-      await expect(createPromise).rejects.toThrow(BadRequestException);
+      await expect(createPromise).rejects.toThrow(ValidationError);
 
       expect(mockUserRepo.findById).toHaveBeenCalledWith(authorId);
       expect(mockArticleRepo.create).not.toHaveBeenCalled();
     });
 
-    it('should throw BadRequestException if category id does not exist', async () => {
+    it('should throw ValidationError if category id does not exist', async () => {
       const categoryId = 'fakeId';
       const createdArticle = new Article({ ...createdArticleDto, categoryId });
       mockArticleRepo.create.mockResolvedValue(createdArticle);
@@ -144,7 +147,7 @@ describe('ArticleService', () => {
         categoryId,
       });
 
-      await expect(createPromise).rejects.toThrow(BadRequestException);
+      await expect(createPromise).rejects.toThrow(ValidationError);
 
       expect(mockCategoryRepo.findById).toHaveBeenCalledWith(categoryId);
       expect(mockArticleRepo.create).not.toHaveBeenCalled();
@@ -198,14 +201,14 @@ describe('ArticleService', () => {
       expect(result.status).toBe(newStatus);
     });
 
-    it('should throw NotFoundException if article not found', async () => {
+    it('should throw NotFoundError if article not found', async () => {
       mockArticleRepo.findById.mockResolvedValue(null);
       await expect(
         service.update(id, {} as UpdateArticleDto, currentUser),
-      ).rejects.toThrow(NotFoundException);
+      ).rejects.toThrow(NotFoundError);
     });
 
-    it('should throw BadRequestException  when transitioning from draft to archived (invalid)', async () => {
+    it('should throw ValidationError  when transitioning from draft to archived (invalid)', async () => {
       const article = new Article(createdArticleDto);
       const newStatus = ArticleStatus.archived;
       const updateArticleDto: UpdateArticleDto = {
@@ -215,10 +218,10 @@ describe('ArticleService', () => {
 
       const updatePromise = service.update(id, updateArticleDto, currentUser);
 
-      await expect(updatePromise).rejects.toThrow(BadRequestException);
+      await expect(updatePromise).rejects.toThrow(ValidationError);
     });
 
-    it('should throw BadRequestException when transitioning from published to draft (invalid)', async () => {
+    it('should throw ValidationError when transitioning from published to draft (invalid)', async () => {
       const article = new Article({
         ...createdArticleDto,
         status: ArticleStatus.published,
@@ -231,10 +234,10 @@ describe('ArticleService', () => {
           { status: ArticleStatus.draft } as UpdateArticleDto,
           currentUser,
         ),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow(ValidationError);
     });
 
-    it('should throw BadRequestException for any transition from archived', async () => {
+    it('should throw ValidationError for any transition from archived', async () => {
       const article = new Article({
         ...createdArticleDto,
         status: ArticleStatus.archived,
@@ -247,7 +250,7 @@ describe('ArticleService', () => {
 
       const updatePromise = service.update(id, updateArticleDto, currentUser);
 
-      await expect(updatePromise).rejects.toThrow(BadRequestException);
+      await expect(updatePromise).rejects.toThrow(ValidationError);
     });
 
     it('should update tags', async () => {
@@ -425,11 +428,11 @@ describe('ArticleService', () => {
       expect(result.title).toBe(article.title);
     });
 
-    it('should throw NotFoundException if article not found', async () => {
+    it('should throw NotFoundError if article not found', async () => {
       mockArticleRepo.findById.mockResolvedValue(null);
 
       await expect(service.findOne('nonexistent')).rejects.toThrow(
-        NotFoundException,
+        NotFoundError,
       );
     });
   });
@@ -442,10 +445,10 @@ describe('ArticleService', () => {
       role: Role.admin,
     });
 
-    it('should throw NotFoundException if article not found', async () => {
+    it('should throw NotFoundError if article not found', async () => {
       mockArticleRepo.findById.mockResolvedValue(null);
       await expect(service.remove(id, currentAdmin)).rejects.toThrow(
-        NotFoundException,
+        NotFoundError,
       );
     });
   });

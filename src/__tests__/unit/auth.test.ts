@@ -439,7 +439,7 @@ describe('ArticleService', () => {
       tags: [],
     };
 
-    it('should throw ForbiddenException in update method if no permissions due to RBAC', async () => {
+    it('should throw ForbiddenError in update method if no permissions due to RBAC', async () => {
       const article = new Article(createdArticleDto);
       const newStatus = ArticleStatus.published;
       const updateArticleDto: UpdateArticleDto = {
@@ -449,16 +449,16 @@ describe('ArticleService', () => {
 
       const updatePromise = service.update(id, updateArticleDto, currentUser);
 
-      await expect(updatePromise).rejects.toThrow(ForbiddenException);
+      await expect(updatePromise).rejects.toThrow(ForbiddenError);
     });
 
-    it('should throw ForbiddenException in delete method if no permissions due to RBAC', async () => {
+    it('should throw ForbiddenError in delete method if no permissions due to RBAC', async () => {
       const article = new Article(createdArticleDto);
       mockArticleRepo.findById.mockResolvedValue(article);
 
       const deletePromise = service.remove(id, currentUser);
 
-      await expect(deletePromise).rejects.toThrow(ForbiddenException);
+      await expect(deletePromise).rejects.toThrow(ForbiddenError);
     });
 
     it('should allow admin to delete any article', async () => {
