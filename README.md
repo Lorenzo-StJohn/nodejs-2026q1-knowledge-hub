@@ -2,7 +2,7 @@
 
 ## Description
 
-This repository contains solution for [Assignment: Testing](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/08a-testing/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced Scope**).
+This repository contains solution for [Assignment: Logging & Error Handling](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/08b-logging-errors/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced Scope**).
 
 
 ## Prerequisites
@@ -28,7 +28,7 @@ cd nodejs-2026q1-knowledge-hub
 ### 3. Checkout to the auth-jwt branch
 
 ```bash
-git checkout testing
+git checkout logging-and-error-handling
 ```
 
 ### 4. Install dependencies
@@ -141,6 +141,10 @@ After running the script, the following users will exist:
 - login: `editor` password: `password123`
 - login: `viewer` password: `password123`
 
+## Log file example
+
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 44 25" src="https://github.com/user-attachments/assets/60f7877b-5b0b-4445-89c8-2c3cd6c45f63" />
+
 ## Testing
 
 ### Run all tests
@@ -157,9 +161,9 @@ After running the script, the following users will exist:
 ```bash
 npm run test
 ```
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 19 48 59" src="https://github.com/user-attachments/assets/e2aec0a8-26e2-41e0-8612-845a44912456" />
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 19 49 28" src="https://github.com/user-attachments/assets/665bbbfe-9266-498b-b672-42bd297e7eb0" />
 
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 23 53" src="https://github.com/user-attachments/assets/036c3ab6-e48d-4e49-81b5-41924becbd2f" />
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 24 05" src="https://github.com/user-attachments/assets/c416b67e-9791-41b8-9f80-c8b88c38c370" />
 
 ### Run unit tests
 
@@ -168,7 +172,7 @@ For unit tests it does not matter if the application is running or not.
 ```bash
 npm run test:unit
 ```
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 19 53 34" src="https://github.com/user-attachments/assets/88099304-5f7a-485d-8ed5-ef8f5350f6e3" />
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 27 33" src="https://github.com/user-attachments/assets/57374292-c84c-49da-9a10-b919ca827af0" />
 
 
 ### Run all tests with coverage report (for vitest tests)
@@ -185,8 +189,8 @@ npm run test:unit
 ```bash
 npm run test:coverage
 ```
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 19 57 42" src="https://github.com/user-attachments/assets/ce6d2009-7c6a-46fc-819f-f0a46ae1cd07" />
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 19 58 26" src="https://github.com/user-attachments/assets/6d1f1c33-5f50-421d-a095-90ea4c8561b2" />
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 29 48" src="https://github.com/user-attachments/assets/8e039b5e-025b-4b94-a0ad-43f19843ef24" />
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 30 10" src="https://github.com/user-attachments/assets/58cabe39-2b3b-424b-b24f-e637ddbe601b" />
 
 ### Run old jest tests
 
@@ -214,9 +218,8 @@ For unit tests it does not matter if the application is running or not.
 npm run test:cov:unit
 ```
 
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 20 16 15" src="https://github.com/user-attachments/assets/471828db-5deb-448d-8549-4e6777f11c59" />
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 20 16 26" src="https://github.com/user-attachments/assets/1f268b60-fb1b-44c4-ac96-644c0b69bc4b" />
-
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 31 52" src="https://github.com/user-attachments/assets/d767c36e-4e5a-4965-aa39-3512eb42a307" />
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 32 08" src="https://github.com/user-attachments/assets/e3d9d9e8-b653-47cc-98b8-c589a468c7c8" />
 
 
 ## How to stop application 
