@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { hash, compare } from 'bcryptjs';
 
@@ -19,6 +13,11 @@ import {
 import { User } from 'src/domain/entities/user.entity';
 import { UserPaginationResponseDto } from './dto/user-pagination-response.dto';
 import { Role } from '@prisma/client';
+import {
+  ForbiddenError,
+  NotFoundError,
+  ValidationError,
+} from 'src/common/exceptions/custom-errors';
 
 const CRYPT_SALT = parseInt(process.env.CRYPT_SALT ?? '10');
 
@@ -45,7 +44,7 @@ export class UserService {
           excludeExtraneousValues: true,
         });
       }
-      throw new BadRequestException('User with this login already exists');
+      throw new ValidationError();
     }
 
     const hashedPassword = await hash(createUserDto.password, CRYPT_SALT);
@@ -66,7 +65,7 @@ export class UserService {
   async findOne(id: string) {
     const user = await this.userRepo.findById(id);
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found!`);
+      throw new NotFoundError();
     }
     return plainToInstance(UserResponseDto, user, {
       excludeExtraneousValues: true,
@@ -77,11 +76,11 @@ export class UserService {
     const user = await this.userRepo.findById(id);
 
     if (currentUser.role === Role.editor && id !== currentUser.id) {
-      throw new ForbiddenException('You can only update your own password');
+      throw new ForbiddenError();
     }
 
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found!`);
+      throw new NotFoundError();
     }
 
     const isPasswordValid = await compare(
@@ -90,7 +89,7 @@ export class UserService {
     );
 
     if (!isPasswordValid) {
-      throw new ForbiddenException('Wrong old password!');
+      throw new ForbiddenError();
     }
     const hashedNewPassword = await hash(updateUserDto.newPassword, CRYPT_SALT);
 
@@ -107,10 +106,10 @@ export class UserService {
   async remove(id: string, currentUser: any) {
     const user = await this.userRepo.findById(id);
     if (currentUser.role === Role.editor && id !== currentUser.id) {
-      throw new ForbiddenException('You can only delete your own profile');
+      throw new ForbiddenError();
     }
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found!`);
+      throw new NotFoundError();
     }
     await this.userRepo.delete(id);
   }
