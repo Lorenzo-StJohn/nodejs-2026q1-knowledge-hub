@@ -50,15 +50,19 @@ export class CommentController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Body does not contain required fields',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 422,
-    description: "Unprocessable entity. Referenced articleId doesn't exist",
+    description: 'Unprocessable Entity',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
   })
   async create(@Body() createCommentDto: CreateCommentDto) {
     return this.commentService.create(createCommentDto);
@@ -112,7 +116,7 @@ export class CommentController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Wrong query parameters (hacker scope)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -146,7 +150,7 @@ export class CommentController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Comment id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -154,7 +158,7 @@ export class CommentController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Comment not found',
+    description: 'Not Found',
   })
   async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.commentService.findOne(id);
@@ -178,7 +182,7 @@ export class CommentController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Comment id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -186,11 +190,11 @@ export class CommentController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Insufficient permissions',
+    description: 'Forbidden',
   })
   @ApiResponse({
     status: 404,
-    description: 'Comment not found',
+    description: 'Not Found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return this.commentService.remove(params.id, user);

@@ -49,7 +49,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Body does not contain required fields',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -57,7 +57,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Insufficient permissions',
+    description: 'Forbidden',
   })
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.userService.create(createUserDto);
@@ -110,7 +110,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Wrong query parameters (hacker scope)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -144,7 +144,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. User id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -152,7 +152,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found',
+    description: 'Not Found',
   })
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return await this.userService.findOne(id);
@@ -181,7 +181,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. User id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -189,11 +189,11 @@ export class UserController {
   })
   @ApiResponse({
     status: 403,
-    description: 'oldPassword is wrong or insufficient permissions',
+    description: 'Forbidden',
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found',
+    description: 'Not Found',
   })
   async update(
     @Param() params: IdParamDto,
@@ -222,7 +222,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. User id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -230,11 +230,11 @@ export class UserController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Insufficient permissions',
+    description: 'Forbidden',
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found',
+    description: 'Not Found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return await this.userService.remove(params.id, user);
