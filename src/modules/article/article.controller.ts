@@ -132,10 +132,6 @@ export class ArticleController {
     status: 401,
     description: 'Unauthorized',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Insufficient permissions',
-  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindArticlesQueryDto) {
     return await this.articleService.findAll(filters);
@@ -173,10 +169,6 @@ export class ArticleController {
   @ApiResponse({
     status: 401,
     description: 'Unauthorized',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Insufficient permissions',
   })
   @ApiResponse({
     status: 404,
