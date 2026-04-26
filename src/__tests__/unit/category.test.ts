@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   CATEGORY_REPOSITORY,
@@ -10,6 +9,7 @@ import { CategoryFilters } from 'src/domain/repositories/category.repository.int
 import { CategoryService } from 'src/modules/category/category.service';
 import { CreateCategoryDto } from 'src/modules/category/dto/create-category.dto';
 import { UpdateCategoryDto } from 'src/modules/category/dto/update-category.dto';
+import { NotFoundError } from 'src/common/exceptions/custom-errors';
 
 vi.spyOn(Category, 'update').mockImplementation((cat, dto) => {
   return { ...cat, ...dto } as Category;
@@ -108,11 +108,11 @@ describe('CategoryService', () => {
       expect(result).toBe(category);
     });
 
-    it('should throw NotFoundException if not found', async () => {
+    it('should throw NotFoundError if not found', async () => {
       mockCategoryRepo.findById.mockResolvedValue(null);
 
       await expect(service.findOne('nonexistent')).rejects.toThrow(
-        NotFoundException,
+        NotFoundError,
       );
     });
   });
@@ -135,11 +135,11 @@ describe('CategoryService', () => {
       expect(result).toBe(updatedCategory);
     });
 
-    it('should throw NotFoundException if category not found', async () => {
+    it('should throw NotFoundError if category not found', async () => {
       mockCategoryRepo.findById.mockResolvedValue(null);
 
       await expect(service.update('bad-id', updateDto)).rejects.toThrow(
-        NotFoundException,
+        NotFoundError,
       );
       expect(mockCategoryRepo.update).not.toHaveBeenCalled();
     });
@@ -158,10 +158,10 @@ describe('CategoryService', () => {
       expect(mockCategoryRepo.delete).toHaveBeenCalledWith(id);
     });
 
-    it('should throw NotFoundException if category not found', async () => {
+    it('should throw NotFoundError if category not found', async () => {
       mockCategoryRepo.findById.mockResolvedValue(null);
 
-      await expect(service.remove('bad-id')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('bad-id')).rejects.toThrow(NotFoundError);
       expect(mockCategoryRepo.delete).not.toHaveBeenCalled();
     });
   });
