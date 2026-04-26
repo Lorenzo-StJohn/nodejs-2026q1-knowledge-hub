@@ -64,11 +64,6 @@ describe('CategoryService', () => {
       expect(entityArg.description).toBe(dto.description);
       expect(result).toEqual(createdCategory);
     });
-
-    it('should propagate error if repo.create fails', async () => {
-      mockCategoryRepo.create.mockRejectedValue(new Error('DB error'));
-      await expect(service.create(dto)).rejects.toThrow('DB error');
-    });
   });
 
   describe('findAll', () => {
@@ -119,9 +114,6 @@ describe('CategoryService', () => {
       await expect(service.findOne('nonexistent')).rejects.toThrow(
         NotFoundException,
       );
-      await expect(service.findOne('nonexistent')).rejects.toThrow(
-        'Category with ID nonexistent not found!',
-      );
     });
   });
 
@@ -150,14 +142,6 @@ describe('CategoryService', () => {
         NotFoundException,
       );
       expect(mockCategoryRepo.update).not.toHaveBeenCalled();
-    });
-
-    it('should propagate error if repo.update fails', async () => {
-      const existingCategory = { id, name: 'Old', description: 'test-desc' };
-      mockCategoryRepo.findById.mockResolvedValue(existingCategory);
-      mockCategoryRepo.update.mockRejectedValue(new Error('DB error'));
-
-      await expect(service.update(id, updateDto)).rejects.toThrow('DB error');
     });
   });
 

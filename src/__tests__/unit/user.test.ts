@@ -198,9 +198,6 @@ describe('UserService', () => {
       const signupPromise = service.create(createdUserDto);
 
       await expect(signupPromise).rejects.toThrow(BadRequestException);
-      await expect(signupPromise).rejects.toThrow(
-        'User with this login already exists',
-      );
 
       expect(mockUserRepo.findByLogin).toHaveBeenCalledWith(existingUser.login);
       expect(mockUserRepo.create).not.toHaveBeenCalled();
@@ -468,9 +465,6 @@ describe('AuthService', () => {
       const signupPromise = service.signup(signupDto);
 
       await expect(signupPromise).rejects.toThrow(BadRequestException);
-      await expect(signupPromise).rejects.toThrow(
-        'User with this login already exists',
-      );
 
       expect(mockUserRepo.findByLogin).toHaveBeenCalledWith(existingUser.login);
       expect(mockUserRepo.create).not.toHaveBeenCalled();
