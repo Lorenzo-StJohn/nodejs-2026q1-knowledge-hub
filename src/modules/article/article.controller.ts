@@ -219,6 +219,10 @@ export class ArticleController {
     status: 404,
     description: 'Not Found',
   })
+  @ApiResponse({
+    status: 404,
+    description: 'Article not found',
+  })
   async update(
     @Param() params: IdParamDto,
     @Body() updateArticleDto: UpdateArticleDto,
@@ -258,6 +262,10 @@ export class ArticleController {
   @ApiResponse({
     status: 404,
     description: 'Not Found',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Article not found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return await this.articleService.remove(params.id, user);
