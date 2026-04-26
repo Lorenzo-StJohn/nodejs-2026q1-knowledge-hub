@@ -679,6 +679,8 @@ paths:
         '400':
           description: Bad request. Body does not contain required fields
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
         '422':
           description: Unprocessable entity. Referenced articleId doesn't exist

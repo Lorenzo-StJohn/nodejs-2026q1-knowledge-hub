@@ -58,6 +58,10 @@ export class CommentController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   async create(@Body() createCommentDto: CreateCommentDto) {
