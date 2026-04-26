@@ -110,8 +110,6 @@ paths:
           description: Bad request. Wrong query parameters (hacker scope)
         '401':
           description: Unauthorized
-        '403':
-          description: Insufficient permissions
       tags:
         - Users
   /user/{id}:
@@ -141,8 +139,6 @@ paths:
           description: Bad request. User id is invalid (not uuid)
         '401':
           description: Unauthorized
-        '403':
-          description: Insufficient permissions
         '404':
           description: User not found
       tags:
@@ -364,8 +360,6 @@ paths:
           description: Bad request. Wrong query parameters (hacker scope)
         '401':
           description: Unauthorized
-        '403':
-          description: Insufficient permissions
       tags:
         - Articles
   /article/{id}:
@@ -402,8 +396,6 @@ paths:
           description: Bad request. Article id is invalid (not uuid)
         '401':
           description: Unauthorized
-        '403':
-          description: Insufficient permissions
         '404':
           description: Article not found
       tags:
@@ -571,8 +563,6 @@ paths:
           description: Bad request. Wrong query parameters (hacker scope)
         '401':
           description: Unauthorized
-        '403':
-          description: Insufficient permissions
       tags:
         - Categories
   /category/{id}:
@@ -600,8 +590,6 @@ paths:
           description: Bad request. Category id is invalid (not uuid)
         '401':
           description: Unauthorized
-        '403':
-          description: Insufficient permissions
         '404':
           description: Category not found
       tags:
@@ -777,8 +765,6 @@ paths:
           description: Bad request. Wrong query parameters (hacker scope)
         '401':
           description: Unauthorized
-        '403':
-          description: Insufficient permissions
       tags:
         - Comments
   /comment/{id}:
@@ -808,8 +794,6 @@ paths:
           description: Bad request. Comment id is invalid (not uuid)
         '401':
           description: Unauthorized
-        '403':
-          description: Insufficient permissions
         '404':
           description: Comment not found
       tags:

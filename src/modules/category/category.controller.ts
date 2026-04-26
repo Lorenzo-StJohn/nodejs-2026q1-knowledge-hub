@@ -112,10 +112,6 @@ export class CategoryController {
     status: 401,
     description: 'Unauthorized',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Insufficient permissions',
-  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindCategoryQueryDto) {
     return this.categoryService.findAll(filters);
@@ -147,10 +143,6 @@ export class CategoryController {
   @ApiResponse({
     status: 401,
     description: 'Unauthorized',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Insufficient permissions',
   })
   @ApiResponse({
     status: 404,

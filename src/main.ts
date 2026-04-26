@@ -2,8 +2,6 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import 'dotenv/config';
-import * as fs from 'fs';
-import * as yaml from 'js-yaml'; // Используем js-yaml
 
 import { AppModule } from './app.module';
 import { Configuration } from './config/configuration';
@@ -51,14 +49,6 @@ async function bootstrap() {
   const config = app.get(Configuration);
 
   app.useGlobalFilters(new HttpExceptionFilter());
-
-  const yamlString = yaml.dump(document, {
-    skipInvalid: true, // Пропускать типы, которые нельзя сериализовать
-    noRefs: true, // Не использовать ссылки (чтобы файл был читаемым)
-  });
-
-  // Сохраняем
-  fs.writeFileSync('./swagger-spec.yaml', yamlString, 'utf8');
 
   await app.listen(config.port);
 }

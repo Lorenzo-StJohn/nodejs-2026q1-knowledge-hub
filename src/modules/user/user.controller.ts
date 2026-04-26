@@ -116,10 +116,6 @@ export class UserController {
     status: 401,
     description: 'Unauthorized',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Insufficient permissions',
-  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindUserQueryDto) {
     return await this.userService.findAll(filters);
@@ -153,10 +149,6 @@ export class UserController {
   @ApiResponse({
     status: 401,
     description: 'Unauthorized',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Insufficient permissions',
   })
   @ApiResponse({
     status: 404,

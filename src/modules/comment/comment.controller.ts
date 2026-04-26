@@ -118,10 +118,6 @@ export class CommentController {
     status: 401,
     description: 'Unauthorized',
   })
-  @ApiResponse({
-    status: 403,
-    description: 'Insufficient permissions',
-  })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindCommentQueryDto) {
     return this.commentService.findAll(filters);
@@ -155,10 +151,6 @@ export class CommentController {
   @ApiResponse({
     status: 401,
     description: 'Unauthorized',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Insufficient permissions',
   })
   @ApiResponse({
     status: 404,
