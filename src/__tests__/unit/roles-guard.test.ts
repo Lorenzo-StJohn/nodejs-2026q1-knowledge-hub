@@ -1,10 +1,11 @@
-import { ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { Role } from '@prisma/client';
 import { ROLES_KEY } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { ForbiddenError } from 'src/common/exceptions/custom-errors';
 
 describe('RolesGuard', () => {
   let guard: RolesGuard;
@@ -61,18 +62,18 @@ describe('RolesGuard', () => {
     expect(result).toBe(true);
   });
 
-  it('should throw ForbiddenException if user has insufficient role', () => {
+  it('should throw ForbiddenError if user has insufficient role', () => {
     const ctx = createMockContext(Role.viewer);
 
     vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.admin]);
 
-    expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(ctx)).toThrow(ForbiddenError);
   });
 
-  it('should throw ForbiddenException if user or role is missing', () => {
+  it('should throw ForbiddenError if user or role is missing', () => {
     const ctx = createMockContext(undefined);
     vi.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.admin]);
 
-    expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(ctx)).toThrow(ForbiddenError);
   });
 });
