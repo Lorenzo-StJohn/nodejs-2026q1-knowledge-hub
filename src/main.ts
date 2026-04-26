@@ -8,6 +8,7 @@ import { Configuration } from './config/configuration';
 import { JwtAuthGuard } from './auth/guards/auth.guard';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { AppLogger } from './common/logger/logger.service';
+import { PrismaService } from './prisma/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -18,39 +19,61 @@ async function bootstrap() {
   const logger = app.get(AppLogger);
   app.useLogger(logger);
 
-  function gracefulShutdown(signal: string) {
-    logger.error(`Received ${signal}, shutting down gracefully...`);
-    app
-      .close()
-      .then(() => {
-        logger.log('HTTP server closed', 'Bootstrap');
-        process.exit(1);
-      })
-      .catch((err) => {
-        logger.error('Error during shutdown', err.stack);
-        process.exit(1);
-      });
+  const prismaService = app.get(PrismaService);
 
-    setTimeout(() => {
-      logger.error('Forced shutdown');
+  async function gracefulShutdown(signal: string) {
+    logger.error(
+      `Received ${signal}, shutting down gracefully...`,
+      undefined,
+      'Shutdown',
+    );
+
+    const forceExit = setTimeout(() => {
+      logger.error('Forced shutdown after timeout', undefined, 'Shutdown');
       process.exit(1);
     }, 10000);
+
+    try {
+      await Promise.race([
+        app.close(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout')), 9000),
+        ),
+      ]);
+      logger.log('Nest application closed', 'Shutdown');
+
+      await prismaService.$disconnect();
+      logger.log('Prisma disconnected', 'Shutdown');
+
+      clearTimeout(forceExit);
+      process.exit(1);
+    } catch (error) {
+      logger.error(
+        'Error during graceful shutdown',
+        (error as Error).stack,
+        'Shutdown',
+      );
+      process.exit(1);
+    }
   }
 
   process.on('uncaughtException', (err: Error) => {
     logger.fatal('Uncaught Exception', err.stack);
-    gracefulShutdown('uncaughtException');
+    void gracefulShutdown('uncaughtException');
   });
 
   process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
     const error = reason instanceof Error ? reason : new Error(String(reason));
-    logger.fatal(
+    logger.error(
       `Unhandled Rejection at: ${promise}, reason: ${reason}`,
       error.stack,
       'Process',
     );
-    gracefulShutdown('unhandledRejection');
+    void gracefulShutdown('unhandledRejection');
   });
+
+  process.on('SIGTERM', () => void gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => void gracefulShutdown('SIGINT'));
 
   app.useGlobalPipes(
     new ValidationPipe({
