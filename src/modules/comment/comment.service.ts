@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Inject,
-  Injectable,
-  NotFoundException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { Comment } from 'src/domain/entities/comment.entity';
@@ -26,6 +19,12 @@ import {
   UserRepository,
 } from 'src/domain/repositories/user.repository.interface';
 import { Role } from '@prisma/client';
+import {
+  ForbiddenError,
+  NotFoundError,
+  UnprocessableEntityError,
+  ValidationError,
+} from 'src/common/exceptions/custom-errors';
 
 @Injectable()
 export class CommentService {
@@ -42,9 +41,7 @@ export class CommentService {
     const articleId = createCommentDto.articleId;
     const article = await this.articleRepo.findById(articleId);
     if (!article) {
-      throw new UnprocessableEntityException(
-        `Article with ID ${articleId} not found!`,
-      );
+      throw new UnprocessableEntityError();
     }
 
     const commentEntity = new Comment(createCommentDto);
@@ -52,9 +49,7 @@ export class CommentService {
     if (commentEntity.authorId) {
       const author = await this.userRepo.findById(commentEntity.authorId);
       if (!author) {
-        throw new BadRequestException(
-          `User with ID ${commentEntity.authorId} does not exist!`,
-        );
+        throw new ValidationError();
       }
     }
 
@@ -65,7 +60,7 @@ export class CommentService {
   async findOne(id: string) {
     const comment = await this.commentRepo.findById(id);
     if (!comment) {
-      throw new NotFoundException(`Comment with ID ${id} not found!`);
+      throw new NotFoundError();
     }
     return plainToInstance(CommentResponseDto, comment);
   }
@@ -78,13 +73,13 @@ export class CommentService {
   async remove(id: string, currentUser: any) {
     const comment = await this.commentRepo.findById(id);
     if (!comment) {
-      throw new NotFoundException(`Comment with ID ${id} not found!`);
+      throw new NotFoundError();
     }
     if (
       currentUser.role === Role.editor &&
       comment.authorId !== currentUser.id
     ) {
-      throw new ForbiddenException('You can only delete your own articles');
+      throw new ForbiddenError();
     }
     return await this.commentRepo.delete(id);
   }

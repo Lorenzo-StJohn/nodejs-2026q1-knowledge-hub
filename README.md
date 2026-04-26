@@ -2,7 +2,7 @@
 
 ## Description
 
-This repository contains solution for [Assignment: Authentication & Authorization](hhttps://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/07a-auth-jwt/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
+This repository contains solution for [Assignment: Logging & Error Handling](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/08b-logging-errors/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced Scope**).
 
 
 ## Prerequisites
@@ -28,7 +28,7 @@ cd nodejs-2026q1-knowledge-hub
 ### 3. Checkout to the auth-jwt branch
 
 ```bash
-git checkout auth-jwt
+git checkout logging-and-error-handling
 ```
 
 ### 4. Install dependencies
@@ -82,9 +82,22 @@ npx prisma migrate deploy
 
 #### Start local app:
 
+  - in development mode:
+
 ```bash
 npm run start:dev
 ```
+
+  - or in production mode:
+
+```bash
+npm run build
+```
+
+```bash
+npm run start:prod
+```
+
 
 ### Run seed script from local app
 
@@ -141,10 +154,24 @@ After running the script, the following users will exist:
 - login: `editor` password: `password123`
 - login: `viewer` password: `password123`
 
+## Log file example
+
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 44 25" src="https://github.com/user-attachments/assets/60f7877b-5b0b-4445-89c8-2c3cd6c45f63" />
+
+## Log example for development mode
+
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 22 06 20" src="https://github.com/user-attachments/assets/fa52d981-a826-4ad9-b4fa-fae8077336ee" />
+
+## Log example for production mode
+
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 22 14 07" src="https://github.com/user-attachments/assets/d80c689f-901a-4113-89b2-80d531f0b469" />
+
 ## Testing
 
+### Run all tests
+
 > [!WARNING]
-> In order to test the application you need to start it first 
+> In order to run all tests you need to start the application first 
 
 > [!WARNING]
 > There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
@@ -152,32 +179,68 @@ After running the script, the following users will exist:
 > [!WARNING]
 > For testing DATABASE_URL in .env file should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
 
-- To run all test with authorization
 ```bash
-npm run test:auth
+npm run test
 ```
 
-<img width="1440" height="900" alt="Screenshot 2026-04-19 at 23 59 57" src="https://github.com/user-attachments/assets/4fc4e667-55ac-4a8e-b5b0-950c07d55b75" />
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 23 53" src="https://github.com/user-attachments/assets/036c3ab6-e48d-4e49-81b5-41924becbd2f" />
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 24 05" src="https://github.com/user-attachments/assets/c416b67e-9791-41b8-9f80-c8b88c38c370" />
 
+### Run unit tests
+
+For unit tests it does not matter if the application is running or not. 
+
+```bash
+npm run test:unit
+```
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 27 33" src="https://github.com/user-attachments/assets/57374292-c84c-49da-9a10-b919ca827af0" />
+
+
+### Run all tests with coverage report (for vitest tests)
+
+> [!WARNING]
+> In order to run all tests you need to start the application first 
 
 > [!WARNING]
 > There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
-- To run refresh token tests
+
+> [!WARNING]
+> For testing DATABASE_URL in .env file should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
+
 ```bash
-npm run test:refresh
+npm run test:coverage
 ```
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 29 48" src="https://github.com/user-attachments/assets/8e039b5e-025b-4b94-a0ad-43f19843ef24" />
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 30 10" src="https://github.com/user-attachments/assets/58cabe39-2b3b-424b-b24f-e637ddbe601b" />
 
-<img width="1440" height="900" alt="Screenshot 2026-04-20 at 00 02 13" src="https://github.com/user-attachments/assets/f4ae37bc-93d0-411a-92ae-485d3634c049" />
+### Run old jest tests
 
+> [!WARNING]
+> In order to run jest tests you need to start the application first 
 
 > [!WARNING]
 > There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
-- To run RBAC (role-based access control) tests
+
+> [!WARNING]
+> For testing DATABASE_URL in .env file should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
+
 ```bash
-npm run test:rbac
+npm run test:jest
 ```
 
-<img width="1440" height="900" alt="Screenshot 2026-04-20 at 00 04 38" src="https://github.com/user-attachments/assets/b697fe94-6960-408c-90c6-ad0b3c9c02f1" />
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 20 10 35" src="https://github.com/user-attachments/assets/e7ec0976-dda1-45f4-a80d-76c6d3c21775" />
+
+
+### Run unit tests with coverage report
+
+For unit tests it does not matter if the application is running or not. 
+
+```bash
+npm run test:cov:unit
+```
+
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 31 52" src="https://github.com/user-attachments/assets/d767c36e-4e5a-4965-aa39-3512eb42a307" />
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 32 08" src="https://github.com/user-attachments/assets/e3d9d9e8-b653-47cc-98b8-c589a468c7c8" />
 
 
 ## How to stop application 
@@ -194,19 +257,19 @@ docker compose down
 |--------|-----------------------|---------|---------------------------------------|
 | GET    | `/user`               | 200     | 400, 401                              |
 | GET    | `/user/:id`           | 200     | 400, 401, 404                         |
-| POST   | `/user`               | 201     | 400, 401                              |
+| POST   | `/user`               | 201     | 400, 401, 403                         |
 | PUT    | `/user/:id`           | 200     | 400, 401, 403, 404                    |
-| DELETE | `/user/:id`           | 204     | 400, 401, 404                         |
+| DELETE | `/user/:id`           | 204     | 400, 401, 403, 404                    |
 
 ### Articles (`/article`)
 
 | Method | Endpoint              | Success | Error Codes                           |
 |--------|-----------------------|---------|---------------------------------------|
-| GET    | `/article`            | 200     | 400, 401                              |
+| GET    | `/article`            | 200     | 400, 401,                             |
 | GET    | `/article/:id`        | 200     | 400, 401, 404                         |
-| POST   | `/article`            | 201     | 400, 401                              |
-| PUT    | `/article/:id`        | 200     | 400, 401, 404                         |
-| DELETE | `/article/:id`        | 204     | 400, 401, 404                         |
+| POST   | `/article`            | 201     | 400, 401, 403                         |
+| PUT    | `/article/:id`        | 200     | 400, 401, 403, 404                    |
+| DELETE | `/article/:id`        | 204     | 400, 401, 403, 404                    |
 
 ### Categories (`/category`)
 
@@ -214,9 +277,9 @@ docker compose down
 |--------|-----------------------|---------|---------------------------------------|
 | GET    | `/category`           | 200     | 400, 401                              |
 | GET    | `/category/:id`       | 200     | 400, 401, 404                         |
-| POST   | `/category`           | 201     | 400, 401                              |
-| PUT    | `/category/:id`       | 200     | 400, 401, 404                         |
-| DELETE | `/category/:id`       | 204     | 400, 401, 404                         |
+| POST   | `/category`           | 201     | 400, 401, 403                         |
+| PUT    | `/category/:id`       | 200     | 400, 401, 403, 403                    |
+| DELETE | `/category/:id`       | 204     | 400, 401, 403, 404                    |
 
 ### Comments (`/comment`)
 
@@ -224,8 +287,8 @@ docker compose down
 |--------|---------------------------------|---------|----------------------------|
 | GET    | `/comment?articleId={id}`       | 200     | 400, 401                   |
 | GET    | `/comment/:id`                  | 200     | 400, 401, 404              |
-| POST   | `/comment`                      | 201     | 400, 401, 422              |
-| DELETE | `/comment/:id`                  | 204     | 400, 401, 404              |
+| POST   | `/comment`                      | 201     | 400, 401, 403, 422         |
+| DELETE | `/comment/:id`                  | 204     | 400, 401, 403, 404         |
 
 ### Auth (`/auth`)
 

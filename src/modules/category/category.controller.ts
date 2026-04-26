@@ -23,6 +23,7 @@ import { FindCategoryQueryDto } from './dto/find-category-query.dto';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { ParseUUIDPipe } from 'src/common/pipes/parse-uuid.pipe';
 
 @Controller('category')
 @UseGuards(RolesGuard)
@@ -48,11 +49,15 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Body does not contain required fields',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
   })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
@@ -101,11 +106,11 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Wrong query parameters (hacker scope)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindCategoryQueryDto) {
@@ -133,18 +138,18 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Category id is invalid (not uuid)',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Category not found',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
   })
-  async findOne(@Param() params: IdParamDto) {
-    return this.categoryService.findOne(params.id);
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
+  })
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.categoryService.findOne(id);
   }
 
   @Put(':id')
@@ -168,15 +173,19 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Category id is invalid (not uuid)',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Category not found',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
   })
   async update(
     @Param() params: IdParamDto,
@@ -204,15 +213,19 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Category id is invalid (not uuid)',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Category not found',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
   })
   async remove(@Param() params: IdParamDto) {
     return this.categoryService.remove(params.id);

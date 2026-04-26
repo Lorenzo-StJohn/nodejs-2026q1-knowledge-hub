@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -25,7 +19,12 @@ import {
   CATEGORY_REPOSITORY,
   CategoryRepository,
 } from 'src/domain/repositories/category.repository.interface';
-import { Role } from '@prisma/client';
+import { ArticleStatus, Role } from '@prisma/client';
+import {
+  ForbiddenError,
+  NotFoundError,
+  ValidationError,
+} from 'src/common/exceptions/custom-errors';
 
 @Injectable()
 export class ArticleService {
@@ -44,9 +43,7 @@ export class ArticleService {
     if (articleEntity.authorId) {
       const author = await this.userRepo.findById(articleEntity.authorId);
       if (!author) {
-        throw new BadRequestException(
-          `User with ID ${articleEntity.authorId} does not exist!`,
-        );
+        throw new ValidationError();
       }
     }
 
@@ -55,9 +52,7 @@ export class ArticleService {
         articleEntity.categoryId,
       );
       if (!category) {
-        throw new BadRequestException(
-          `Category with ID ${articleEntity.categoryId} does not exist!`,
-        );
+        throw new ValidationError();
       }
     }
 
@@ -73,7 +68,7 @@ export class ArticleService {
   async findOne(id: string) {
     const article = await this.articleRepo.findById(id);
     if (!article) {
-      throw new NotFoundException(`Article with ID ${id} not found!`);
+      throw new NotFoundError();
     }
     return plainToInstance(ArticleResponseDto, article);
   }
@@ -85,26 +80,45 @@ export class ArticleService {
   ) {
     const article = await this.articleRepo.findById(id);
     if (!article) {
-      throw new NotFoundException(`Article with ID ${id} not found!`);
+      throw new NotFoundError();
     }
 
     if (
       currentUser.role === Role.editor &&
       article.authorId !== currentUser.id
     ) {
-      throw new ForbiddenException('You can only edit your own articles');
+      throw new ForbiddenError();
     }
 
     const updatedArticleEntity = Article.update(article, updateArticleDto);
+
+    const prevStatus = article.status;
+    const newStatus = updatedArticleEntity.status;
+
+    if (prevStatus !== newStatus) {
+      if (
+        prevStatus === ArticleStatus.draft &&
+        newStatus !== ArticleStatus.published
+      ) {
+        throw new ValidationError();
+      }
+      if (
+        prevStatus === ArticleStatus.published &&
+        newStatus !== ArticleStatus.archived
+      ) {
+        throw new ValidationError();
+      }
+      if (prevStatus === ArticleStatus.archived) {
+        throw new ValidationError();
+      }
+    }
 
     if (updatedArticleEntity.authorId) {
       const author = await this.userRepo.findById(
         updatedArticleEntity.authorId,
       );
       if (!author) {
-        throw new BadRequestException(
-          `User with ID ${updatedArticleEntity.authorId} does not exist!`,
-        );
+        throw new ValidationError();
       }
     }
 
@@ -113,9 +127,7 @@ export class ArticleService {
         updatedArticleEntity.categoryId,
       );
       if (!category) {
-        throw new BadRequestException(
-          `Category with ID ${updatedArticleEntity.categoryId} does not exist!`,
-        );
+        throw new ValidationError();
       }
     }
 
@@ -129,13 +141,13 @@ export class ArticleService {
   async remove(id: string, currentUser: any) {
     const article = await this.articleRepo.findById(id);
     if (!article) {
-      throw new NotFoundException(`Article with ID ${id} not found!`);
+      throw new NotFoundError();
     }
     if (
       currentUser.role === Role.editor &&
       article.authorId !== currentUser.id
     ) {
-      throw new ForbiddenException('You can only delete your own articles');
+      throw new ForbiddenError();
     }
     return await this.articleRepo.delete(id);
   }

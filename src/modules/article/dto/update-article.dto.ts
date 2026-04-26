@@ -17,13 +17,13 @@ export class UpdateArticleDto extends PartialType(CreateArticleDto) {
   @IsOptional()
   @IsString({ message: 'Title should be a string' })
   @IsNotEmpty({ message: 'Title should not be empty' })
-  title: string;
+  title?: string;
 
   @ApiPropertyOptional({ example: 'string' })
   @IsOptional()
   @IsString({ message: 'Content should be a string' })
   @IsNotEmpty({ message: 'Content should not be empty' })
-  content: string;
+  content?: string;
 
   @ApiPropertyOptional({
     description: 'Article status',

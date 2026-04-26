@@ -31,9 +31,11 @@ paths:
                 createdAt: 1775287579998
                 updatedAt: 1775287579998
         '400':
-          description: Bad request. Body does not contain required fields
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
         - Users
     get:
@@ -105,9 +107,9 @@ paths:
                         updatedAt: 1775287579998
                   description: With page and limit query parameters
         '400':
-          description: Bad request. Wrong query parameters (hacker scope)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
       tags:
         - Users
   /user/{id}:
@@ -120,7 +122,8 @@ paths:
           required: true
           in: path
           description: User id, format UUID v4
-          schema: {}
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation
@@ -133,11 +136,11 @@ paths:
                 createdAt: 1775287579998
                 updatedAt: 1775287579998
         '400':
-          description: Bad request. User id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
         '404':
-          description: User not found
+          description: Not Found
       tags:
         - Users
     put:
@@ -168,13 +171,13 @@ paths:
                 createdAt: 1775287579998
                 updatedAt: 1775288465881
         '400':
-          description: Bad request. User id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
         '403':
-          description: oldPassword is wrong
+          description: Forbidden
         '404':
-          description: User not found
+          description: Not Found
       tags:
         - Users
     delete:
@@ -194,11 +197,13 @@ paths:
           description: The user has been deleted
           example: ''
         '400':
-          description: Bad request. User id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
-          description: User not found
+          description: Not Found
       tags:
         - Users
   /article:
@@ -232,9 +237,11 @@ paths:
                 createdAt: 1775299578964
                 updatedAt: 1775299578964
         '400':
-          description: Bad request. Body does not contain required fields
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
         - Articles
     get:
@@ -350,9 +357,9 @@ paths:
                         updatedAt: 1775299578964
                   description: With page and limit query parameters
         '400':
-          description: Bad request. Wrong query parameters (hacker scope)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
       tags:
         - Articles
   /article/{id}:
@@ -365,7 +372,8 @@ paths:
           required: true
           in: path
           description: Article id, format UUID v4
-          schema: {}
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation
@@ -385,11 +393,11 @@ paths:
                 createdAt: 1775299578964
                 updatedAt: 1775299578964
         '400':
-          description: Bad request. Article id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
         '404':
-          description: Article not found
+          description: Not Found
       tags:
         - Articles
     put:
@@ -427,11 +435,13 @@ paths:
                 createdAt: 1775299578964
                 updatedAt: 1775300238971
         '400':
-          description: Bad request. Article id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
-          description: Article not found
+          description: Not Found
       tags:
         - Articles
     delete:
@@ -449,11 +459,13 @@ paths:
           description: The article has been deleted
           example: ''
         '400':
-          description: Bad request. Article id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
-          description: Article not found
+          description: Not Found
       tags:
         - Articles
   /category:
@@ -478,9 +490,11 @@ paths:
                 name: string
                 description: string
         '400':
-          description: Bad request. Body does not contain required fields
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
+        '403':
+          description: Forbidden
       tags:
         - Categories
     get:
@@ -546,9 +560,9 @@ paths:
                         description: string
                   description: With page and limit query parameters
         '400':
-          description: Bad request. Wrong query parameters (hacker scope)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
       tags:
         - Categories
   /category/{id}:
@@ -561,7 +575,8 @@ paths:
           required: true
           in: path
           description: Category id, format UUID v4
-          schema: {}
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation
@@ -572,11 +587,11 @@ paths:
                 name: string
                 description: string
         '400':
-          description: Bad request. Category id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
         '404':
-          description: Category not found
+          description: Not Found
       tags:
         - Categories
     put:
@@ -605,11 +620,13 @@ paths:
                 name: string
                 description: string
         '400':
-          description: Bad request. Category id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
-          description: Category not found
+          description: Not Found
       tags:
         - Categories
     delete:
@@ -627,11 +644,13 @@ paths:
           description: The category has been deleted
           example: ''
         '400':
-          description: Bad request. Category id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
-          description: Category not found
+          description: Not Found
       tags:
         - Categories
   /comment:
@@ -658,11 +677,13 @@ paths:
                 authorId: b1b73593-2445-421a-af42-359114d6c536
                 createdAt: 1775287579998
         '400':
-          description: Bad request. Body does not contain required fields
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '422':
-          description: Unprocessable entity. Referenced articleId doesn't exist
+          description: Unprocessable Entity
       tags:
         - Comments
     get:
@@ -743,9 +764,9 @@ paths:
                         createdAt: 1775287579998
                   description: With page and limit query parameters
         '400':
-          description: Bad request. Wrong query parameters (hacker scope)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
       tags:
         - Comments
   /comment/{id}:
@@ -758,7 +779,8 @@ paths:
           required: true
           in: path
           description: Comment id, format UUID v4
-          schema: {}
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation
@@ -771,11 +793,11 @@ paths:
                 authorId: b1b73593-2445-421a-af42-359114d6c536
                 createdAt: 1775287579998
         '400':
-          description: Bad request. Comment id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
         '404':
-          description: Comment not found
+          description: Not Found
       tags:
         - Comments
     delete:
@@ -793,11 +815,13 @@ paths:
           description: The comment has been deleted
           example: ''
         '400':
-          description: Bad request. Comment id is invalid (not uuid)
+          description: Validation Error
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
-          description: Comment not found
+          description: Not Found
       tags:
         - Comments
   /auth/signup:
@@ -822,11 +846,9 @@ paths:
                 login: string
                 role: viewer
         '400':
-          description: >-
-            Bad request. Body does not contain required fields or login is
-            already taken
+          description: Validation Error
         '429':
-          description: Too many requests
+          description: Too Many Requests
       tags:
         - Auth
   /auth/login:
@@ -852,13 +874,11 @@ paths:
                 refreshToken: >-
                   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzRiMWU3Yy1iNTg5LTQ0M2MtYTU1ZS0zYjkxNmUxZGZkM2YiLCJsb2dpbiI6InN0cmluZzIyMiIsInJvbGUiOiJ2aWV3ZXIiLCJpYXQiOjE3NzY2MjA2NDMsImV4cCI6MTc3NzIyNTQ0M30.aaRmwcAngHNnG7kn_QHv8Udu_IPWOmKNh-fQyFKno2A
         '400':
-          description: >-
-            Bad request. Body contains no login or password, or they are not
-            strings
+          description: Validation Error
         '403':
-          description: Incorrect login or password
+          description: Forbidden
         '429':
-          description: Too many requests
+          description: Too Many Requests
       tags:
         - Auth
   /auth/refresh:
@@ -884,9 +904,9 @@ paths:
                 refreshToken: >-
                   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzRiMWU3Yy1iNTg5LTQ0M2MtYTU1ZS0zYjkxNmUxZGZkM2YiLCJsb2dpbiI6InN0cmluZzIyMiIsInJvbGUiOiJ2aWV3ZXIiLCJpYXQiOjE3NzY2MjA4MzQsImV4cCI6MTc3NzIyNTYzNH0.KEF3QcYd5DpFUH7oxO9Ys7AvsnocMaOUazWjXctH4OM
         '401':
-          description: Bad request. Body does not contain refreshToken
+          description: Unauthorized
         '403':
-          description: Refresh token is invalid or expired
+          description: Forbidden
       tags:
         - Auth
   /auth/logout:
@@ -909,7 +929,7 @@ paths:
               example:
                 message: Logged out successfully
         '401':
-          description: Bad request. Body does not contain refreshToken
+          description: Unauthorized
       tags:
         - Auth
 info:
@@ -921,10 +941,11 @@ tags: []
 servers: []
 components:
   securitySchemes:
-    bearer:
+    JWT-auth:
       scheme: bearer
       bearerFormat: JWT
       type: http
+      description: Enter JWT token (without "Bearer " prefix)
   schemas:
     CreateUserDto:
       type: object
@@ -1090,3 +1111,5 @@ components:
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzRiMWU3Yy1iNTg5LTQ0M2MtYTU1ZS0zYjkxNmUxZGZkM2YiLCJsb2dpbiI6InN0cmluZzIyMiIsInJvbGUiOiJ2aWV3ZXIiLCJpYXQiOjE3NzY2MjA2NDMsImV4cCI6MTc3NzIyNTQ0M30.aaRmwcAngHNnG7kn_QHv8Udu_IPWOmKNh-fQyFKno2A
       required:
         - refreshToken
+security:
+  - JWT-auth: []

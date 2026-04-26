@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcryptjs';
 import {
@@ -19,6 +13,11 @@ import {
   TOKEN_REPOSITORY,
   TokenRepository,
 } from 'src/domain/repositories/token.repository.interface';
+import {
+  ForbiddenError,
+  UnauthorizedError,
+  ValidationError,
+} from 'src/common/exceptions/custom-errors';
 
 const CRYPT_SALT = parseInt(process.env.CRYPT_SALT ?? '10');
 
@@ -50,7 +49,7 @@ export class AuthService {
           role: existing.role,
         };
       }
-      throw new BadRequestException('User with this login already exists');
+      throw new ValidationError();
     }
 
     const hashedPassword = await hash(dto.password, CRYPT_SALT);
@@ -73,7 +72,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.userRepo.findByLogin(dto.login);
     if (!user || !(await compare(dto.password, user.password))) {
-      throw new ForbiddenException('Invalid login or password');
+      throw new ForbiddenError();
     }
 
     return this.generateTokens(user);
@@ -81,33 +80,38 @@ export class AuthService {
 
   async refresh(refreshToken?: string) {
     if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token is required');
+      throw new UnauthorizedError();
     }
 
+    let payload;
     try {
-      const payload = this.jwtService.verify(refreshToken, {
+      payload = this.jwtService.verify(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
       });
-
-      const user = await this.userRepo.findById(payload.userId);
-      if (!user) throw new UnauthorizedException();
-
-      const stored = await this.tokenRepo.findByToken(refreshToken);
-
-      if (!stored || stored.expiresAt < new Date()) {
-        throw new ForbiddenException('Invalid or expired refresh token');
-      }
-      await this.tokenRepo.delete(refreshToken);
-
-      return this.generateTokens(user);
     } catch {
-      throw new ForbiddenException('Invalid or expired refresh token');
+      throw new ForbiddenError();
     }
+
+    if (!payload) {
+      throw new ForbiddenError();
+    }
+
+    const user = await this.userRepo.findById(payload.userId);
+    if (!user) throw new UnauthorizedError();
+
+    const stored = await this.tokenRepo.findByToken(refreshToken);
+
+    if (!stored || stored.expiresAt < new Date()) {
+      throw new ForbiddenError();
+    }
+    await this.tokenRepo.delete(refreshToken);
+
+    return this.generateTokens(user);
   }
 
   async logout(refreshToken: string) {
     if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token is required');
+      throw new UnauthorizedError();
     }
     await this.tokenRepo.delete(refreshToken);
     return { message: 'Logged out successfully' };

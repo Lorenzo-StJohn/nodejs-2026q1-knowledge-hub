@@ -15,6 +15,8 @@ RUN  npx prisma generate && \
 FROM node:24-alpine
 WORKDIR /app
 
+RUN mkdir -p logs && chown node:node logs
+
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma ./prisma

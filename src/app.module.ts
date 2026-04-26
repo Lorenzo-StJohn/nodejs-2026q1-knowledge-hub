@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
@@ -10,6 +10,8 @@ import { ArticleModule } from './modules/article/article.module';
 import { CategoryModule } from './modules/category/category.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { AuthModule } from './auth/auth.module';
+import { AppLogger } from './common/logger/logger.service';
+import { LoggingMiddleware } from './common/middleware/logging.middleware';
 
 @Module({
   imports: [
@@ -18,12 +20,12 @@ import { AuthModule } from './auth/auth.module';
         {
           name: 'short',
           ttl: 60000,
-          limit: 20,
+          limit: 200,
         },
         {
           name: 'long',
           ttl: 3600000,
-          limit: 200,
+          limit: 2000,
         },
       ],
     }),
@@ -36,6 +38,11 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AppLogger],
+  exports: [AppLogger],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggingMiddleware).forRoutes('*');
+  }
+}

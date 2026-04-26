@@ -24,6 +24,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { ParseUUIDPipe } from 'src/common/pipes/parse-uuid.pipe';
 
 @Controller('article')
 @UseGuards(RolesGuard)
@@ -55,11 +56,15 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Body does not contain required fields',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
   })
   async create(@Body() createArticleDto: CreateArticleDto) {
     return await this.articleService.create(createArticleDto);
@@ -121,11 +126,11 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Wrong query parameters (hacker scope)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindArticlesQueryDto) {
@@ -159,18 +164,18 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Article id is invalid (not uuid)',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Article not found',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
   })
-  async findOne(@Param() params: IdParamDto) {
-    return await this.articleService.findOne(params.id);
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
+  })
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.articleService.findOne(id);
   }
 
   @Put(':id')
@@ -200,15 +205,19 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Article id is invalid (not uuid)',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Article not found',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
   })
   async update(
     @Param() params: IdParamDto,
@@ -236,15 +245,19 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Article id is invalid (not uuid)',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Article not found',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return await this.articleService.remove(params.id, user);

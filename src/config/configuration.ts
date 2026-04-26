@@ -9,4 +9,8 @@ export class Configuration {
   get isMemoryMode(): boolean {
     return process.env.MODE === 'memory';
   }
+
+  get isProduction(): boolean {
+    return process.env.NODE_ENV === 'production';
+  }
 }
