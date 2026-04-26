@@ -116,6 +116,10 @@ export class CommentController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
@@ -149,12 +153,16 @@ export class CommentController {
     description: 'Bad request. Comment id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Comment not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Comment not found',
   })
   async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.commentService.findOne(id);
@@ -181,12 +189,16 @@ export class CommentController {
     description: 'Bad request. Comment id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Comment not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Comment not found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return this.commentService.remove(params.id, user);

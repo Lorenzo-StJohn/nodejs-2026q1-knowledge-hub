@@ -96,7 +96,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Bad request. Body does not contain refreshToken',
+    description: 'Bad request. Missing refreshToken',
   })
   @ApiResponse({
     status: 403,
@@ -122,7 +122,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Bad request. Body does not contain refreshToken',
+    description: 'Bad request. Missing refreshToken',
   })
   async logout(@Body() dto: RefreshDto) {
     return this.authService.logout(dto.refreshToken);
