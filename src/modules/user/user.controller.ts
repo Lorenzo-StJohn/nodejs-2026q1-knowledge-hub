@@ -24,6 +24,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { ParseUUIDPipe } from 'src/common/pipes/parse-uuid.pipe';
 
 @Controller('user')
 @UseGuards(RolesGuard)
@@ -52,6 +53,10 @@ export class UserController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   async create(@Body() createUserDto: CreateUserDto) {
@@ -109,7 +114,7 @@ export class UserController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindUserQueryDto) {
@@ -142,15 +147,15 @@ export class UserController {
     description: 'Bad request. User id is invalid (not uuid)',
   })
   @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
     status: 404,
     description: 'User not found',
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Insufficient permissions',
-  })
-  async findOne(@Param() params: IdParamDto) {
-    return await this.userService.findOne(params.id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.userService.findOne(id);
   }
 
   @Put(':id')
@@ -180,11 +185,11 @@ export class UserController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
   })
   @ApiResponse({
     status: 403,
-    description: 'oldPassword is wrong',
+    description: 'oldPassword is wrong or insufficient permissions',
   })
   @ApiResponse({
     status: 404,
@@ -220,12 +225,16 @@ export class UserController {
     description: 'Bad request. User id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'User not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return await this.userService.remove(params.id, user);

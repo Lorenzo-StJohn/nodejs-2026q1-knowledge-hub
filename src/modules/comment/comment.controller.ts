@@ -22,6 +22,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { ParseUUIDPipe } from 'src/common/pipes/parse-uuid.pipe';
 
 @Controller('comment')
 @UseGuards(RolesGuard)
@@ -57,6 +58,10 @@ export class CommentController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   async create(@Body() createCommentDto: CreateCommentDto) {
@@ -115,7 +120,7 @@ export class CommentController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindCommentQueryDto) {
@@ -148,15 +153,15 @@ export class CommentController {
     description: 'Bad request. Comment id is invalid (not uuid)',
   })
   @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
     status: 404,
     description: 'Comment not found',
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Insufficient permissions',
-  })
-  async findById(@Param() params: IdParamDto) {
-    return this.commentService.findOne(params.id);
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.commentService.findOne(id);
   }
 
   @Delete(':id')
@@ -180,12 +185,16 @@ export class CommentController {
     description: 'Bad request. Comment id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Comment not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Comment not found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return this.commentService.remove(params.id, user);

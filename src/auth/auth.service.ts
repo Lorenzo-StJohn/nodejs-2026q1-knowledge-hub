@@ -84,25 +84,30 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token is required');
     }
 
+    let payload;
     try {
-      const payload = this.jwtService.verify(refreshToken, {
+      payload = this.jwtService.verify(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
       });
-
-      const user = await this.userRepo.findById(payload.userId);
-      if (!user) throw new UnauthorizedException();
-
-      const stored = await this.tokenRepo.findByToken(refreshToken);
-
-      if (!stored || stored.expiresAt < new Date()) {
-        throw new ForbiddenException('Invalid or expired refresh token');
-      }
-      await this.tokenRepo.delete(refreshToken);
-
-      return this.generateTokens(user);
     } catch {
       throw new ForbiddenException('Invalid or expired refresh token');
     }
+
+    if (!payload) {
+      throw new ForbiddenException('Invalid or expired refresh token');
+    }
+
+    const user = await this.userRepo.findById(payload.userId);
+    if (!user) throw new UnauthorizedException();
+
+    const stored = await this.tokenRepo.findByToken(refreshToken);
+
+    if (!stored || stored.expiresAt < new Date()) {
+      throw new ForbiddenException('Invalid or expired refresh token');
+    }
+    await this.tokenRepo.delete(refreshToken);
+
+    return this.generateTokens(user);
   }
 
   async logout(refreshToken: string) {

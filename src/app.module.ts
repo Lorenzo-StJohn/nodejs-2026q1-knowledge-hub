@@ -18,12 +18,12 @@ import { AuthModule } from './auth/auth.module';
         {
           name: 'short',
           ttl: 60000,
-          limit: 20,
+          limit: 200,
         },
         {
           name: 'long',
           ttl: 3600000,
-          limit: 200,
+          limit: 2000,
         },
       ],
     }),

@@ -6,6 +6,7 @@ import 'dotenv/config';
 import { AppModule } from './app.module';
 import { Configuration } from './config/configuration';
 import { JwtAuthGuard } from './auth/guards/auth.guard';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -46,6 +47,9 @@ async function bootstrap() {
   });
 
   const config = app.get(Configuration);
+
+  app.useGlobalFilters(new HttpExceptionFilter());
+
   await app.listen(config.port);
 }
 bootstrap();

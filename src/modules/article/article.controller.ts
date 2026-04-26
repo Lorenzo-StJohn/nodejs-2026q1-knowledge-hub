@@ -24,6 +24,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { ParseUUIDPipe } from 'src/common/pipes/parse-uuid.pipe';
 
 @Controller('article')
 @UseGuards(RolesGuard)
@@ -59,6 +60,10 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   async create(@Body() createArticleDto: CreateArticleDto) {
@@ -125,7 +130,7 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
   async findAll(@Query() filters: FindArticlesQueryDto) {
@@ -162,15 +167,15 @@ export class ArticleController {
     description: 'Bad request. Article id is invalid (not uuid)',
   })
   @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
     status: 404,
     description: 'Article not found',
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Insufficient permissions',
-  })
-  async findOne(@Param() params: IdParamDto) {
-    return await this.articleService.findOne(params.id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.articleService.findOne(id);
   }
 
   @Put(':id')
@@ -203,12 +208,16 @@ export class ArticleController {
     description: 'Bad request. Article id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Article not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Article not found',
   })
   async update(
     @Param() params: IdParamDto,
@@ -239,12 +248,16 @@ export class ArticleController {
     description: 'Bad request. Article id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Article not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Article not found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return await this.articleService.remove(params.id, user);

@@ -33,6 +33,8 @@ paths:
         '400':
           description: Bad request. Body does not contain required fields
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
       tags:
         - Users
@@ -107,7 +109,7 @@ paths:
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
       tags:
         - Users
   /user/{id}:
@@ -120,7 +122,8 @@ paths:
           required: true
           in: path
           description: User id, format UUID v4
-          schema: {}
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation
@@ -135,7 +138,7 @@ paths:
         '400':
           description: Bad request. User id is invalid (not uuid)
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
         '404':
           description: User not found
       tags:
@@ -170,9 +173,9 @@ paths:
         '400':
           description: Bad request. User id is invalid (not uuid)
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
         '403':
-          description: oldPassword is wrong
+          description: oldPassword is wrong or insufficient permissions
         '404':
           description: User not found
       tags:
@@ -196,6 +199,8 @@ paths:
         '400':
           description: Bad request. User id is invalid (not uuid)
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
         '404':
           description: User not found
@@ -234,6 +239,8 @@ paths:
         '400':
           description: Bad request. Body does not contain required fields
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
       tags:
         - Articles
@@ -352,7 +359,7 @@ paths:
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
       tags:
         - Articles
   /article/{id}:
@@ -365,7 +372,8 @@ paths:
           required: true
           in: path
           description: Article id, format UUID v4
-          schema: {}
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation
@@ -387,7 +395,7 @@ paths:
         '400':
           description: Bad request. Article id is invalid (not uuid)
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
         '404':
           description: Article not found
       tags:
@@ -429,6 +437,8 @@ paths:
         '400':
           description: Bad request. Article id is invalid (not uuid)
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
         '404':
           description: Article not found
@@ -451,6 +461,8 @@ paths:
         '400':
           description: Bad request. Article id is invalid (not uuid)
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
         '404':
           description: Article not found
@@ -480,6 +492,8 @@ paths:
         '400':
           description: Bad request. Body does not contain required fields
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
       tags:
         - Categories
@@ -548,7 +562,7 @@ paths:
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
       tags:
         - Categories
   /category/{id}:
@@ -561,7 +575,8 @@ paths:
           required: true
           in: path
           description: Category id, format UUID v4
-          schema: {}
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation
@@ -574,7 +589,7 @@ paths:
         '400':
           description: Bad request. Category id is invalid (not uuid)
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
         '404':
           description: Category not found
       tags:
@@ -607,6 +622,8 @@ paths:
         '400':
           description: Bad request. Category id is invalid (not uuid)
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
         '404':
           description: Category not found
@@ -629,6 +646,8 @@ paths:
         '400':
           description: Bad request. Category id is invalid (not uuid)
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
         '404':
           description: Category not found
@@ -660,6 +679,8 @@ paths:
         '400':
           description: Bad request. Body does not contain required fields
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
         '422':
           description: Unprocessable entity. Referenced articleId doesn't exist
@@ -745,7 +766,7 @@ paths:
         '400':
           description: Bad request. Wrong query parameters (hacker scope)
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
       tags:
         - Comments
   /comment/{id}:
@@ -758,7 +779,8 @@ paths:
           required: true
           in: path
           description: Comment id, format UUID v4
-          schema: {}
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation
@@ -773,7 +795,7 @@ paths:
         '400':
           description: Bad request. Comment id is invalid (not uuid)
         '401':
-          description: Insufficient permissions
+          description: Unauthorized
         '404':
           description: Comment not found
       tags:
@@ -795,6 +817,8 @@ paths:
         '400':
           description: Bad request. Comment id is invalid (not uuid)
         '401':
+          description: Unauthorized
+        '403':
           description: Insufficient permissions
         '404':
           description: Comment not found
@@ -884,7 +908,7 @@ paths:
                 refreshToken: >-
                   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzRiMWU3Yy1iNTg5LTQ0M2MtYTU1ZS0zYjkxNmUxZGZkM2YiLCJsb2dpbiI6InN0cmluZzIyMiIsInJvbGUiOiJ2aWV3ZXIiLCJpYXQiOjE3NzY2MjA4MzQsImV4cCI6MTc3NzIyNTYzNH0.KEF3QcYd5DpFUH7oxO9Ys7AvsnocMaOUazWjXctH4OM
         '401':
-          description: Bad request. Body does not contain refreshToken
+          description: Bad request. Missing refreshToken
         '403':
           description: Refresh token is invalid or expired
       tags:
@@ -909,7 +933,7 @@ paths:
               example:
                 message: Logged out successfully
         '401':
-          description: Bad request. Body does not contain refreshToken
+          description: Bad request. Missing refreshToken
       tags:
         - Auth
 info:
@@ -921,10 +945,11 @@ tags: []
 servers: []
 components:
   securitySchemes:
-    bearer:
+    JWT-auth:
       scheme: bearer
       bearerFormat: JWT
       type: http
+      description: Enter JWT token (without "Bearer " prefix)
   schemas:
     CreateUserDto:
       type: object
@@ -1090,3 +1115,5 @@ components:
             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhMzRiMWU3Yy1iNTg5LTQ0M2MtYTU1ZS0zYjkxNmUxZGZkM2YiLCJsb2dpbiI6InN0cmluZzIyMiIsInJvbGUiOiJ2aWV3ZXIiLCJpYXQiOjE3NzY2MjA2NDMsImV4cCI6MTc3NzIyNTQ0M30.aaRmwcAngHNnG7kn_QHv8Udu_IPWOmKNh-fQyFKno2A
       required:
         - refreshToken
+security:
+  - JWT-auth: []

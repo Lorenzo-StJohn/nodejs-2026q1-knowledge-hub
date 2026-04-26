@@ -25,7 +25,7 @@ import {
   CATEGORY_REPOSITORY,
   CategoryRepository,
 } from 'src/domain/repositories/category.repository.interface';
-import { Role } from '@prisma/client';
+import { ArticleStatus, Role } from '@prisma/client';
 
 @Injectable()
 export class ArticleService {
@@ -96,6 +96,27 @@ export class ArticleService {
     }
 
     const updatedArticleEntity = Article.update(article, updateArticleDto);
+
+    const prevStatus = article.status;
+    const newStatus = updatedArticleEntity.status;
+
+    if (prevStatus !== newStatus) {
+      if (
+        prevStatus === ArticleStatus.draft &&
+        newStatus !== ArticleStatus.published
+      ) {
+        throw new BadRequestException('Invalid status transition');
+      }
+      if (
+        prevStatus === ArticleStatus.published &&
+        newStatus !== ArticleStatus.archived
+      ) {
+        throw new BadRequestException('Invalid status transition');
+      }
+      if (prevStatus === ArticleStatus.archived) {
+        throw new BadRequestException('Invalid status transition');
+      }
+    }
 
     if (updatedArticleEntity.authorId) {
       const author = await this.userRepo.findById(
