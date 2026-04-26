@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -542,13 +541,13 @@ describe('CommentService', () => {
       articleId: 'fakeIf',
     };
 
-    it('should throw ForbiddenException if no permissions due to RBAC', async () => {
+    it('should throw ForbiddenError if no permissions due to RBAC', async () => {
       const comment = new Comment(createCommentDto);
       mockCommentRepo.findById.mockResolvedValue(comment);
 
       const deletePromise = service.remove(id, currentUser);
 
-      await expect(deletePromise).rejects.toThrow(ForbiddenException);
+      await expect(deletePromise).rejects.toThrow(ForbiddenError);
     });
 
     const commentId = 'c1';

@@ -1,9 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  BadRequestException,
-  NotFoundException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   COMMENT_REPOSITORY,
@@ -25,6 +20,11 @@ import { CreateCommentDto } from 'src/modules/comment/dto/create-comment.dto';
 import { Article } from 'src/domain/entities/article.entity';
 import { CommentResponseDto } from 'src/modules/comment/dto/comment-response.dto';
 import { CommentPaginationResponseDto } from 'src/modules/comment/dto/comment-pagination-response.dto';
+import {
+  NotFoundError,
+  UnprocessableEntityError,
+  ValidationError,
+} from 'src/common/exceptions/custom-errors';
 
 vi.mock('class-transformer', async (importOriginal) => {
   const actual = await importOriginal<typeof import('class-transformer')>();
@@ -109,11 +109,11 @@ describe('CommentService', () => {
       expect(result).toEqual(createdComment);
     });
 
-    it('should throw UnprocessableEntityException if article not found', async () => {
+    it('should throw UnprocessableEntityError if article not found', async () => {
       mockArticleRepo.findById.mockResolvedValue(null);
 
       await expect(service.create(dto)).rejects.toThrow(
-        UnprocessableEntityException,
+        UnprocessableEntityError,
       );
       expect(mockCommentRepo.create).not.toHaveBeenCalled();
     });
@@ -133,13 +133,13 @@ describe('CommentService', () => {
       expect(result).toEqual(createdComment);
     });
 
-    it('should throw BadRequestException if authorId does not exist', async () => {
+    it('should throw ValidationError if authorId does not exist', async () => {
       const dtoWithAuthor = { ...dto, authorId: validUuid };
       mockArticleRepo.findById.mockResolvedValue({ id: validUuid } as any);
       mockUserRepo.findById.mockResolvedValue(null);
 
       await expect(service.create(dtoWithAuthor)).rejects.toThrow(
-        BadRequestException,
+        ValidationError,
       );
       expect(mockCommentRepo.create).not.toHaveBeenCalled();
     });
@@ -157,12 +157,10 @@ describe('CommentService', () => {
       expect(result).toEqual(comment);
     });
 
-    it('should throw NotFoundException when comment not found', async () => {
+    it('should throw NotFoundError when comment not found', async () => {
       mockCommentRepo.findById.mockResolvedValue(null);
 
-      await expect(service.findOne('bad-id')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne('bad-id')).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -192,11 +190,11 @@ describe('CommentService', () => {
     const commentId = 'c1';
     const currentUserAdmin = { id: 'admin-1', role: Role.admin };
 
-    it('should throw NotFoundException if comment not found', async () => {
+    it('should throw NotFoundError if comment not found', async () => {
       mockCommentRepo.findById.mockResolvedValue(null);
 
       await expect(service.remove(commentId, currentUserAdmin)).rejects.toThrow(
-        NotFoundException,
+        NotFoundError,
       );
       expect(mockCommentRepo.delete).not.toHaveBeenCalled();
     });
