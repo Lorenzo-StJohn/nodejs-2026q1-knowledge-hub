@@ -60,6 +60,10 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   async create(@Body() createArticleDto: CreateArticleDto) {
@@ -126,6 +130,10 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
@@ -163,12 +171,16 @@ export class ArticleController {
     description: 'Bad request. Article id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Article not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Article not found',
   })
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return await this.articleService.findOne(id);
@@ -204,12 +216,16 @@ export class ArticleController {
     description: 'Bad request. Article id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Article not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Article not found',
   })
   async update(
     @Param() params: IdParamDto,
@@ -240,12 +256,16 @@ export class ArticleController {
     description: 'Bad request. Article id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Article not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Article not found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return await this.articleService.remove(params.id, user);

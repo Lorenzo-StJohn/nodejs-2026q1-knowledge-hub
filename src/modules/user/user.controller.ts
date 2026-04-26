@@ -53,6 +53,10 @@ export class UserController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   async create(@Body() createUserDto: CreateUserDto) {
@@ -110,6 +114,10 @@ export class UserController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
@@ -143,12 +151,16 @@ export class UserController {
     description: 'Bad request. User id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'User not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
   })
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return await this.userService.findOne(id);
@@ -181,11 +193,11 @@ export class UserController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Insufficient permissions',
+    description: 'Unauthorized',
   })
   @ApiResponse({
     status: 403,
-    description: 'oldPassword is wrong',
+    description: 'oldPassword is wrong or insufficient permissions',
   })
   @ApiResponse({
     status: 404,
@@ -221,12 +233,16 @@ export class UserController {
     description: 'Bad request. User id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'User not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return await this.userService.remove(params.id, user);

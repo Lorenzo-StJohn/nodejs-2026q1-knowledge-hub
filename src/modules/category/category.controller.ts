@@ -53,6 +53,10 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
@@ -106,6 +110,10 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 403,
     description: 'Insufficient permissions',
   })
   @UseInterceptors(ConditionalPaginationInterceptor)
@@ -137,12 +145,16 @@ export class CategoryController {
     description: 'Bad request. Category id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Category not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
   })
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.categoryService.findOne(id);
@@ -172,12 +184,16 @@ export class CategoryController {
     description: 'Bad request. Category id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Category not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
   })
   async update(
     @Param() params: IdParamDto,
@@ -208,12 +224,16 @@ export class CategoryController {
     description: 'Bad request. Category id is invalid (not uuid)',
   })
   @ApiResponse({
-    status: 404,
-    description: 'Category not found',
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
-    status: 401,
+    status: 403,
     description: 'Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
   })
   async remove(@Param() params: IdParamDto) {
     return this.categoryService.remove(params.id);
