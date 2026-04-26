@@ -15,6 +15,7 @@ export default defineConfig({
         'src/**/*.interceptor.ts',
         'src/**/*.filter.ts',
         'src/**/*.pipe.ts',
+        'src/**/*.guard.ts',
       ],
       exclude: ['src/prisma'],
       reportsDirectory: './coverage',
