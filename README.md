@@ -82,9 +82,22 @@ npx prisma migrate deploy
 
 #### Start local app:
 
+  - in development mode:
+
 ```bash
 npm run start:dev
 ```
+
+  - or in production mode:
+
+```bash
+npm run build
+```
+
+```bash
+npm run start:prod
+```
+
 
 ### Run seed script from local app
 
@@ -144,6 +157,14 @@ After running the script, the following users will exist:
 ## Log file example
 
 <img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 44 25" src="https://github.com/user-attachments/assets/60f7877b-5b0b-4445-89c8-2c3cd6c45f63" />
+
+## Log example for development mode
+
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 22 06 20" src="https://github.com/user-attachments/assets/fa52d981-a826-4ad9-b4fa-fae8077336ee" />
+
+## Log example for production mode
+
+<img width="1440" height="900" alt="Screenshot 2026-04-26 at 22 14 07" src="https://github.com/user-attachments/assets/d80c689f-901a-4113-89b2-80d531f0b469" />
 
 ## Testing
 
