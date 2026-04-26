@@ -187,10 +187,6 @@ export class CategoryController {
     status: 404,
     description: 'Not Found',
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Category not found',
-  })
   async update(
     @Param() params: IdParamDto,
     @Body() updateCategoryDto: UpdateCategoryDto,
