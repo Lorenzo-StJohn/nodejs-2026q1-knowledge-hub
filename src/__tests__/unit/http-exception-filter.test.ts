@@ -10,35 +10,47 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { ThrottlerException } from '@nestjs/throttler';
+import { AppLogger } from 'src/common/logger/logger.service';
+import { NotFoundError } from 'src/common/exceptions/custom-errors';
 
-vi.mock('@nestjs/common', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@nestjs/common')>();
-  return {
-    ...actual,
-    Logger: vi.fn(function (this: any) {
-      this.error = vi.fn();
-      this.log = vi.fn();
-      this.warn = vi.fn();
-      this.debug = vi.fn();
-      this.verbose = vi.fn();
-    }),
-  };
-});
+vi.mock('winston', () => ({}));
+vi.mock('winston-daily-rotate-file', () => ({}));
+vi.mock('src/common/logger/size-rotating-file.transport', () => ({}));
+
+vi.mock('../logger/logger.service', () => ({
+  AppLogger: vi.fn().mockImplementation(() => ({
+    error: vi.fn(),
+    log: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    verbose: vi.fn(),
+  })),
+}));
 
 describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;
   let mockResponse: any;
   let mockRequest: any;
   let mockArgumentsHost: ArgumentsHost;
+  let mockLogger: jest.Mocked<AppLogger>;
 
   beforeEach(() => {
-    filter = new HttpExceptionFilter();
+    mockLogger = {
+      error: vi.fn(),
+      log: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      verbose: vi.fn(),
+    } as any;
+
+    filter = new HttpExceptionFilter(mockLogger);
 
     mockResponse = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnThis(),
     };
     mockRequest = {
+      method: 'GET',
       url: '/test/url',
     };
 
@@ -63,9 +75,8 @@ describe('HttpExceptionFilter', () => {
     expect(mockResponse.status).toHaveBeenCalledWith(400);
     expect(mockResponse.json).toHaveBeenCalledWith({
       statusCode: 400,
+      error: 'Bad Request',
       message: 'Validation failed',
-      timestamp: expect.any(String),
-      path: '/test/url',
     });
   });
 
@@ -74,12 +85,11 @@ describe('HttpExceptionFilter', () => {
     filter.catch(exception, mockArgumentsHost);
 
     expect(mockResponse.status).toHaveBeenCalledWith(401);
-    expect(mockResponse.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        statusCode: 401,
-        message: 'Invalid token',
-      }),
-    );
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: 401,
+      error: 'Unauthorized',
+      message: 'Invalid token',
+    });
   });
 
   it('should format ForbiddenException correctly', () => {
@@ -87,12 +97,11 @@ describe('HttpExceptionFilter', () => {
     filter.catch(exception, mockArgumentsHost);
 
     expect(mockResponse.status).toHaveBeenCalledWith(403);
-    expect(mockResponse.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        statusCode: 403,
-        message: 'Access denied',
-      }),
-    );
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: 403,
+      error: 'Forbidden',
+      message: 'Access denied',
+    });
   });
 
   it('should format NotFoundException correctly', () => {
@@ -100,12 +109,11 @@ describe('HttpExceptionFilter', () => {
     filter.catch(exception, mockArgumentsHost);
 
     expect(mockResponse.status).toHaveBeenCalledWith(404);
-    expect(mockResponse.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        statusCode: 404,
-        message: 'User not found',
-      }),
-    );
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: 404,
+      error: 'Not Found',
+      message: 'User not found',
+    });
   });
 
   it('should format HttpException with 422 Unprocessable Entity correctly', () => {
@@ -113,12 +121,11 @@ describe('HttpExceptionFilter', () => {
     filter.catch(exception, mockArgumentsHost);
 
     expect(mockResponse.status).toHaveBeenCalledWith(422);
-    expect(mockResponse.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        statusCode: 422,
-        message: 'Validation failed',
-      }),
-    );
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: 422,
+      error: 'Unprocessable Entity',
+      message: 'Validation failed',
+    });
   });
 
   it('should format HttpException with 429 Too Many Requests correctly', () => {
@@ -126,35 +133,24 @@ describe('HttpExceptionFilter', () => {
     filter.catch(exception, mockArgumentsHost);
 
     expect(mockResponse.status).toHaveBeenCalledWith(429);
-    expect(mockResponse.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        statusCode: 429,
-        message: 'Too many requests',
-      }),
-    );
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: 429,
+      error: 'Too Many Requests',
+      message: 'Too many requests',
+    });
   });
 
   it('should handle non-HttpException (unknown error) as 500', () => {
     const error = new Error('Some unexpected error');
+    error.stack = 'test-stack';
     filter.catch(error, mockArgumentsHost);
 
     expect(mockResponse.status).toHaveBeenCalledWith(500);
-    expect(mockResponse.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        statusCode: 500,
-        message: 'Internal server error',
-      }),
-    );
-  });
-
-  it('should include timestamp and path in every response', () => {
-    const exception = new BadRequestException('test');
-    filter.catch(exception, mockArgumentsHost);
-
-    const responseBody = mockResponse.json.mock.calls[0][0];
-    expect(responseBody).toHaveProperty('timestamp');
-    expect(responseBody).toHaveProperty('path', '/test/url');
-    expect(new Date(responseBody.timestamp).getTime()).not.toBeNaN();
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'An unexpected error occurred',
+    });
   });
 
   it('should handle HttpException with an object response (e.g. from ValidationPipe)', () => {
@@ -167,11 +163,11 @@ describe('HttpExceptionFilter', () => {
     filter.catch(exception, mockArgumentsHost);
 
     expect(mockResponse.status).toHaveBeenCalledWith(400);
-    expect(mockResponse.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: complexMessage,
-      }),
-    );
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: 400,
+      error: 'Bad Request',
+      message: complexMessage,
+    });
   });
 
   it('should handle HttpException with a response object that has no message property', () => {
@@ -180,24 +176,42 @@ describe('HttpExceptionFilter', () => {
 
     filter.catch(exception, mockArgumentsHost);
 
-    expect(mockResponse.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: customObj,
-      }),
-    );
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: 400,
+      error: 'Bad Request',
+      message: customObj,
+    });
   });
 
   it('should log error when handling non-HttpException', () => {
     const error = new Error('Database connection failed');
     error.stack = 'test-stack-trace';
-    const loggerSpy = vi.spyOn((filter as any).logger, 'error');
-
     filter.catch(error, mockArgumentsHost);
 
-    expect(loggerSpy).toHaveBeenCalledWith(
-      'Unhandled exception: Error: Database connection failed',
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'GET /test/url - 500 - An unexpected error occurred',
       'test-stack-trace',
+      'ExceptionFilter',
     );
     expect(mockResponse.status).toHaveBeenCalledWith(500);
+  });
+
+  it('should handle custom error with statusCode (e.g. NotFoundError)', () => {
+    const exception = new NotFoundError('Resource not found');
+    exception.stack = 'custom-error-stack';
+
+    filter.catch(exception, mockArgumentsHost);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(404);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      statusCode: 404,
+      error: 'Not Found',
+      message: 'Resource not found',
+    });
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'GET /test/url - 404 - Resource not found',
+      'custom-error-stack',
+      'ExceptionFilter',
+    );
   });
 });

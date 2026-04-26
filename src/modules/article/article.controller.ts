@@ -56,7 +56,7 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Body does not contain required fields',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -64,7 +64,7 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Insufficient permissions',
+    description: 'Forbidden',
   })
   async create(@Body() createArticleDto: CreateArticleDto) {
     return await this.articleService.create(createArticleDto);
@@ -126,7 +126,7 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Wrong query parameters (hacker scope)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -164,7 +164,7 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Article id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -172,7 +172,7 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Article not found',
+    description: 'Not Found',
   })
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return await this.articleService.findOne(id);
@@ -205,7 +205,7 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Article id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -213,11 +213,11 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Insufficient permissions',
+    description: 'Forbidden',
   })
   @ApiResponse({
     status: 404,
-    description: 'Article not found',
+    description: 'Not Found',
   })
   async update(
     @Param() params: IdParamDto,
@@ -245,7 +245,7 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Article id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -253,11 +253,11 @@ export class ArticleController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Insufficient permissions',
+    description: 'Forbidden',
   })
   @ApiResponse({
     status: 404,
-    description: 'Article not found',
+    description: 'Not Found',
   })
   async remove(@Param() params: IdParamDto, @CurrentUser() user: any) {
     return await this.articleService.remove(params.id, user);

@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -51,6 +50,10 @@ import { Comment } from 'src/domain/entities/comment.entity';
 import { UserService } from 'src/modules/user/user.service';
 import { UpdatePasswordDto } from 'src/modules/user/dto/update-user.dto';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
+import {
+  ForbiddenError,
+  UnauthorizedError,
+} from 'src/common/exceptions/custom-errors';
 
 const originalEnv = process.env;
 
@@ -242,7 +245,7 @@ describe('AuthService', () => {
       );
     });
 
-    it('should throw ForbiddenException if stored token is expired', async () => {
+    it('should throw ForbiddenError if stored token is expired', async () => {
       mockJwtService.verify.mockReturnValue(mockPayload);
       mockUserRepo.findById.mockResolvedValue(mockUser);
 
@@ -254,19 +257,19 @@ describe('AuthService', () => {
       mockTokenRepo.findByToken.mockResolvedValue(expiredToken);
 
       await expect(service.refresh(refreshToken)).rejects.toThrow(
-        ForbiddenException,
+        ForbiddenError,
       );
       expect(mockTokenRepo.delete).not.toHaveBeenCalled();
       expect(mockJwtService.signAsync).not.toHaveBeenCalled();
     });
 
-    it('should verify token with correct secret and throw ForbiddenException if verification fails', async () => {
+    it('should verify token with correct secret and throw ForbiddenError if verification fails', async () => {
       mockJwtService.verify.mockImplementation(() => {
         throw new Error('Invalid token');
       });
 
       await expect(service.refresh(refreshToken)).rejects.toThrow(
-        ForbiddenException,
+        ForbiddenError,
       );
 
       expect(mockJwtService.verify).toHaveBeenCalledWith(refreshToken, {
@@ -277,22 +280,22 @@ describe('AuthService', () => {
       expect(mockTokenRepo.findByToken).not.toHaveBeenCalled();
     });
 
-    it('should throw ForbiddenException if token verification returns null payload', async () => {
+    it('should throw ForbiddenError if token verification returns null payload', async () => {
       mockJwtService.verify.mockReturnValue(null);
       await expect(service.refresh(refreshToken)).rejects.toThrow(
-        ForbiddenException,
+        ForbiddenError,
       );
       expect(mockUserRepo.findById).not.toHaveBeenCalled();
     });
 
-    it('should throw ForbiddenException if token not found in repository', async () => {
+    it('should throw ForbiddenError if token not found in repository', async () => {
       mockJwtService.verify.mockReturnValue(mockPayload);
       mockUserRepo.findById.mockResolvedValue(mockUser);
 
       mockTokenRepo.findByToken.mockResolvedValue(null);
 
       await expect(service.refresh(refreshToken)).rejects.toThrow(
-        ForbiddenException,
+        ForbiddenError,
       );
     });
 
@@ -352,12 +355,12 @@ describe('AuthService', () => {
       mockTokenRepo.findByToken.mockResolvedValue(null);
 
       await expect(service.refresh(refreshToken)).rejects.toThrow(
-        ForbiddenException,
+        ForbiddenError,
       );
     });
 
-    it('should throw UnauthorizedException if token is missing', async () => {
-      await expect(service.refresh()).rejects.toThrow(UnauthorizedException);
+    it('should throw UnauthorizedError if token is missing', async () => {
+      await expect(service.refresh()).rejects.toThrow(UnauthorizedError);
       expect(mockTokenRepo.delete).not.toHaveBeenCalled();
       expect(mockJwtService.signAsync).not.toHaveBeenCalled();
     });
@@ -435,7 +438,7 @@ describe('ArticleService', () => {
       tags: [],
     };
 
-    it('should throw ForbiddenException in update method if no permissions due to RBAC', async () => {
+    it('should throw ForbiddenError in update method if no permissions due to RBAC', async () => {
       const article = new Article(createdArticleDto);
       const newStatus = ArticleStatus.published;
       const updateArticleDto: UpdateArticleDto = {
@@ -445,16 +448,16 @@ describe('ArticleService', () => {
 
       const updatePromise = service.update(id, updateArticleDto, currentUser);
 
-      await expect(updatePromise).rejects.toThrow(ForbiddenException);
+      await expect(updatePromise).rejects.toThrow(ForbiddenError);
     });
 
-    it('should throw ForbiddenException in delete method if no permissions due to RBAC', async () => {
+    it('should throw ForbiddenError in delete method if no permissions due to RBAC', async () => {
       const article = new Article(createdArticleDto);
       mockArticleRepo.findById.mockResolvedValue(article);
 
       const deletePromise = service.remove(id, currentUser);
 
-      await expect(deletePromise).rejects.toThrow(ForbiddenException);
+      await expect(deletePromise).rejects.toThrow(ForbiddenError);
     });
 
     it('should allow admin to delete any article', async () => {
@@ -538,13 +541,13 @@ describe('CommentService', () => {
       articleId: 'fakeIf',
     };
 
-    it('should throw ForbiddenException if no permissions due to RBAC', async () => {
+    it('should throw ForbiddenError if no permissions due to RBAC', async () => {
       const comment = new Comment(createCommentDto);
       mockCommentRepo.findById.mockResolvedValue(comment);
 
       const deletePromise = service.remove(id, currentUser);
 
-      await expect(deletePromise).rejects.toThrow(ForbiddenException);
+      await expect(deletePromise).rejects.toThrow(ForbiddenError);
     });
 
     const commentId = 'c1';
@@ -632,7 +635,7 @@ describe('UserService', () => {
       role: Role.admin,
     };
 
-    it('should throw ForbiddenException in update method if no permissions due to RBAC', async () => {
+    it('should throw ForbiddenError in update method if no permissions due to RBAC', async () => {
       const user = new User(createdUserDto);
       const updatedUserDto: UpdatePasswordDto = {
         oldPassword: 'plainPassword',
@@ -642,16 +645,16 @@ describe('UserService', () => {
 
       const updatePromise = service.update(id, updatedUserDto, currentUser);
 
-      await expect(updatePromise).rejects.toThrow(ForbiddenException);
+      await expect(updatePromise).rejects.toThrow(ForbiddenError);
     });
 
-    it('should throw ForbiddenException in delete method if no permissions due to RBAC', async () => {
+    it('should throw ForbiddenError in delete method if no permissions due to RBAC', async () => {
       const user = new User(createdUserDto);
       mockUserRepo.findById.mockResolvedValue(user);
 
       const deletePromise = service.remove(id, currentUser);
 
-      await expect(deletePromise).rejects.toThrow(ForbiddenException);
+      await expect(deletePromise).rejects.toThrow(ForbiddenError);
     });
 
     it('should allow admin to delete any user', async () => {

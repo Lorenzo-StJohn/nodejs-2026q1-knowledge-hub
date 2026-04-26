@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { ValidationError } from 'src/common/exceptions/custom-errors';
 import { ParseUUIDPipe } from 'src/common/pipes/parse-uuid.pipe';
 import { describe, it, expect, beforeEach } from 'vitest';
 
@@ -30,43 +30,43 @@ describe('ParseUUIDPipe', () => {
   });
 
   describe('invalid UUID', () => {
-    it('should throw BadRequestException for a non-UUID string', () => {
-      expect(() => pipe.transform('not-a-uuid')).toThrow(BadRequestException);
+    it('should throw ValidationError for a non-UUID string', () => {
+      expect(() => pipe.transform('not-a-uuid')).toThrow(ValidationError);
     });
 
-    it('should throw BadRequestException for empty string', () => {
-      expect(() => pipe.transform('')).toThrow(BadRequestException);
+    it('should throw ValidationError for empty string', () => {
+      expect(() => pipe.transform('')).toThrow(ValidationError);
     });
 
-    it('should throw BadRequestException for UUID v1', () => {
+    it('should throw ValidationError for UUID v1', () => {
       const uuidV1 = '550e8400-e29b-11d4-a716-446655440000';
-      expect(() => pipe.transform(uuidV1)).toThrow(BadRequestException);
+      expect(() => pipe.transform(uuidV1)).toThrow(ValidationError);
     });
 
-    it('should throw BadRequestException for UUID v5', () => {
+    it('should throw ValidationError for UUID v5', () => {
       const uuidV5 = '550e8400-e29b-51d4-a716-446655440000';
-      expect(() => pipe.transform(uuidV5)).toThrow(BadRequestException);
+      expect(() => pipe.transform(uuidV5)).toThrow(ValidationError);
     });
 
-    it('should throw BadRequestException for incorrectly formatted UUID (wrong length)', () => {
+    it('should throw ValidationError for incorrectly formatted UUID (wrong length)', () => {
       const shortUuid = '550e8400-e29b-41d4-a716-44665544000';
-      expect(() => pipe.transform(shortUuid)).toThrow(BadRequestException);
+      expect(() => pipe.transform(shortUuid)).toThrow(ValidationError);
     });
 
-    it('should throw BadRequestException for UUID with invalid hex characters', () => {
+    it('should throw ValidationError for UUID with invalid hex characters', () => {
       const invalidHex = 'zzzzzzzz-e29b-41d4-a716-446655440000';
-      expect(() => pipe.transform(invalidHex)).toThrow(BadRequestException);
+      expect(() => pipe.transform(invalidHex)).toThrow(ValidationError);
     });
 
-    it('should throw BadRequestException for null value', () => {
+    it('should throw ValidationError for null value', () => {
       expect(() => pipe.transform(null as unknown as string)).toThrow(
-        BadRequestException,
+        ValidationError,
       );
     });
 
-    it('should throw BadRequestException for undefined value', () => {
+    it('should throw ValidationError for undefined value', () => {
       expect(() => pipe.transform(undefined as unknown as string)).toThrow(
-        BadRequestException,
+        ValidationError,
       );
     });
   });

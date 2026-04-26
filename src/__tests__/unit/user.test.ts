@@ -1,10 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  BadRequestException,
-  ForbiddenException,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 
@@ -43,6 +37,12 @@ import { UpdatePasswordDto } from 'src/modules/user/dto/update-user.dto';
 import { LoginDto } from 'src/auth/dto/login.dto';
 import { UserPaginationResponseDto } from 'src/modules/user/dto/user-pagination-response.dto';
 import { UserResponseDto } from 'src/modules/user/dto/user-response.dto';
+import {
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+  ValidationError,
+} from 'src/common/exceptions/custom-errors';
 
 const originalEnv = process.env;
 
@@ -187,7 +187,7 @@ describe('UserService', () => {
       expect(result.role).toEqual(createdUserDto.role);
     });
 
-    it('should throw BadRequestException if login already exists', async () => {
+    it('should throw ValidationError if login already exists', async () => {
       const existingUser = new User({
         login: 'testuser',
         password: 'hashed',
@@ -197,7 +197,7 @@ describe('UserService', () => {
 
       const signupPromise = service.create(createdUserDto);
 
-      await expect(signupPromise).rejects.toThrow(BadRequestException);
+      await expect(signupPromise).rejects.toThrow(ValidationError);
 
       expect(mockUserRepo.findByLogin).toHaveBeenCalledWith(existingUser.login);
       expect(mockUserRepo.create).not.toHaveBeenCalled();
@@ -207,12 +207,12 @@ describe('UserService', () => {
   describe('findOne', () => {
     const id = 'fakeId';
 
-    it('should throw NotFoundException if user not found', async () => {
+    it('should throw NotFoundError if user not found', async () => {
       mockUserRepo.findById.mockResolvedValue(null);
 
       const findOnePromise = service.findOne(id);
 
-      await expect(findOnePromise).rejects.toThrow(NotFoundException);
+      await expect(findOnePromise).rejects.toThrow(NotFoundError);
     });
 
     it('should return user if found', async () => {
@@ -253,12 +253,12 @@ describe('UserService', () => {
       role: Role.admin,
     });
 
-    it('should throw NotFoundException if user not found', async () => {
+    it('should throw NotFoundError if user not found', async () => {
       mockUserRepo.findById.mockResolvedValue(null);
 
       const updatePromise = service.update(id, updatedUserDto, currentUser);
 
-      await expect(updatePromise).rejects.toThrow(NotFoundException);
+      await expect(updatePromise).rejects.toThrow(NotFoundError);
     });
 
     it('should hash password', async () => {
@@ -287,12 +287,12 @@ describe('UserService', () => {
       expect(userArg.password).toBe(newHashedPassword);
     });
 
-    it('should throw ForbiddenException if old password is wrong', async () => {
+    it('should throw ForbiddenError if old password is wrong', async () => {
       mockUserRepo.findById.mockResolvedValue(currentUser);
       vi.mocked(compare as Mock).mockResolvedValue(false);
 
       const updatePromise = service.update(id, updatedUserDto, currentUser);
-      await expect(updatePromise).rejects.toThrow(ForbiddenException);
+      await expect(updatePromise).rejects.toThrow(ForbiddenError);
     });
   });
 
@@ -305,12 +305,12 @@ describe('UserService', () => {
       role: Role.admin,
     });
 
-    it('should throw NotFoundException if user not found', async () => {
+    it('should throw NotFoundError if user not found', async () => {
       mockUserRepo.findById.mockResolvedValue(null);
 
       const removePromise = service.remove(id, currentUser);
 
-      await expect(removePromise).rejects.toThrow(NotFoundException);
+      await expect(removePromise).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -454,7 +454,7 @@ describe('AuthService', () => {
       expect(result.role).toEqual(Role.viewer);
     });
 
-    it('should throw BadRequestException if login already exists', async () => {
+    it('should throw ValidationError if login already exists', async () => {
       const existingUser = new User({
         login: 'testuser',
         password: 'hashed',
@@ -464,7 +464,7 @@ describe('AuthService', () => {
 
       const signupPromise = service.signup(signupDto);
 
-      await expect(signupPromise).rejects.toThrow(BadRequestException);
+      await expect(signupPromise).rejects.toThrow(ValidationError);
 
       expect(mockUserRepo.findByLogin).toHaveBeenCalledWith(existingUser.login);
       expect(mockUserRepo.create).not.toHaveBeenCalled();
@@ -482,19 +482,19 @@ describe('AuthService', () => {
       password: hashedPassword,
     });
 
-    it('should throw ForbiddenException if user not found', async () => {
+    it('should throw ForbiddenError if user not found', async () => {
       mockUserRepo.findByLogin.mockResolvedValue(null);
 
       const loginPromise = service.login(loginDto);
 
-      await expect(loginPromise).rejects.toThrow(ForbiddenException);
+      await expect(loginPromise).rejects.toThrow(ForbiddenError);
     });
 
-    it('should throw ForbiddenException if password is incorrect', async () => {
+    it('should throw ForbiddenError if password is incorrect', async () => {
       mockUserRepo.findByLogin.mockResolvedValue(mockUser);
       vi.mocked(compare as Mock).mockResolvedValue(false);
 
-      await expect(service.login(loginDto)).rejects.toThrow(ForbiddenException);
+      await expect(service.login(loginDto)).rejects.toThrow(ForbiddenError);
       expect(compare).toHaveBeenCalledWith(
         loginDto.password,
         mockUser.password,
@@ -513,8 +513,8 @@ describe('AuthService', () => {
       expect(mockTokenRepo.delete).toHaveBeenCalledWith(token);
     });
 
-    it('should throw UnauthorizedException if refresh token is empty', async () => {
-      await expect(service.logout('')).rejects.toThrow(UnauthorizedException);
+    it('should throw UnauthorizedError if refresh token is empty', async () => {
+      await expect(service.logout('')).rejects.toThrow(UnauthorizedError);
       expect(mockTokenRepo.delete).not.toHaveBeenCalled();
     });
   });
@@ -522,7 +522,7 @@ describe('AuthService', () => {
   describe('refresh', () => {
     const refreshToken = 'fakeToken';
 
-    it('should throwUnauthorizedException if user not found', async () => {
+    it('should throw UnauthorizedError if user not found', async () => {
       const id = 'fakeId';
       const payload = {
         userId: id,
@@ -532,7 +532,7 @@ describe('AuthService', () => {
 
       const refreshPromise = service.refresh(refreshToken);
 
-      await expect(refreshPromise).rejects.toThrow(UnauthorizedException);
+      await expect(refreshPromise).rejects.toThrow(UnauthorizedError);
     });
   });
 });

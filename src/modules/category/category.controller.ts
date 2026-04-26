@@ -49,7 +49,7 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Body does not contain required fields',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -57,7 +57,7 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Insufficient permissions',
+    description: 'Forbidden',
   })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
@@ -106,7 +106,7 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Wrong query parameters (hacker scope)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -138,7 +138,7 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Category id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -146,7 +146,7 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Category not found',
+    description: 'Not Found',
   })
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.categoryService.findOne(id);
@@ -173,7 +173,7 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Category id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -181,11 +181,11 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Insufficient permissions',
+    description: 'Forbidden',
   })
   @ApiResponse({
     status: 404,
-    description: 'Category not found',
+    description: 'Not Found',
   })
   async update(
     @Param() params: IdParamDto,
@@ -213,7 +213,7 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request. Category id is invalid (not uuid)',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 401,
@@ -221,11 +221,11 @@ export class CategoryController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Insufficient permissions',
+    description: 'Forbidden',
   })
   @ApiResponse({
     status: 404,
-    description: 'Category not found',
+    description: 'Not Found',
   })
   async remove(@Param() params: IdParamDto) {
     return this.categoryService.remove(params.id);

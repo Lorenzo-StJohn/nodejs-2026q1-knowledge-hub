@@ -1,4 +1,5 @@
-import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
+import { PipeTransform, Injectable } from '@nestjs/common';
+import { ValidationError } from '../exceptions/custom-errors';
 
 @Injectable()
 export class ParseUUIDPipe implements PipeTransform<string, string> {
@@ -7,7 +8,7 @@ export class ParseUUIDPipe implements PipeTransform<string, string> {
       /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
     const isValid = uuidV4Regex.test(value);
     if (!isValid) {
-      throw new BadRequestException('ID should be valid UUID v4');
+      throw new ValidationError();
     }
     return value.toLowerCase();
   }

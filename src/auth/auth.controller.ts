@@ -35,12 +35,11 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description:
-      'Bad request. Body does not contain required fields or login is already taken',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 429,
-    description: 'Too many requests',
+    description: 'Too Many Requests',
   })
   async signup(@Body() dto: SignupDto) {
     return this.authService.signup(dto);
@@ -62,16 +61,15 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description:
-      'Bad request. Body contains no login or password, or they are not strings',
+    description: 'Validation Error',
   })
   @ApiResponse({
     status: 403,
-    description: 'Incorrect login or password',
+    description: 'Forbidden',
   })
   @ApiResponse({
     status: 429,
-    description: 'Too many requests',
+    description: 'Too Many Requests',
   })
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
@@ -96,11 +94,11 @@ export class AuthController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Bad request. Missing refreshToken',
+    description: 'Unauthorized',
   })
   @ApiResponse({
     status: 403,
-    description: 'Refresh token is invalid or expired',
+    description: 'Forbidden',
   })
   async refresh(@Body() dto: RefreshDto) {
     return this.authService.refresh(dto.refreshToken);
@@ -122,7 +120,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Bad request. Missing refreshToken',
+    description: 'Unauthorized',
   })
   async logout(@Body() dto: RefreshDto) {
     return this.authService.logout(dto.refreshToken);
