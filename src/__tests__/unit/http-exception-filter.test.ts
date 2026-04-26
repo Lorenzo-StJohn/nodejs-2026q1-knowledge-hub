@@ -13,6 +13,10 @@ import { ThrottlerException } from '@nestjs/throttler';
 import { AppLogger } from 'src/common/logger/logger.service';
 import { NotFoundError } from 'src/common/exceptions/custom-errors';
 
+vi.mock('winston', () => ({}));
+vi.mock('winston-daily-rotate-file', () => ({}));
+vi.mock('src/common/logger/size-rotating-file.transport', () => ({}));
+
 vi.mock('../logger/logger.service', () => ({
   AppLogger: vi.fn().mockImplementation(() => ({
     error: vi.fn(),
