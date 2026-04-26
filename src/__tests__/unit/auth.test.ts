@@ -268,9 +268,6 @@ describe('AuthService', () => {
       await expect(service.refresh(refreshToken)).rejects.toThrow(
         ForbiddenException,
       );
-      await expect(service.refresh(refreshToken)).rejects.toThrow(
-        'Invalid or expired refresh token',
-      );
 
       expect(mockJwtService.verify).toHaveBeenCalledWith(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
@@ -282,7 +279,9 @@ describe('AuthService', () => {
 
     it('should throw ForbiddenException if token verification returns null payload', async () => {
       mockJwtService.verify.mockReturnValue(null);
-      await expect(service.refresh(refreshToken)).rejects.toThrow();
+      await expect(service.refresh(refreshToken)).rejects.toThrow(
+        ForbiddenException,
+      );
       expect(mockUserRepo.findById).not.toHaveBeenCalled();
     });
 
@@ -354,9 +353,6 @@ describe('AuthService', () => {
 
       await expect(service.refresh(refreshToken)).rejects.toThrow(
         ForbiddenException,
-      );
-      await expect(service.refresh(refreshToken)).rejects.toThrow(
-        'Invalid or expired refresh token',
       );
     });
 

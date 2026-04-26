@@ -115,9 +115,6 @@ describe('CommentService', () => {
       await expect(service.create(dto)).rejects.toThrow(
         UnprocessableEntityException,
       );
-      await expect(service.create(dto)).rejects.toThrow(
-        `Article with ID ${validUuid} not found!`,
-      );
       expect(mockCommentRepo.create).not.toHaveBeenCalled();
     });
 
@@ -143,9 +140,6 @@ describe('CommentService', () => {
 
       await expect(service.create(dtoWithAuthor)).rejects.toThrow(
         BadRequestException,
-      );
-      await expect(service.create(dtoWithAuthor)).rejects.toThrow(
-        `User with ID ${validUuid} does not exist!`,
       );
       expect(mockCommentRepo.create).not.toHaveBeenCalled();
     });

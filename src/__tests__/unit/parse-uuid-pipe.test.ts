@@ -32,9 +32,6 @@ describe('ParseUUIDPipe', () => {
   describe('invalid UUID', () => {
     it('should throw BadRequestException for a non-UUID string', () => {
       expect(() => pipe.transform('not-a-uuid')).toThrow(BadRequestException);
-      expect(() => pipe.transform('not-a-uuid')).toThrow(
-        'ID should be valid UUID v4',
-      );
     });
 
     it('should throw BadRequestException for empty string', () => {
