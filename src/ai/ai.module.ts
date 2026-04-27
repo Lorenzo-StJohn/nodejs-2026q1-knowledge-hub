@@ -8,7 +8,12 @@ import { ConfigModule } from '../config/config.module';
 import { OutgoingLoggingInterceptor } from 'src/common/interceptors/outgoing-logging.service';
 
 @Module({
-  imports: [ConfigModule, HttpModule],
+  imports: [
+    ConfigModule,
+    HttpModule.register({
+      timeout: 15000,
+    }),
+  ],
   controllers: [AiController],
   providers: [AiService, GeminiService, OutgoingLoggingInterceptor],
 })
