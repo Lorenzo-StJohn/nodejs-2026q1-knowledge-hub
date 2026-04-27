@@ -12,6 +12,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { AuthModule } from './auth/auth.module';
 import { AppLogger } from './common/logger/logger.service';
 import { LoggingMiddleware } from './common/middleware/logging.middleware';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { LoggingMiddleware } from './common/middleware/logging.middleware';
     CategoryModule,
     CommentModule,
     AuthModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppLogger],
