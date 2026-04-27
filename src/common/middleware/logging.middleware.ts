@@ -1,6 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { AppLogger } from '../logger/logger.service';
+import { sanitizeSensitiveData } from '../utils/sanitize.util';
 
 @Injectable()
 export class LoggingMiddleware implements NestMiddleware {
@@ -13,8 +14,8 @@ export class LoggingMiddleware implements NestMiddleware {
 
     const rawBody = req.body ? { ...req.body } : {};
 
-    const sanitizedBody = this.sanitizeBody(rawBody);
-    const sanitizedQuery = this.sanitizeBody(query ? { ...query } : {});
+    const sanitizedBody = sanitizeSensitiveData(rawBody);
+    const sanitizedQuery = sanitizeSensitiveData(query ? { ...query } : {});
 
     this.logger.log(
       `[REQUEST] ${method} ${originalUrl.split('?')[0]} | Query: ${JSON.stringify(sanitizedQuery)} | Body: ${JSON.stringify(sanitizedBody)} | IP: ${ip} | UA: ${userAgent}`,
@@ -32,36 +33,5 @@ export class LoggingMiddleware implements NestMiddleware {
     });
 
     next();
-  }
-
-  private sanitizeBody(body: any): any {
-    if (!body || typeof body !== 'object') return body;
-
-    const sanitized = Array.isArray(body) ? [...body] : { ...body };
-
-    const sensitiveFields = [
-      'password',
-      'refreshToken',
-      'accessToken',
-      'token',
-      'secret',
-      'newPassword',
-      'oldPassword',
-      'key',
-      'apikey',
-    ];
-
-    for (const key in sanitized) {
-      if (sensitiveFields.includes(key.toLowerCase())) {
-        sanitized[key] = '[REDACTED]';
-      } else if (
-        typeof sanitized[key] === 'object' &&
-        sanitized[key] !== null
-      ) {
-        sanitized[key] = this.sanitizeBody(sanitized[key]);
-      }
-    }
-
-    return sanitized;
   }
 }
