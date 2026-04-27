@@ -14,9 +14,10 @@ export class LoggingMiddleware implements NestMiddleware {
     const rawBody = req.body ? { ...req.body } : {};
 
     const sanitizedBody = this.sanitizeBody(rawBody);
+    const sanitizedQuery = this.sanitizeBody(query ? { ...query } : {});
 
     this.logger.log(
-      `[REQUEST] ${method} ${originalUrl} | Query: ${JSON.stringify(query)} | Body: ${JSON.stringify(sanitizedBody)} | IP: ${ip} | UA: ${userAgent}`,
+      `[REQUEST] ${method} ${originalUrl.split('?')[0]} | Query: ${JSON.stringify(sanitizedQuery)} | Body: ${JSON.stringify(sanitizedBody)} | IP: ${ip} | UA: ${userAgent}`,
       'HTTP',
     );
 
@@ -36,7 +37,8 @@ export class LoggingMiddleware implements NestMiddleware {
   private sanitizeBody(body: any): any {
     if (!body || typeof body !== 'object') return body;
 
-    const sanitized = { ...body };
+    const sanitized = Array.isArray(body) ? [...body] : { ...body };
+
     const sensitiveFields = [
       'password',
       'refreshToken',
@@ -45,6 +47,8 @@ export class LoggingMiddleware implements NestMiddleware {
       'secret',
       'newPassword',
       'oldPassword',
+      'key',
+      'apikey',
     ];
 
     for (const key in sanitized) {
