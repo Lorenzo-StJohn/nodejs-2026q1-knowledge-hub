@@ -13,4 +13,12 @@ export class Configuration {
   get isProduction(): boolean {
     return process.env.NODE_ENV === 'production';
   }
+
+  get apiVariables() {
+    return {
+      url: process.env.GEMINI_API_BASE,
+      key: process.env.GEMINI_API_KEY,
+      model: process.env.GEMINI_MODEL,
+    };
+  }
 }
