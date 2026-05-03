@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-interface EndpointStats {
+export interface EndpointStats {
   requests: number;
   cached: number;
   totalTokens?: number;

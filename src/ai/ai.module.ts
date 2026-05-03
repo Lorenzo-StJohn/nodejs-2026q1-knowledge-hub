@@ -10,6 +10,7 @@ import { ArticleModule } from 'src/modules/article/article.module';
 import { AiCacheService } from './ai-cache.service';
 import { AiUsageTrackerService } from './ai-usage-tracker.service';
 import { AppLogger } from 'src/common/logger/logger.service';
+import { AiStatsController } from './ai-stats.controller';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { AppLogger } from 'src/common/logger/logger.service';
       timeout: 15000,
     }),
   ],
-  controllers: [AiController],
+  controllers: [AiController, AiStatsController],
   providers: [
     GeminiService,
     OutgoingLoggingInterceptor,
