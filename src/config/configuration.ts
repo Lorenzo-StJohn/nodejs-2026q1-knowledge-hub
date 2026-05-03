@@ -23,4 +23,12 @@ export class Configuration {
       model: process.env.GEMINI_MODEL ?? 'gemini-2.0-flash',
     };
   }
+
+  get aiCacheTtlSec() {
+    return parseInt(process.env.AI_CACHE_TTL_SEC ?? '300');
+  }
+
+  get aiRateLimitRpm() {
+    return parseInt(process.env.AI_RATE_LIMIT_RPM ?? '20');
+  }
 }

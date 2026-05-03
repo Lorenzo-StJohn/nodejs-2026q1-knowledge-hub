@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 
 import { Configuration } from 'src/config/configuration';
@@ -8,6 +8,12 @@ import {
   TooManyRequestsError,
   UnauthorizedError,
 } from 'src/common/exceptions/custom-errors';
+
+export interface generationConfig {
+  maxOutputTokens?: number;
+  temperature?: number;
+  topP?: number;
+}
 
 @Injectable()
 export class GeminiService {
@@ -24,7 +30,7 @@ export class GeminiService {
     this.model = this.config.apiVariables.model;
   }
 
-  async generate(prompt: string) {
+  async generate(prompt: string, generationConfig?: generationConfig) {
     if (!this.apiKey) {
       throw new UnauthorizedError();
     }
@@ -32,14 +38,18 @@ export class GeminiService {
     const url = `${this.baseUrl}/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
     const payload = {
       contents: [{ parts: [{ text: prompt }] }],
+      generationConfig,
     };
 
     try {
-      const response = await firstValueFrom(
-        this.httpService.post(url, payload),
+      const response = await this.retryWithBackoff(() =>
+        lastValueFrom(this.httpService.post(url, payload, { timeout: 15000 })),
       );
 
-      return response.data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+      const text =
+        response.data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+      const usage = response.data.usageMetadata;
+      return { text, usage };
     } catch (error: any) {
       const axiosError = error as AxiosError;
       const status = axiosError.response?.status;
@@ -51,5 +61,35 @@ export class GeminiService {
         axiosError.message || 'Gemini API Error',
       );
     }
+  }
+
+  private async retryWithBackoff<T>(
+    fn: () => Promise<T>,
+    retries = 3,
+    baseDelay = 1000,
+  ): Promise<T> {
+    for (let i = 0; i <= retries; i++) {
+      try {
+        return await fn();
+      } catch (error) {
+        if (i === retries) throw error;
+        const axiosError = error as AxiosError;
+        if (axiosError.response?.status === 429) {
+          // Gemini rate limit
+          const delay = baseDelay * Math.pow(2, i);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        } else if (
+          axiosError.code === 'ECONNABORTED' ||
+          axiosError.code === 'ERR_NETWORK'
+        ) {
+          // timeout/network
+          const delay = baseDelay * Math.pow(2, i);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        } else {
+          throw error; // unrecoverable
+        }
+      }
+    }
+    throw new Error('Retries exhausted');
   }
 }

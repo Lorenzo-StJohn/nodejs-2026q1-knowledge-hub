@@ -8,5 +8,6 @@ import { PersistenceModule } from 'src/infrastructure/persistence.module';
   imports: [PersistenceModule],
   controllers: [ArticleController],
   providers: [ArticleService],
+  exports: [ArticleService],
 })
 export class ArticleModule {}
