@@ -2,7 +2,7 @@
 
 ## Description
 
-This repository contains solution for [Assignment: Authentication & Authorization](hhttps://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/07a-auth-jwt/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
+This repository contains solution for [Assignment: Knowledge Hub AI Integration](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/09-ai-llm-integration/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework and Gemini API. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
 
 
 ## Prerequisites
@@ -25,10 +25,10 @@ git clone https://github.com/Lorenzo-StJohn/nodejs-2026q1-knowledge-hub
 cd nodejs-2026q1-knowledge-hub
 ```
 
-### 3. Checkout to the auth-jwt branch
+### 3. Checkout to the ai-llm-integration branch
 
 ```bash
-git checkout auth-jwt
+git checkout ai-llm-integration
 ```
 
 ### 4. Install dependencies
@@ -43,6 +43,37 @@ npm ci
 cp .env.example .env
 ```
 
+### 6. Add your own Gemini API key in .env
+
+Find `GEMINI_API_KEY=your-gemini-api-key` in `.env` and replace `your-gemini-api-key` with your own key (see instructions bellow how to get such a key).
+
+## How to Obtain a Gemini API Key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Sign in with your Google account.
+3. Click **"Create API key"** and select a Google Cloud project (or create a new one).
+4. Copy the generated API key.
+5. (Optional) If you are in a region where Gemini is not directly available, check the [habr article](https://habr.com/ru/articles/870494/) for different alternative access methods (especially relevant for users in Russia).
+
+## Known Limitations for Gemini API
+
+### Free-Tier Quotas
+
+- Rate Limit: 5 RPM accordingly to official website
+<img width="1087" height="102" alt="Screenshot 2026-05-04 at 01 22 01" src="https://github.com/user-attachments/assets/796f9068-fa52-4d9a-b0e8-e0250c676209" />
+- Tokens per Minute: 250,000 tokens accordingly to official website
+- Requests per day: about 250 accordingly to 3rd-party statistics
+- When the Gemini free tier is exhausted, the API returns a 429 status. The application will retry with exponential backoff and, if unsuccessful, return a 503 Service Unavailable
+
+### Latency
+
+- Gemini API calls may take 1–5 seconds depending on prompt complexity and current service load.
+- The service uses an in‑memory cache (configurable TTL via AI_CACHE_TTL_SEC) for summarization and translation to improve repeat-request performance.
+
+### Regional Availability
+
+- Gemini API is not available in all countries. If you are in a region where access is restricted (e.g., Russia), you may need a VPN or a proxy. Refer to the [habr article](https://habr.com/ru/articles/870494/) for detailed workarounds and community advice.
+
 ## How to run application
 
 ### Generate Prisma client
@@ -52,9 +83,6 @@ npx prisma generate
 ```
 
 ### Build application via docker 
-
-> [!WARNING]
-> Even if you have docker container from the previous task you still need to follow this step in order to apply prisma configuration
 
 > [!WARNING]
 > Before running this command make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
@@ -82,6 +110,8 @@ npx prisma migrate deploy
 
 #### Start local app:
 
+  - in development mode:
+
 ```bash
 npm run start:dev
 ```
@@ -100,91 +130,20 @@ After running the script, the following users will exist:
 - login: `editor` password: `password123`
 - login: `viewer` password: `password123`
 
-### Start docker app + docker db
+### Screenshots:
 
-#### Start docker db
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 54 53" src="https://github.com/user-attachments/assets/fc670ccd-cd92-46e3-89a9-3bf3bfeb306d" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 55 27" src="https://github.com/user-attachments/assets/eca8b8dc-48c1-4344-8dfe-bfb1d117be18" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 56 38" src="https://github.com/user-attachments/assets/08eab210-d2d6-49a0-8be0-cd5d899b2d0c" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 57 32" src="https://github.com/user-attachments/assets/a0f160d4-7349-4bf3-b87d-0e9e42f8441b" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 57 53" src="https://github.com/user-attachments/assets/84f59faa-62d0-4290-99a3-e95f356828d2" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 59 08" src="https://github.com/user-attachments/assets/63d288f9-8db8-4979-a87d-ac121c763465" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 59 28" src="https://github.com/user-attachments/assets/3f99117d-19b5-401f-a475-d9f17e48b9f6" />
+<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 01 22" src="https://github.com/user-attachments/assets/43bd54b9-188a-43d9-82a9-cdbbfe11a8c0" />
+<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 02 24" src="https://github.com/user-attachments/assets/d829ddb1-6aa4-47f9-b1ce-48fa3afa6fac" />
+<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 04 39" src="https://github.com/user-attachments/assets/4eeda192-af7c-49a4-b37b-716a97377732" />
+<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 10 50" src="https://github.com/user-attachments/assets/1f21bbd5-f5d2-4c32-b5f3-33df6c714ffa" />
 
-Make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
-
-
-```bash
-docker compose up -d db
-```
-
-#### Apply database migrations from docker
-
-Please, wait a few seconds after starting the db before running migrations to ensure PostgreSQL is ready.
-
-```bash
-docker compose run --rm app npx prisma migrate deploy
-```
-
-#### Start docker app
-
-```bash
-docker compose up -d
-```
-
-### Run seed script from docker app
-
-Make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
-
-```bash
-npm run seed:docker
-```
-
-P.S. It will run `npx prisma db seed` under the hood: `docker compose run --rm app npx prisma db seed`
-
-After running the script, the following users will exist:
-
-- login: `admin` password: `password123`
-- login: `editor` password: `password123`
-- login: `viewer` password: `password123`
-
-## Testing
-
-> [!WARNING]
-> In order to test the application you need to start it first 
-
-> [!WARNING]
-> There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
-
-> [!WARNING]
-> For testing DATABASE_URL in .env file should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
-
-- To run all test with authorization
-```bash
-npm run test:auth
-```
-
-<img width="1440" height="900" alt="Screenshot 2026-04-19 at 23 59 57" src="https://github.com/user-attachments/assets/4fc4e667-55ac-4a8e-b5b0-950c07d55b75" />
-
-
-> [!WARNING]
-> There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
-- To run refresh token tests
-```bash
-npm run test:refresh
-```
-
-<img width="1440" height="900" alt="Screenshot 2026-04-20 at 00 02 13" src="https://github.com/user-attachments/assets/f4ae37bc-93d0-411a-92ae-485d3634c049" />
-
-
-> [!WARNING]
-> There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
-- To run RBAC (role-based access control) tests
-```bash
-npm run test:rbac
-```
-
-<img width="1440" height="900" alt="Screenshot 2026-04-20 at 00 04 38" src="https://github.com/user-attachments/assets/b697fe94-6960-408c-90c6-ad0b3c9c02f1" />
-
-
-## How to stop application 
-
-```bash
-docker compose down
-```
 
 ## API Endpoints
 
@@ -194,19 +153,19 @@ docker compose down
 |--------|-----------------------|---------|---------------------------------------|
 | GET    | `/user`               | 200     | 400, 401                              |
 | GET    | `/user/:id`           | 200     | 400, 401, 404                         |
-| POST   | `/user`               | 201     | 400, 401                              |
+| POST   | `/user`               | 201     | 400, 401, 403                         |
 | PUT    | `/user/:id`           | 200     | 400, 401, 403, 404                    |
-| DELETE | `/user/:id`           | 204     | 400, 401, 404                         |
+| DELETE | `/user/:id`           | 204     | 400, 401, 403, 404                    |
 
 ### Articles (`/article`)
 
 | Method | Endpoint              | Success | Error Codes                           |
 |--------|-----------------------|---------|---------------------------------------|
-| GET    | `/article`            | 200     | 400, 401                              |
+| GET    | `/article`            | 200     | 400, 401,                             |
 | GET    | `/article/:id`        | 200     | 400, 401, 404                         |
-| POST   | `/article`            | 201     | 400, 401                              |
-| PUT    | `/article/:id`        | 200     | 400, 401, 404                         |
-| DELETE | `/article/:id`        | 204     | 400, 401, 404                         |
+| POST   | `/article`            | 201     | 400, 401, 403                         |
+| PUT    | `/article/:id`        | 200     | 400, 401, 403, 404                    |
+| DELETE | `/article/:id`        | 204     | 400, 401, 403, 404                    |
 
 ### Categories (`/category`)
 
@@ -214,9 +173,9 @@ docker compose down
 |--------|-----------------------|---------|---------------------------------------|
 | GET    | `/category`           | 200     | 400, 401                              |
 | GET    | `/category/:id`       | 200     | 400, 401, 404                         |
-| POST   | `/category`           | 201     | 400, 401                              |
-| PUT    | `/category/:id`       | 200     | 400, 401, 404                         |
-| DELETE | `/category/:id`       | 204     | 400, 401, 404                         |
+| POST   | `/category`           | 201     | 400, 401, 403                         |
+| PUT    | `/category/:id`       | 200     | 400, 401, 403, 403                    |
+| DELETE | `/category/:id`       | 204     | 400, 401, 403, 404                    |
 
 ### Comments (`/comment`)
 
@@ -224,8 +183,8 @@ docker compose down
 |--------|---------------------------------|---------|----------------------------|
 | GET    | `/comment?articleId={id}`       | 200     | 400, 401                   |
 | GET    | `/comment/:id`                  | 200     | 400, 401, 404              |
-| POST   | `/comment`                      | 201     | 400, 401, 422              |
-| DELETE | `/comment/:id`                  | 204     | 400, 401, 404              |
+| POST   | `/comment`                      | 201     | 400, 401, 403, 422         |
+| DELETE | `/comment/:id`                  | 204     | 400, 401, 403, 404         |
 
 ### Auth (`/auth`)
 
@@ -235,6 +194,17 @@ docker compose down
 | POST   | `/auth/login`         | 200     | 400, 403, 429                         |
 | POST   | `/auth/refresh`       | 200     | 401, 403                              |
 | POST   | `/auth/logout `       | 200     | 401                                   |
+
+### AI (`/ai`)
+
+| Method | Endpoint                            | Success | Error Codes                           |
+|--------|-------------------------------------|---------|---------------------------------------|
+| POST   | `/ai/articles/:articleId/summarize` | 201     | 400, 429                              |
+| POST   | `/ai/articles/:articleId/translate` | 200     | 400, 403, 429                         |
+| POST   | `/ai/articles/:articleId/analyze`   | 200     | 401, 403                              |
+| POST   | `/ai/usage`                         | 200     | 401                                   |
+| POST   | `/ai/generate`                      | 200     | 401                                   |
+| POST   | `/ai/diagnostics`                   | 200     | 401                                   |
 
 
 ## Swagger (from the first part of the task)
@@ -254,3 +224,4 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 > [!WARNING]
 > If you want to get **all items** via one of list endpoints make sure **you've cleared all the filters**!
+
