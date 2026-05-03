@@ -12,6 +12,7 @@ import { AiUsageTrackerService } from './ai-usage-tracker.service';
 import { AppLogger } from 'src/common/logger/logger.service';
 import { AiStatsController } from './ai-stats.controller';
 import { AiGenerateController } from './ai-generate.controller';
+import { AiDiagnosticsController } from './ai-diagnostics.controller';
 
 @Module({
   imports: [
@@ -22,7 +23,12 @@ import { AiGenerateController } from './ai-generate.controller';
       timeout: 15000,
     }),
   ],
-  controllers: [AiController, AiStatsController, AiGenerateController],
+  controllers: [
+    AiController,
+    AiStatsController,
+    AiGenerateController,
+    AiDiagnosticsController,
+  ],
   providers: [
     GeminiService,
     OutgoingLoggingInterceptor,

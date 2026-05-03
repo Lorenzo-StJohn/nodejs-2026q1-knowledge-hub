@@ -1,13 +1,14 @@
 import { z } from 'zod';
 import { Logger } from '@nestjs/common';
-
-const logger = new Logger('StructuredResponseParser');
+import { AppLogger } from 'src/common/logger/logger.service';
 
 export function parseStructuredResponse<T>(
   rawText: string,
   schema: z.ZodSchema<T>,
   fallback: T,
+  log?: Logger | AppLogger,
 ): T {
+  const logger = log ?? new Logger('StructuredResponseParser');
   try {
     let cleanText = rawText.trim();
     const jsonBlockMatch = cleanText.match(/```(?:json)?\s*([\s\S]*?)```/);

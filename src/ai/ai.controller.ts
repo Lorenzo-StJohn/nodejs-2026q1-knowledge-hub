@@ -24,6 +24,7 @@ import {
   TranslateResponse,
   AnalyzeResponse,
 } from './schemas/ai-response.schemas';
+import { AppLogger } from 'src/common/logger/logger.service';
 
 const LIMIT = parseInt(process.env.AI_RATE_LIMIT_RPM || '20', 10);
 
@@ -35,6 +36,7 @@ export class AiController {
     private readonly geminiService: GeminiService,
     private readonly cacheService: AiCacheService,
     private readonly usageTracker: AiUsageTrackerService,
+    private readonly logger: AppLogger,
   ) {}
 
   @Post(':articleId/summarize')
@@ -50,11 +52,11 @@ export class AiController {
     const cacheKey = `summarize:${articleId}:${dto.maxLength}:${article.updatedAt.toString()}`;
     const cached = await this.cacheService.get(cacheKey);
     if (cached) {
-      this.usageTracker.increment('summarize', true);
+      this.usageTracker.increment('summarize', true, undefined, 0);
       return cached;
     }
-
     const prompt = summarizeArticlePrompt(article.content, dto.maxLength);
+    const start = performance.now();
     const { text, usage } = await this.geminiService.generate(prompt, {
       maxOutputTokens:
         dto.maxLength === 'short'
@@ -64,6 +66,13 @@ export class AiController {
             : 250,
     });
 
+    const latencyMs = performance.now() - start;
+    if (latencyMs > 5000) {
+      this.logger.warn(
+        `Slow AI request: summarize took ${latencyMs.toFixed(0)}ms`,
+      );
+    }
+
     const response = {
       articleId,
       summary: text.trim(),
@@ -72,7 +81,7 @@ export class AiController {
     };
 
     await this.cacheService.set(cacheKey, response);
-    this.usageTracker.increment('summarize', false, usage);
+    this.usageTracker.increment('summarize', false, usage, latencyMs);
 
     return response;
   }
@@ -92,7 +101,7 @@ export class AiController {
     const cacheKey = `translate:${articleId}:${dto.targetLanguage}:${dto.sourceLanguage ?? 'auto'}:${article.updatedAt.toString()}`;
     const cached = await this.cacheService.get(cacheKey);
     if (cached) {
-      this.usageTracker.increment('translate', true);
+      this.usageTracker.increment('translate', true, undefined, 0);
       return cached;
     }
 
@@ -101,7 +110,14 @@ export class AiController {
       dto.targetLanguage,
       dto.sourceLanguage,
     );
+    const start = performance.now();
     const { text, usage } = await this.geminiService.generate(prompt);
+    const latencyMs = performance.now() - start;
+    if (latencyMs > 5000) {
+      this.logger.warn(
+        `Slow AI request: translate took ${latencyMs.toFixed(0)}ms`,
+      );
+    }
 
     // Structured validation with fallback
     const fallback: TranslateResponse = {
@@ -113,6 +129,7 @@ export class AiController {
       text,
       translateResponseSchema,
       fallback,
+      this.logger,
     );
 
     const response = {
@@ -122,7 +139,7 @@ export class AiController {
     };
 
     await this.cacheService.set(cacheKey, response);
-    this.usageTracker.increment('translate', false, usage);
+    this.usageTracker.increment('translate', false, usage, latencyMs);
     return response;
   }
 
@@ -135,9 +152,16 @@ export class AiController {
     if (!article) throw new NotFoundException('Article not found');
 
     const prompt = analyzeArticlePrompt(article.content, dto.task);
+    const start = performance.now();
     const { text, usage } = await this.geminiService.generate(prompt, {
       temperature: 0.2,
     });
+    const latencyMs = performance.now() - start;
+    if (latencyMs > 5000) {
+      this.logger.warn(
+        `Slow AI request: analyze took ${latencyMs.toFixed(0)}ms`,
+      );
+    }
 
     // Structured validation with fallback
     const fallback: AnalyzeResponse = {
@@ -150,6 +174,7 @@ export class AiController {
       text,
       analyzeResponseSchema,
       fallback,
+      this.logger,
     );
 
     const response = {
@@ -159,7 +184,7 @@ export class AiController {
       severity: validated.severity,
     };
 
-    this.usageTracker.increment('analyze', false, usage);
+    this.usageTracker.increment('analyze', false, usage, latencyMs);
     return response;
   }
 }
