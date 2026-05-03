@@ -5,6 +5,8 @@ import {
   Body,
   NotFoundException,
   BadRequestException,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { GeminiService } from './gemini.service';
@@ -25,9 +27,24 @@ import {
   AnalyzeResponse,
 } from './schemas/ai-response.schemas';
 import { AppLogger } from 'src/common/logger/logger.service';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiTooManyRequestsResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { SummarizeArticleResponseDto } from './dto/summarize-response.dto';
+import { TranslateArticleResponseDto } from './dto/translate-response.dto';
+import { AnalyzeArticleResponseDto } from './dto/analyze-response.dto';
 
 const LIMIT = parseInt(process.env.AI_RATE_LIMIT_RPM || '20', 10);
 
+@ApiTags('AI - Articles')
 @Controller('ai/articles')
 @Throttle({ ai: { limit: LIMIT, ttl: 60000 } })
 export class AiController {
@@ -40,6 +57,17 @@ export class AiController {
   ) {}
 
   @Post(':articleId/summarize')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Summarize an article' })
+  @ApiParam({ name: 'articleId', description: 'The ID of the article' })
+  @ApiBody({ type: SummarizeArticleRequestDto })
+  @ApiOkResponse({
+    description: 'Article summarized successfully',
+    type: SummarizeArticleResponseDto,
+  })
+  @ApiNotFoundResponse({ description: 'Article not found' })
+  @ApiTooManyRequestsResponse({ description: 'Too many requests' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async summarize(
     @Param('articleId') articleId: string,
     @Body() dto: SummarizeArticleRequestDto,
@@ -87,6 +115,18 @@ export class AiController {
   }
 
   @Post(':articleId/translate')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Translate an article' })
+  @ApiParam({ name: 'articleId', description: 'The ID of the article' })
+  @ApiBody({ type: TranslateArticleRequestDto })
+  @ApiOkResponse({
+    description: 'Article translated successfully',
+    type: TranslateArticleResponseDto,
+  })
+  @ApiNotFoundResponse({ description: 'Article not found' })
+  @ApiBadRequestResponse({ description: 'targetLanguage is required' })
+  @ApiTooManyRequestsResponse({ description: 'Too many requests' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async translate(
     @Param('articleId') articleId: string,
     @Body() dto: TranslateArticleRequestDto,
@@ -144,6 +184,17 @@ export class AiController {
   }
 
   @Post(':articleId/analyze')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Analyze article content' })
+  @ApiParam({ name: 'articleId', description: 'The ID of the article' })
+  @ApiBody({ type: AnalyzeArticleRequestDto })
+  @ApiOkResponse({
+    description: 'Article analyzed successfully',
+    type: AnalyzeArticleResponseDto,
+  })
+  @ApiNotFoundResponse({ description: 'Article not found' })
+  @ApiTooManyRequestsResponse({ description: 'Too many requests' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async analyze(
     @Param('articleId') articleId: string,
     @Body() dto: AnalyzeArticleRequestDto,

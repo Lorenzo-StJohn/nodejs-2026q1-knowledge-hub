@@ -1,11 +1,21 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { GenerateRequestDto } from './dto/generate-request.dto';
 import { GeminiService } from './gemini.service';
 import { AiUsageTrackerService } from './ai-usage-tracker.service';
 import { AppLogger } from 'src/common/logger/logger.service';
 import { ConversationService } from './services/conversation.service';
+import {
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiTooManyRequestsResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { GenerateResponseDto } from './dto/generate-response.dto';
 
+@ApiTags('AI - Generate')
 @Controller('ai')
 @Throttle({ ai: {} })
 export class AiGenerateController {
@@ -16,6 +26,17 @@ export class AiGenerateController {
     private readonly conversationService: ConversationService,
   ) {}
   @Post('generate')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Free-form AI text generation with optional session context',
+  })
+  @ApiBody({ type: GenerateRequestDto })
+  @ApiOkResponse({
+    description: 'Text generated successfully',
+    type: GenerateResponseDto,
+  })
+  @ApiTooManyRequestsResponse({ description: 'Too many requests' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async generate(@Body() dto: GenerateRequestDto) {
     const { prompt, maxOutputTokens, temperature, sessionId, clearSession } =
       dto;
