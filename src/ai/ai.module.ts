@@ -11,6 +11,7 @@ import { AiCacheService } from './ai-cache.service';
 import { AiUsageTrackerService } from './ai-usage-tracker.service';
 import { AppLogger } from 'src/common/logger/logger.service';
 import { AiStatsController } from './ai-stats.controller';
+import { AiGenerateController } from './ai-generate.controller';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { AiStatsController } from './ai-stats.controller';
       timeout: 15000,
     }),
   ],
-  controllers: [AiController, AiStatsController],
+  controllers: [AiController, AiStatsController, AiGenerateController],
   providers: [
     GeminiService,
     OutgoingLoggingInterceptor,
