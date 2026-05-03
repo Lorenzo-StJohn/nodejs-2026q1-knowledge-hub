@@ -2,7 +2,7 @@
 
 ## Description
 
-This repository contains solution for [Assignment: Logging & Error Handling](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/08b-logging-errors/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework. The application is fully implemented according to the technical specification (**Basic + Advanced Scope**).
+This repository contains solution for [Assignment: Knowledge Hub AI Integration](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/09-ai-llm-integration/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework and Gemini API. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
 
 
 ## Prerequisites
@@ -25,10 +25,10 @@ git clone https://github.com/Lorenzo-StJohn/nodejs-2026q1-knowledge-hub
 cd nodejs-2026q1-knowledge-hub
 ```
 
-### 3. Checkout to the auth-jwt branch
+### 3. Checkout to the ai-llm-integration branch
 
 ```bash
-git checkout logging-and-error-handling
+git checkout ai-llm-integration
 ```
 
 ### 4. Install dependencies
@@ -43,6 +43,37 @@ npm ci
 cp .env.example .env
 ```
 
+### 6. Add your own Gemini API key in .env
+
+Find `GEMINI_API_KEY=your-gemini-api-key` in `.env` and replace `your-gemini-api-key` with your own key (see instructions bellow how to get such a key).
+
+## How to Obtain a Gemini API Key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Sign in with your Google account.
+3. Click **"Create API key"** and select a Google Cloud project (or create a new one).
+4. Copy the generated API key.
+5. (Optional) If you are in a region where Gemini is not directly available, check the [habr article](https://habr.com/ru/articles/870494/) for different alternative access methods (especially relevant for users in Russia).
+
+## Known Limitations for Gemini API
+
+### Free-Tier Quotas
+
+- Rate Limit: 5 RPM accordingly to official website
+<img width="1087" height="102" alt="Screenshot 2026-05-04 at 01 22 01" src="https://github.com/user-attachments/assets/796f9068-fa52-4d9a-b0e8-e0250c676209" />
+- Tokens per Minute: 250,000 tokens accordingly to official website
+- Requests per day: about 250 accordingly to 3rd-party statistics
+- When the Gemini free tier is exhausted, the API returns a 429 status. The application will retry with exponential backoff and, if unsuccessful, return a 503 Service Unavailable
+
+### Latency
+
+- Gemini API calls may take 1–5 seconds depending on prompt complexity and current service load.
+- The service uses an in‑memory cache (configurable TTL via AI_CACHE_TTL_SEC) for summarization and translation to improve repeat-request performance.
+
+### Regional Availability
+
+- Gemini API is not available in all countries. If you are in a region where access is restricted (e.g., Russia), you may need a VPN or a proxy. Refer to the [habr article](https://habr.com/ru/articles/870494/) for detailed workarounds and community advice.
+
 ## How to run application
 
 ### Generate Prisma client
@@ -52,9 +83,6 @@ npx prisma generate
 ```
 
 ### Build application via docker 
-
-> [!WARNING]
-> Even if you have docker container from the previous task you still need to follow this step in order to apply prisma configuration
 
 > [!WARNING]
 > Before running this command make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
@@ -88,17 +116,6 @@ npx prisma migrate deploy
 npm run start:dev
 ```
 
-  - or in production mode:
-
-```bash
-npm run build
-```
-
-```bash
-npm run start:prod
-```
-
-
 ### Run seed script from local app
 
 Make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
@@ -113,141 +130,20 @@ After running the script, the following users will exist:
 - login: `editor` password: `password123`
 - login: `viewer` password: `password123`
 
-### Start docker app + docker db
+### Screenshots:
 
-#### Start docker db
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 54 53" src="https://github.com/user-attachments/assets/fc670ccd-cd92-46e3-89a9-3bf3bfeb306d" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 55 27" src="https://github.com/user-attachments/assets/eca8b8dc-48c1-4344-8dfe-bfb1d117be18" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 56 38" src="https://github.com/user-attachments/assets/08eab210-d2d6-49a0-8be0-cd5d899b2d0c" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 57 32" src="https://github.com/user-attachments/assets/a0f160d4-7349-4bf3-b87d-0e9e42f8441b" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 57 53" src="https://github.com/user-attachments/assets/84f59faa-62d0-4290-99a3-e95f356828d2" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 59 08" src="https://github.com/user-attachments/assets/63d288f9-8db8-4979-a87d-ac121c763465" />
+<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 59 28" src="https://github.com/user-attachments/assets/3f99117d-19b5-401f-a475-d9f17e48b9f6" />
+<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 01 22" src="https://github.com/user-attachments/assets/43bd54b9-188a-43d9-82a9-cdbbfe11a8c0" />
+<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 02 24" src="https://github.com/user-attachments/assets/d829ddb1-6aa4-47f9-b1ce-48fa3afa6fac" />
+<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 04 39" src="https://github.com/user-attachments/assets/4eeda192-af7c-49a4-b37b-716a97377732" />
+<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 10 50" src="https://github.com/user-attachments/assets/1f21bbd5-f5d2-4c32-b5f3-33df6c714ffa" />
 
-Make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
-
-
-```bash
-docker compose up -d db
-```
-
-#### Apply database migrations from docker
-
-Please, wait a few seconds after starting the db before running migrations to ensure PostgreSQL is ready.
-
-```bash
-docker compose run --rm app npx prisma migrate deploy
-```
-
-#### Start docker app
-
-```bash
-docker compose up -d
-```
-
-### Run seed script from docker app
-
-Make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
-
-```bash
-npm run seed:docker
-```
-
-P.S. It will run `npx prisma db seed` under the hood: `docker compose run --rm app npx prisma db seed`
-
-After running the script, the following users will exist:
-
-- login: `admin` password: `password123`
-- login: `editor` password: `password123`
-- login: `viewer` password: `password123`
-
-## Log file example
-
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 44 25" src="https://github.com/user-attachments/assets/60f7877b-5b0b-4445-89c8-2c3cd6c45f63" />
-
-## Log example for development mode
-
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 22 06 20" src="https://github.com/user-attachments/assets/fa52d981-a826-4ad9-b4fa-fae8077336ee" />
-
-## Log example for production mode
-
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 22 14 07" src="https://github.com/user-attachments/assets/d80c689f-901a-4113-89b2-80d531f0b469" />
-
-## Testing
-
-### Run all tests
-
-> [!WARNING]
-> In order to run all tests you need to start the application first 
-
-> [!WARNING]
-> There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
-
-> [!WARNING]
-> For testing DATABASE_URL in .env file should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
-
-```bash
-npm run test
-```
-
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 23 53" src="https://github.com/user-attachments/assets/036c3ab6-e48d-4e49-81b5-41924becbd2f" />
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 24 05" src="https://github.com/user-attachments/assets/c416b67e-9791-41b8-9f80-c8b88c38c370" />
-
-### Run unit tests
-
-For unit tests it does not matter if the application is running or not. 
-
-```bash
-npm run test:unit
-```
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 27 33" src="https://github.com/user-attachments/assets/57374292-c84c-49da-9a10-b919ca827af0" />
-
-
-### Run all tests with coverage report (for vitest tests)
-
-> [!WARNING]
-> In order to run all tests you need to start the application first 
-
-> [!WARNING]
-> There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
-
-> [!WARNING]
-> For testing DATABASE_URL in .env file should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
-
-```bash
-npm run test:coverage
-```
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 29 48" src="https://github.com/user-attachments/assets/8e039b5e-025b-4b94-a0ad-43f19843ef24" />
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 30 10" src="https://github.com/user-attachments/assets/58cabe39-2b3b-424b-b24f-e637ddbe601b" />
-
-### Run old jest tests
-
-> [!WARNING]
-> In order to run jest tests you need to start the application first 
-
-> [!WARNING]
-> There is a rate limiting for auth endpoints, please wait a full minute before running different test sets.
-
-> [!WARNING]
-> For testing DATABASE_URL in .env file should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
-
-```bash
-npm run test:jest
-```
-
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 20 10 35" src="https://github.com/user-attachments/assets/e7ec0976-dda1-45f4-a80d-76c6d3c21775" />
-
-
-### Run unit tests with coverage report
-
-For unit tests it does not matter if the application is running or not. 
-
-```bash
-npm run test:cov:unit
-```
-
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 31 52" src="https://github.com/user-attachments/assets/d767c36e-4e5a-4965-aa39-3512eb42a307" />
-<img width="1440" height="900" alt="Screenshot 2026-04-26 at 21 32 08" src="https://github.com/user-attachments/assets/e3d9d9e8-b653-47cc-98b8-c589a468c7c8" />
-
-
-## How to stop application 
-
-```bash
-docker compose down
-```
 
 ## API Endpoints
 
@@ -298,6 +194,17 @@ docker compose down
 | POST   | `/auth/login`         | 200     | 400, 403, 429                         |
 | POST   | `/auth/refresh`       | 200     | 401, 403                              |
 | POST   | `/auth/logout `       | 200     | 401                                   |
+
+### AI (`/ai`)
+
+| Method | Endpoint                            | Success | Error Codes                           |
+|--------|-------------------------------------|---------|---------------------------------------|
+| POST   | `/ai/articles/:articleId/summarize` | 201     | 400, 429                              |
+| POST   | `/ai/articles/:articleId/translate` | 200     | 400, 403, 429                         |
+| POST   | `/ai/articles/:articleId/analyze`   | 200     | 401, 403                              |
+| POST   | `/ai/usage`                         | 200     | 401                                   |
+| POST   | `/ai/generate`                      | 200     | 401                                   |
+| POST   | `/ai/diagnostics`                   | 200     | 401                                   |
 
 
 ## Swagger (from the first part of the task)
