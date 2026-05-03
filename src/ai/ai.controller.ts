@@ -6,6 +6,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { GeminiService } from './gemini.service';
 import { SummarizeArticleRequestDto } from './dto/summarize-article.dto';
 import { TranslateArticleRequestDto } from './dto/translate-article.dto';
@@ -13,10 +14,16 @@ import { AnalyzeArticleRequestDto } from './dto/analyze-article.dto';
 import { summarizeArticlePrompt } from './prompt-templates/summarize.template';
 import { translateArticlePrompt } from './prompt-templates/translate.template';
 import { analyzeArticlePrompt } from './prompt-templates/analyze.template';
-import { Throttle } from '@nestjs/throttler';
 import { ArticleService } from 'src/modules/article/article.service';
 import { AiCacheService } from './ai-cache.service';
 import { AiUsageTrackerService } from './ai-usage-tracker.service';
+import { parseStructuredResponse } from './utils/parse-structured-response';
+import {
+  translateResponseSchema,
+  analyzeResponseSchema,
+  TranslateResponse,
+  AnalyzeResponse,
+} from './schemas/ai-response.schemas';
 
 const LIMIT = parseInt(process.env.AI_RATE_LIMIT_RPM || '20', 10);
 
@@ -96,19 +103,24 @@ export class AiController {
     );
     const { text, usage } = await this.geminiService.generate(prompt);
 
-    let translatedText: string;
-    let detectedLanguage: string;
-    try {
-      const parsed = JSON.parse(text);
-      translatedText = parsed.translatedText;
-      detectedLanguage =
-        parsed.detectedLanguage || dto.sourceLanguage || 'unknown';
-    } catch {
-      translatedText = text.trim();
-      detectedLanguage = dto.sourceLanguage || 'unknown';
-    }
+    // Structured validation with fallback
+    const fallback: TranslateResponse = {
+      translatedText: text.trim(),
+      detectedLanguage: dto.sourceLanguage || 'unknown',
+    };
 
-    const response = { articleId, translatedText, detectedLanguage };
+    const validated = parseStructuredResponse(
+      text,
+      translateResponseSchema,
+      fallback,
+    );
+
+    const response = {
+      articleId,
+      translatedText: validated.translatedText,
+      detectedLanguage: validated.detectedLanguage,
+    };
+
     await this.cacheService.set(cacheKey, response);
     this.usageTracker.increment('translate', false, usage);
     return response;
@@ -127,21 +139,26 @@ export class AiController {
       temperature: 0.2,
     });
 
-    let analysis: string;
-    let suggestions: string[];
-    let severity: 'info' | 'warning' | 'error';
-    try {
-      const parsed = JSON.parse(text);
-      analysis = parsed.analysis ?? '';
-      suggestions = parsed.suggestions ?? [];
-      severity = parsed.severity ?? 'info';
-    } catch {
-      analysis = text;
-      suggestions = [];
-      severity = 'info';
-    }
+    // Structured validation with fallback
+    const fallback: AnalyzeResponse = {
+      analysis: text,
+      suggestions: [],
+      severity: 'info',
+    };
 
-    const response = { articleId, analysis, suggestions, severity };
+    const validated = parseStructuredResponse(
+      text,
+      analyzeResponseSchema,
+      fallback,
+    );
+
+    const response = {
+      articleId,
+      analysis: validated.analysis,
+      suggestions: validated.suggestions,
+      severity: validated.severity,
+    };
+
     this.usageTracker.increment('analyze', false, usage);
     return response;
   }
