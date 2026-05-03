@@ -13,6 +13,7 @@ import { AppLogger } from 'src/common/logger/logger.service';
 import { AiStatsController } from './ai-stats.controller';
 import { AiGenerateController } from './ai-generate.controller';
 import { AiDiagnosticsController } from './ai-diagnostics.controller';
+import { ConversationService } from './services/conversation.service';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AiDiagnosticsController } from './ai-diagnostics.controller';
     AiCacheService,
     AiUsageTrackerService,
     AppLogger,
+    ConversationService,
   ],
 })
 export class AiModule {}

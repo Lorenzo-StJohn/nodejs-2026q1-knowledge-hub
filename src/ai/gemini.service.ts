@@ -92,4 +92,18 @@ export class GeminiService {
     }
     throw new Error('Retries exhausted');
   }
+
+  async generateWithContext(
+    history: { role: string; text: string }[],
+    currentPrompt: string,
+    config?,
+  ) {
+    const contextPrompt = history
+      .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`)
+      .join('\n');
+    const fullPrompt = contextPrompt
+      ? `${contextPrompt}\nUser: ${currentPrompt}\nAssistant:`
+      : `User: ${currentPrompt}\nAssistant:`;
+    return this.generate(fullPrompt, config);
+  }
 }
