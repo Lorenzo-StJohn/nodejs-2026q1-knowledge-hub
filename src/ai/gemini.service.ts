@@ -1,13 +1,13 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 
 import { Configuration } from 'src/config/configuration';
-import {
-  TooManyRequestsError,
-  UnauthorizedError,
-} from 'src/common/exceptions/custom-errors';
 
 export interface generationConfig {
   maxOutputTokens?: number;
@@ -32,7 +32,7 @@ export class GeminiService {
 
   async generate(prompt: string, generationConfig?: generationConfig) {
     if (!this.apiKey) {
-      throw new UnauthorizedError();
+      throw new InternalServerErrorException('AI service is not configured');
     }
 
     const url = `${this.baseUrl}/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
@@ -51,15 +51,38 @@ export class GeminiService {
       const usage = response.data.usageMetadata;
       return { text, usage };
     } catch (error: any) {
+      if (
+        error instanceof InternalServerErrorException ||
+        error instanceof ServiceUnavailableException
+      ) {
+        throw error;
+      }
       const axiosError = error as AxiosError;
       const status = axiosError.response?.status;
+      const code = axiosError.code;
 
-      if (status === 429) throw new TooManyRequestsError();
-      if (status === 401) throw new UnauthorizedError();
+      if (status === 429) {
+        throw new ServiceUnavailableException(
+          'AI service temporarily unavailable (upstream rate limit)',
+        );
+      }
+      if (status === 400 || status === 401 || status === 403) {
+        throw new InternalServerErrorException(
+          'AI service configuration error',
+        );
+      }
+      if (
+        code === 'ECONNABORTED' ||
+        code === 'ERR_NETWORK' ||
+        code === 'ETIMEDOUT' ||
+        code === 'ECONNRESET'
+      ) {
+        throw new ServiceUnavailableException(
+          'AI service network or timeout error',
+        );
+      }
 
-      throw new InternalServerErrorException(
-        axiosError.message || 'Gemini API Error',
-      );
+      throw new InternalServerErrorException('AI service error');
     }
   }
 
@@ -74,19 +97,20 @@ export class GeminiService {
       } catch (error) {
         if (i === retries) throw error;
         const axiosError = error as AxiosError;
-        if (axiosError.response?.status === 429) {
-          // Gemini rate limit
-          const delay = baseDelay * Math.pow(2, i);
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        } else if (
-          axiosError.code === 'ECONNABORTED' ||
-          axiosError.code === 'ERR_NETWORK'
+        const status = axiosError.response?.status;
+        const code = axiosError.code;
+
+        if (
+          status === 429 ||
+          code === 'ECONNABORTED' ||
+          code === 'ERR_NETWORK' ||
+          code === 'ETIMEDOUT' ||
+          code === 'ECONNRESET'
         ) {
-          // timeout/network
           const delay = baseDelay * Math.pow(2, i);
           await new Promise((resolve) => setTimeout(resolve, delay));
         } else {
-          throw error; // unrecoverable
+          throw error;
         }
       }
     }
