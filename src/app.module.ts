@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -28,6 +29,11 @@ import { AiModule } from './ai/ai.module';
           ttl: 3600000,
           limit: 2000,
         },
+        {
+          name: 'ai',
+          ttl: 60000,
+          limit: parseInt(process.env.AI_RATE_LIMIT_RPM || '20', 10),
+        },
       ],
     }),
     ConfigModule,
@@ -40,7 +46,14 @@ import { AiModule } from './ai/ai.module';
     AiModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AppLogger],
+  providers: [
+    AppService,
+    AppLogger,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [AppLogger],
 })
 export class AppModule implements NestModule {

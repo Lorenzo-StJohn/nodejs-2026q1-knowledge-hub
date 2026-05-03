@@ -18,9 +18,10 @@ import { ArticleService } from 'src/modules/article/article.service';
 import { AiCacheService } from './ai-cache.service';
 import { AiUsageTrackerService } from './ai-usage-tracker.service';
 
-const AI_RATE_LIMIT_RPM = parseInt(process.env.AI_RATE_LIMIT_RPM);
+const LIMIT = parseInt(process.env.AI_RATE_LIMIT_RPM || '20', 10);
 
 @Controller('ai/articles')
+@Throttle({ ai: { limit: LIMIT, ttl: 60000 } })
 export class AiController {
   constructor(
     private readonly articleService: ArticleService,
@@ -30,7 +31,6 @@ export class AiController {
   ) {}
 
   @Post(':articleId/summarize')
-  @Throttle({ default: { limit: AI_RATE_LIMIT_RPM, ttl: 60000 } })
   async summarize(
     @Param('articleId') articleId: string,
     @Body() dto: SummarizeArticleRequestDto,
@@ -71,7 +71,6 @@ export class AiController {
   }
 
   @Post(':articleId/translate')
-  @Throttle({ default: { limit: AI_RATE_LIMIT_RPM, ttl: 60000 } })
   async translate(
     @Param('articleId') articleId: string,
     @Body() dto: TranslateArticleRequestDto,
@@ -116,7 +115,6 @@ export class AiController {
   }
 
   @Post(':articleId/analyze')
-  @Throttle({ default: { limit: AI_RATE_LIMIT_RPM, ttl: 60000 } })
   async analyze(
     @Param('articleId') articleId: string,
     @Body() dto: AnalyzeArticleRequestDto,
