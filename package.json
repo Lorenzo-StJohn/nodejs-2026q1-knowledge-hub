@@ -43,6 +43,7 @@
     "@nestjs/throttler": "^6.5.0",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.7.0",
+    "@qdrant/js-client-rest": "^1.17.0",
     "axios": "^1.15.2",
     "bcryptjs": "^3.0.3",
     "cache-manager": "^7.2.8",
