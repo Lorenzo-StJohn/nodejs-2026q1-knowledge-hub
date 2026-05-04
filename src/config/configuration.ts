@@ -20,7 +20,17 @@ export class Configuration {
         process.env.GEMINI_API_BASE ??
         'https://generativelanguage.googleapis.com',
       key: process.env.GEMINI_API_KEY,
-      model: process.env.GEMINI_MODEL ?? 'gemini-2.0-flash',
+      model: process.env.GEMINI_MODEL ?? 'gemini-2.5-flash',
+    };
+  }
+
+  get apiEmbedding() {
+    return {
+      url:
+        process.env.GEMINI_API_BASE ??
+        'https://generativelanguage.googleapis.com',
+      key: process.env.GEMINI_API_KEY,
+      model: process.env.GEMINI_EMBEDDING_MODEL ?? 'text-embedding-004',
     };
   }
 
