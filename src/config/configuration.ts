@@ -31,4 +31,12 @@ export class Configuration {
   get aiRateLimitRpm() {
     return parseInt(process.env.AI_RATE_LIMIT_RPM ?? '20');
   }
+
+  get ragChunkSize() {
+    return parseInt(process.env.RAG_CHUNK_SIZE ?? '800');
+  }
+
+  get ragChunkOverlap() {
+    return parseInt(process.env.RAG_CHUNK_OVERLAP ?? '200');
+  }
 }
