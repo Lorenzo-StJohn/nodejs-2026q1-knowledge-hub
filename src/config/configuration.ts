@@ -57,4 +57,8 @@ export class Configuration {
   get ragVectorDbUrl() {
     return process.env.RAG_VECTOR_DB_URL ?? 'http://vectordb:6333';
   }
+
+  get ragConversationMaxMessages() {
+    return parseInt(process.env.RAG_CONVERSATION_MAX_MESSAGES ?? '20');
+  }
 }
