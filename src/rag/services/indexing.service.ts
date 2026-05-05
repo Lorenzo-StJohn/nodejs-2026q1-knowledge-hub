@@ -5,7 +5,7 @@ import { EmbeddingService } from './embedding.service';
 import { VectorStoreService, VectorPoint } from './vector-store.service';
 import { ArticleService } from 'src/modules/article/article.service';
 import { Configuration } from 'src/config/configuration';
-import { ReindexRequestDto } from '../dto/reindex.dto';
+import { ReindexRequestDto, ReindexResponseDto } from '../dto/reindex.dto';
 
 @Injectable()
 export class IndexingService {
@@ -17,7 +17,7 @@ export class IndexingService {
     private readonly config: Configuration,
   ) {}
 
-  async reindex(dto: ReindexRequestDto) {
+  async reindex(dto: ReindexRequestDto): Promise<ReindexResponseDto> {
     const onlyPublished = dto.onlyPublished ?? true;
     let articles = (await this.articleService.findAll({})).data;
     if (dto.articleIds && dto.articleIds.length > 0) {

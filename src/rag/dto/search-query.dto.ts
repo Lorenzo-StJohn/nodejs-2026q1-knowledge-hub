@@ -3,6 +3,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   Min,
 } from 'class-validator';
@@ -29,9 +30,9 @@ export class RagSearchRequestDto {
   @IsString()
   articleStatus?: string;
 
-  @ApiPropertyOptional({ example: 'string' })
+  @ApiPropertyOptional({ example: '0e2f864e-8611-4e41-9d49-1c94b1df5c95' })
   @IsOptional()
-  @IsString()
+  @IsUUID('4')
   categoryId?: string;
 
   @ApiPropertyOptional({ example: ['string'] })

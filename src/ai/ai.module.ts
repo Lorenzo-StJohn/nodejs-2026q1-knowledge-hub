@@ -38,5 +38,6 @@ import { ConversationService } from './services/conversation.service';
     AppLogger,
     ConversationService,
   ],
+  exports: [GeminiService],
 })
 export class AiModule {}

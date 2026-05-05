@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Configuration } from 'src/config/configuration';
 
-interface Message {
+export interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
@@ -38,9 +38,5 @@ export class ConversationMemoryService {
         conv.messages.length - this.maxMessages,
       );
     }
-  }
-
-  removeConversation(conversationId: string) {
-    this.conversations.delete(conversationId);
   }
 }
