@@ -49,4 +49,12 @@ export class Configuration {
   get ragChunkOverlap() {
     return parseInt(process.env.RAG_CHUNK_OVERLAP ?? '200');
   }
+
+  get ragVectorCollection() {
+    return process.env.RAG_VECTOR_COLLECTION ?? 'knowledge_hub_articles';
+  }
+
+  get ragVectorDbUrl() {
+    return process.env.RAG_VECTOR_DB_URL ?? 'http://vectordb:6333';
+  }
 }
