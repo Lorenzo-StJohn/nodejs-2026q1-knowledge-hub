@@ -7,7 +7,7 @@ export class ReindexRequestDto {
   @IsBoolean()
   onlyPublished?: boolean;
 
-  @ApiPropertyOptional({ example: 'string' })
+  @ApiPropertyOptional({ example: ['string'] })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })

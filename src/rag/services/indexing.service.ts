@@ -6,6 +6,15 @@ import { VectorStoreService, VectorPoint } from './vector-store.service';
 import { ArticleService } from 'src/modules/article/article.service';
 import { Configuration } from 'src/config/configuration';
 import { ReindexRequestDto, ReindexResponseDto } from '../dto/reindex.dto';
+import { DEFAULT_LIMIT } from 'src/common/dto/pagination-query.dto';
+import { Order } from 'src/common/entities/sort.interface';
+
+const DEFAULT_FIND_ALL_ARTICLES_REQUEST = {
+  sortBy: 'createdAt',
+  order: Order[0],
+  page: 1,
+  limit: DEFAULT_LIMIT,
+};
 
 @Injectable()
 export class IndexingService {
@@ -19,7 +28,9 @@ export class IndexingService {
 
   async reindex(dto: ReindexRequestDto): Promise<ReindexResponseDto> {
     const onlyPublished = dto.onlyPublished ?? true;
-    let articles = (await this.articleService.findAll({})).data;
+    let articles = (
+      await this.articleService.findAll(DEFAULT_FIND_ALL_ARTICLES_REQUEST)
+    ).data;
     if (dto.articleIds && dto.articleIds.length > 0) {
       articles = articles.filter((a) => dto.articleIds!.includes(a.id));
     }
