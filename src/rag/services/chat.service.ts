@@ -5,6 +5,7 @@ import { ConversationMemoryService } from './conversation-memory.service';
 import { GeminiService } from 'src/ai/gemini.service';
 import { RagChatRequestDto, RagChatResponseDto } from '../dto/chat.dto';
 import { chatPrompt } from '../prompt-templates/chat.template';
+import { RerankerService } from './reranker.service';
 
 @Injectable()
 export class ChatService {
@@ -12,6 +13,7 @@ export class ChatService {
     private readonly retrievalService: RetrievalService,
     private readonly memoryService: ConversationMemoryService,
     private readonly geminiService: GeminiService,
+    private readonly rerankerService: RerankerService,
   ) {}
 
   async chat(dto: RagChatRequestDto): Promise<RagChatResponseDto> {
@@ -19,10 +21,21 @@ export class ChatService {
 
     const searchResults = await this.retrievalService.search({
       query: dto.question,
-      limit: 5,
+      limit: 15,
     });
 
-    const context = searchResults
+    const chunks = searchResults.map((r) => ({
+      articleId: r.articleId,
+      articleTitle: r.articleTitle,
+      chunk: r.chunk,
+      score: r.similarity,
+    }));
+
+    const reranked = await this.rerankerService.rerank(dto.question, chunks);
+
+    const topChunks = reranked.slice(0, 5);
+
+    const context = topChunks
       .map((r) => `[Source: ${r.articleTitle}]\n${r.chunk}`)
       .join('\n\n');
 

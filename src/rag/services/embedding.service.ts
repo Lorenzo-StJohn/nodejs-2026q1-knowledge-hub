@@ -7,8 +7,7 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { Configuration } from 'src/config/configuration';
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+import { sleep } from 'src/common/utils/sleep.util';
 
 @Injectable()
 export class EmbeddingService {

@@ -65,4 +65,14 @@ export class Configuration {
   get ragConversationMaxMessages() {
     return parseInt(process.env.RAG_CONVERSATION_MAX_MESSAGES ?? '20');
   }
+
+  get ragRerankEnabled(): boolean {
+    return process.env.RAG_RERANK_ENABLED === 'true';
+  }
+  get ragRerankTopK(): number {
+    return parseInt(process.env.RAG_RERANK_TOP_K || '10', 10);
+  }
+  get ragRerankWeight(): number {
+    return parseFloat(process.env.RAG_RERANK_WEIGHT || '0.7');
+  }
 }

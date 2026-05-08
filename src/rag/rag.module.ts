@@ -12,6 +12,7 @@ import { HttpModule } from '@nestjs/axios';
 import { AiModule } from 'src/ai/ai.module';
 import { ChatService } from './services/chat.service';
 import { HybridSearchService } from './services/hybrid-search.service';
+import { RerankerService } from './services/reranker.service';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { HybridSearchService } from './services/hybrid-search.service';
     VectorStoreService,
     ChatService,
     HybridSearchService,
+    RerankerService,
   ],
 })
 export class RagModule {}
