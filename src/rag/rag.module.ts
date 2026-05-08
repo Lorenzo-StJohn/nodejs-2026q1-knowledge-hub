@@ -10,6 +10,7 @@ import { RagIndexController } from './rag.controller';
 import { ArticleModule } from 'src/modules/article/article.module';
 import { HttpModule } from '@nestjs/axios';
 import { AiModule } from 'src/ai/ai.module';
+import { ChatService } from './services/chat.service';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AiModule } from 'src/ai/ai.module';
     IndexingService,
     RetrievalService,
     VectorStoreService,
+    ChatService,
   ],
 })
 export class RagModule {}
