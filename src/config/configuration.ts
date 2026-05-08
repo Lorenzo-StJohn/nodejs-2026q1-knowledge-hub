@@ -46,6 +46,10 @@ export class Configuration {
     return parseInt(process.env.RAG_CHUNK_SIZE ?? '800');
   }
 
+  get ragVectorSize() {
+    return parseInt(process.env.RAG_VECTOR_SIZE ?? '3072');
+  }
+
   get ragChunkOverlap() {
     return parseInt(process.env.RAG_CHUNK_OVERLAP ?? '200');
   }

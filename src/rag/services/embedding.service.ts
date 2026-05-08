@@ -8,6 +8,8 @@ import { lastValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { Configuration } from 'src/config/configuration';
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 @Injectable()
 export class EmbeddingService {
   private readonly apiKey: string;
@@ -24,20 +26,35 @@ export class EmbeddingService {
   }
 
   async embedTexts(texts: string[]): Promise<number[][]> {
-    const url = `${this.baseUrl}/v1beta/models/${this.model}:batchEmbedContents?key=${this.apiKey}`;
-    const requests = texts.map((t) => ({
-      model: `models/${this.model}`,
-      content: { parts: [{ text: t }] },
-    }));
+    const maxConcurrency = 5;
+    const results: number[][] = [];
+
+    for (let i = 0; i < texts.length; i += maxConcurrency) {
+      const batch = texts.slice(i, i + maxConcurrency);
+      const embeddings = await Promise.all(
+        batch.map((text) => this.embedSingle(text)),
+      );
+      results.push(...embeddings);
+
+      if (i + maxConcurrency < texts.length) {
+        await sleep(1200);
+      }
+    }
+
+    return results;
+  }
+
+  private async embedSingle(text: string): Promise<number[]> {
+    const url = `${this.baseUrl}/v1beta/models/${this.model}:embedContent?key=${this.apiKey}`;
+    const payload = {
+      content: { parts: [{ text }] },
+    };
 
     try {
       const response = await lastValueFrom(
-        this.httpService.post(url, { requests }, { timeout: 20000 }),
+        this.httpService.post(url, payload, { timeout: 20000 }),
       );
-      const embeddings = response.data.embeddings.map(
-        (e: any) => e.values as number[],
-      );
-      return embeddings;
+      return response.data.embedding.values;
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.status === 429) {
@@ -46,7 +63,9 @@ export class EmbeddingService {
         );
       }
       if (axiosError.code === 'ECONNABORTED' || !axiosError.response) {
-        throw new ServiceUnavailableException('Embedding service unavailable');
+        throw new ServiceUnavailableException(
+          'Embedding service network/timeout error',
+        );
       }
       throw new InternalServerErrorException('Embedding generation failed');
     }

@@ -1,9 +1,10 @@
+import { HttpService } from '@nestjs/axios';
 import {
   Injectable,
   OnModuleInit,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { QdrantClient } from '@qdrant/js-client-rest';
+import { lastValueFrom } from 'rxjs';
 import { Configuration } from 'src/config/configuration';
 
 export interface VectorPoint {
@@ -22,43 +23,95 @@ export interface VectorPoint {
 
 @Injectable()
 export class VectorStoreService implements OnModuleInit {
-  private client: QdrantClient;
   private collectionName: string;
+  private baseUrl: string;
+  private ragVectorSize: number;
 
-  constructor(private readonly config: Configuration) {
+  constructor(
+    private readonly config: Configuration,
+    private readonly httpService: HttpService,
+  ) {
     this.collectionName = this.config.ragVectorCollection;
+    this.baseUrl = this.config.ragVectorDbUrl;
+    this.ragVectorSize = this.config.ragVectorSize;
   }
 
   async onModuleInit() {
-    const url = this.config.ragVectorDbUrl;
-    this.client = new QdrantClient({ url });
     await this.ensureCollection();
   }
 
-  async ensureCollection() {
+  private async ensureCollection() {
     try {
-      const collections = await this.client.getCollections();
-      if (
-        !collections.collections.find((c) => c.name === this.collectionName)
-      ) {
-        await this.client.createCollection(this.collectionName, {
-          vectors: { size: 768, distance: 'Cosine' },
-        });
-      }
+      await lastValueFrom(
+        this.httpService.put(
+          `${this.baseUrl}/collections/${this.collectionName}`,
+          {
+            vectors: {
+              size: this.ragVectorSize,
+              distance: 'Cosine',
+            },
+          },
+        ),
+      );
     } catch (error) {
-      throw new ServiceUnavailableException('Vector database is not available');
+      const axiosError = error as any;
+      if (axiosError.response?.status !== 409) {
+        throw new ServiceUnavailableException(
+          'Vector database is not available',
+        );
+      }
     }
   }
 
+  private validatePoint(point: VectorPoint) {
+    if (!point.vector || point.vector.length !== this.ragVectorSize) {
+      throw new Error(
+        `Invalid vector dimension: expected 3072, got ${point.vector?.length}`,
+      );
+    }
+    if (
+      point.vector.some(
+        (v) => typeof v !== 'number' || isNaN(v) || !isFinite(v),
+      )
+    ) {
+      throw new Error('Vector contains NaN or Infinity');
+    }
+    if (!point.id) {
+      throw new Error('Point id is required');
+    }
+  }
+
+  private cleanPayload(payload: Record<string, any>) {
+    const cleaned: Record<string, any> = {};
+    for (const key of Object.keys(payload)) {
+      const value = payload[key];
+      if (value !== undefined && value !== null) {
+        cleaned[key] = value;
+      }
+    }
+    return cleaned;
+  }
+
   async upsert(points: VectorPoint[]) {
-    await this.client.upsert(this.collectionName, {
-      wait: true,
+    if (points.length === 0) return;
+
+    points.forEach((p) => this.validatePoint(p));
+
+    const url = `${this.baseUrl}/collections/${this.collectionName}/points?wait=true`;
+
+    const body = {
       points: points.map((p) => ({
         id: p.id,
         vector: p.vector,
-        payload: p.payload,
+        payload: this.cleanPayload(p.payload),
       })),
-    });
+    };
+
+    try {
+      await lastValueFrom(this.httpService.put(url, body, { timeout: 15000 }));
+    } catch (error) {
+      throw new ServiceUnavailableException('Failed to store vectors');
+    }
   }
 
   async search(
@@ -74,36 +127,53 @@ export class VectorStoreService implements OnModuleInit {
       must.push({ key: 'categoryId', match: { value: filters.categoryId } });
     }
     if (filters?.tags && filters.tags.length > 0) {
-      must.push({
-        key: 'tags',
-        match: { any: filters.tags },
-      });
+      must.push({ key: 'tags', match: { any: filters.tags } });
     }
 
-    const results = await this.client.search(this.collectionName, {
-      vector,
-      limit,
-      filter: must.length > 0 ? { must } : undefined,
-      with_payload: true,
-    });
-    return results.map((r) => ({
-      id: r.id as string,
-      payload: r.payload as any,
-      score: r.score,
-    }));
+    const url = `${this.baseUrl}/collections/${this.collectionName}/points/search`;
+    try {
+      const { data } = await lastValueFrom(
+        this.httpService.post(url, {
+          vector,
+          limit,
+          filter: must.length > 0 ? { must } : undefined,
+          with_payload: true,
+        }),
+      );
+      return data.result.map((r: any) => ({
+        id: r.id,
+        payload: r.payload,
+        score: r.score,
+      }));
+    } catch (error) {
+      throw new ServiceUnavailableException('Search failed');
+    }
   }
 
-  async deleteByArticleId(articleId: string): Promise<number> {
-    await this.client.delete(this.collectionName, {
-      filter: { must: [{ key: 'articleId', match: { value: articleId } }] },
-    });
-    return 0;
+  async deleteByArticleId(articleId: string) {
+    const url = `${this.baseUrl}/collections/${this.collectionName}/points/delete?wait=true`;
+    try {
+      await lastValueFrom(
+        this.httpService.post(url, {
+          filter: { must: [{ key: 'articleId', match: { value: articleId } }] },
+        }),
+      );
+    } catch (error) {
+      throw new ServiceUnavailableException('Failed to remove vectors');
+    }
   }
 
   async countPointsForArticle(articleId: string): Promise<number> {
-    const result = await this.client.count(this.collectionName, {
-      filter: { must: [{ key: 'articleId', match: { value: articleId } }] },
-    });
-    return result.count;
+    const url = `${this.baseUrl}/collections/${this.collectionName}/points/count`;
+    try {
+      const { data } = await lastValueFrom(
+        this.httpService.post(url, {
+          filter: { must: [{ key: 'articleId', match: { value: articleId } }] },
+        }),
+      );
+      return data.result?.count ?? 0;
+    } catch (error) {
+      throw new ServiceUnavailableException('Failed to count vectors');
+    }
   }
 }
