@@ -117,7 +117,12 @@ export class VectorStoreService implements OnModuleInit {
   async search(
     vector: number[],
     limit: number = 5,
-    filters?: { articleStatus?: string; categoryId?: string; tags?: string[] },
+    filters?: {
+      articleStatus?: string;
+      categoryId?: string;
+      tags?: string[];
+      articleId?: string;
+    },
   ) {
     const must: any[] = [];
     if (filters?.articleStatus) {
@@ -128,6 +133,9 @@ export class VectorStoreService implements OnModuleInit {
     }
     if (filters?.tags && filters.tags.length > 0) {
       must.push({ key: 'tags', match: { any: filters.tags } });
+    }
+    if (filters?.articleId) {
+      must.push({ key: 'articleId', match: { value: filters.articleId } });
     }
 
     const url = `${this.baseUrl}/collections/${this.collectionName}/points/search`;

@@ -23,6 +23,7 @@ export interface ArticleRepository {
   create(article: ArticleInterface): Promise<ArticleInterface>;
   update(id: string, article: ArticleInterface): Promise<ArticleInterface>;
   delete(id: string): Promise<void>;
+  searchByQuery(query: string): Promise<{ articleId: string; score: number }[]>;
 }
 
 export const ARTICLE_REPOSITORY = 'ARTICLE_REPOSITORY' as const;

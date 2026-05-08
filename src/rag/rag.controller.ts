@@ -20,6 +20,7 @@ import { RagSearchRequestDto } from './dto/search-query.dto';
 import { ChatService } from './services/chat.service';
 import { RagChatRequestDto } from './dto/chat.dto';
 import { ConversationMemoryService } from './services/conversation-memory.service';
+import { HybridSearchService } from './services/hybrid-search.service';
 
 @Controller('ai/rag')
 @ApiTags('RAG')
@@ -30,6 +31,7 @@ export class RagIndexController {
     private readonly retrievalService: RetrievalService,
     private readonly chatService: ChatService,
     private readonly conversationMemoryService: ConversationMemoryService,
+    private readonly hybridSearchService: HybridSearchService,
   ) {}
 
   @Post('index')
@@ -114,5 +116,23 @@ export class RagIndexController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async history(@Param('conversationId') conversationId: string) {
     return this.conversationMemoryService.getHistory(conversationId);
+  }
+
+  @Post('hybrid-search')
+  @ApiOperation({ summary: 'Hybrid (semantic + lexical) search' })
+  @ApiOkResponse({ description: 'Ranked chunks from both retrieval methods' })
+  async hybridSearch(@Body() dto: RagSearchRequestDto) {
+    if (!dto.query) throw new ValidationError();
+    return {
+      results: await this.hybridSearchService.search(
+        dto.query,
+        dto.limit || 5,
+        {
+          articleStatus: dto.articleStatus,
+          categoryId: dto.categoryId,
+          tags: dto.tags,
+        },
+      ),
+    };
   }
 }

@@ -188,4 +188,42 @@ export class RealDbArticleRepository implements ArticleRepository {
       }
     });
   }
+
+  async searchByQuery(
+    query: string,
+  ): Promise<{ articleId: string; score: number }[]> {
+    const words = query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 1);
+    if (words.length === 0) return [];
+
+    const articles = await this.prisma.article.findMany({
+      where: { status: 'published' },
+      select: { id: true, title: true, content: true },
+    });
+
+    const results = articles
+      .map((article) => {
+        const titleLower = article.title.toLowerCase();
+        const contentLower = article.content.toLowerCase();
+        let score = 0;
+        for (const word of words) {
+          const titleMatches = (titleLower.match(new RegExp(word, 'g')) || [])
+            .length;
+          const contentMatches = (
+            contentLower.match(new RegExp(word, 'g')) || []
+          ).length;
+          score += titleMatches * 3 + contentMatches;
+        }
+        return { articleId: article.id, score };
+      })
+      .filter((r) => r.score > 0);
+
+    const max = Math.max(...results.map((r) => r.score), 1);
+    return results.map((r) => ({
+      articleId: r.articleId,
+      score: r.score / max,
+    }));
+  }
 }

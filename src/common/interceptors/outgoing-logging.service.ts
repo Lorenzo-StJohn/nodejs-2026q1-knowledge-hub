@@ -1,4 +1,3 @@
-// common/interceptors/outgoing-logging.service.ts
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { AppLogger } from 'src/common/logger/logger.service';

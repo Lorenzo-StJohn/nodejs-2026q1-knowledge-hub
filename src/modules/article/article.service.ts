@@ -73,6 +73,12 @@ export class ArticleService {
     return plainToInstance(ArticleResponseDto, article);
   }
 
+  async searchByQuery(
+    query: string,
+  ): Promise<{ articleId: string; score: number }[]> {
+    return this.articleRepo.searchByQuery(query);
+  }
+
   async update(
     id: string,
     updateArticleDto: UpdateArticleDto,

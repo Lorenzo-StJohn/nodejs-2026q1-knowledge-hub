@@ -11,6 +11,7 @@ import { ArticleModule } from 'src/modules/article/article.module';
 import { HttpModule } from '@nestjs/axios';
 import { AiModule } from 'src/ai/ai.module';
 import { ChatService } from './services/chat.service';
+import { HybridSearchService } from './services/hybrid-search.service';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ChatService } from './services/chat.service';
     RetrievalService,
     VectorStoreService,
     ChatService,
+    HybridSearchService,
   ],
 })
 export class RagModule {}
