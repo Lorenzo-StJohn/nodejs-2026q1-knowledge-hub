@@ -31,6 +31,7 @@ import { ChatService } from './services/chat.service';
 import { RagChatRequestDto } from './dto/chat.dto';
 import { ConversationMemoryService } from './services/conversation-memory.service';
 import { HybridSearchService } from './services/hybrid-search.service';
+import { IdParamDto } from 'src/common/dto/id-param.dto';
 
 @Controller('ai/rag')
 @ApiTags('RAG')
@@ -75,10 +76,10 @@ export class RagIndexController {
   @ApiBadRequestResponse({ description: 'Validation Error' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  async deleteArticle(@Param('articleId') articleId: string) {
-    const count = await this.vectorStore.countPointsForArticle(articleId);
+  async deleteArticle(@Param() params: IdParamDto) {
+    const count = await this.vectorStore.countPointsForArticle(params.id);
     if (count === 0) throw new NotFoundError();
-    await this.vectorStore.deleteByArticleId(articleId);
+    await this.vectorStore.deleteByArticleId(params.id);
     return;
   }
 
