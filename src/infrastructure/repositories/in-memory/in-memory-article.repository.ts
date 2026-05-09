@@ -185,4 +185,11 @@ export class InMemoryArticleRepository implements ArticleRepository {
         score: 0.9,
       }));
   }
+
+  async findUpdatedAfter(date: Date): Promise<ArticleInterface[]> {
+    return [...this.articles.values()].filter((article) => {
+      const updated = new Date(article.updatedAt);
+      return updated > date;
+    });
+  }
 }

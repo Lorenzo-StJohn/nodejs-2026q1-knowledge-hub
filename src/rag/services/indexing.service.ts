@@ -8,6 +8,8 @@ import { Configuration } from 'src/config/configuration';
 import { ReindexRequestDto, ReindexResponseDto } from '../dto/reindex.dto';
 import { DEFAULT_LIMIT } from 'src/common/dto/pagination-query.dto';
 import { Order } from 'src/common/entities/sort.interface';
+import { ArticleResponseDto } from 'src/modules/article/dto/article-response.dto';
+import { IndexingStateService } from './indexing-state.service';
 
 const DEFAULT_FIND_ALL_ARTICLES_REQUEST = {
   sortBy: 'createdAt',
@@ -24,16 +26,34 @@ export class IndexingService {
     private readonly embeddingService: EmbeddingService,
     private readonly vectorStore: VectorStoreService,
     private readonly config: Configuration,
+    private readonly indexingStateService: IndexingStateService,
   ) {}
 
   async reindex(dto: ReindexRequestDto): Promise<ReindexResponseDto> {
+    const now = new Date();
+    const mode = dto.mode || 'full';
     const onlyPublished = dto.onlyPublished ?? true;
-    let articles = (
-      await this.articleService.findAll(DEFAULT_FIND_ALL_ARTICLES_REQUEST)
-    ).data;
+
+    let articles: ArticleResponseDto[] = [];
     if (dto.articleIds && dto.articleIds.length > 0) {
-      articles = articles.filter((a) => dto.articleIds!.includes(a.id));
+      articles = (
+        await this.articleService.findAll(DEFAULT_FIND_ALL_ARTICLES_REQUEST)
+      ).data.filter((a) => dto.articleIds!.includes(a.id));
+    } else if (mode === 'incremental') {
+      const lastFull = await this.indexingStateService.getLastFullIndexAt();
+      if (!lastFull) {
+        articles = (
+          await this.articleService.findAll(DEFAULT_FIND_ALL_ARTICLES_REQUEST)
+        ).data;
+      } else {
+        articles = await this.articleService.findUpdatedAfter(lastFull);
+      }
+    } else {
+      articles = (
+        await this.articleService.findAll(DEFAULT_FIND_ALL_ARTICLES_REQUEST)
+      ).data;
     }
+
     if (onlyPublished) {
       articles = articles.filter((a) => a.status === 'published');
     }
@@ -69,10 +89,16 @@ export class IndexingService {
       totalChunks += chunks.length;
     }
 
+    if (mode === 'full') {
+      await this.indexingStateService.updateLastFullIndexAt(now);
+    }
+    await this.indexingStateService.updateLastIncrementalIndexAt(now);
+
     return {
       indexedArticles: totalIndexedArticles,
       indexedChunks: totalChunks,
       vectorCollection: this.config.ragVectorCollection,
+      mode,
     };
   }
 }

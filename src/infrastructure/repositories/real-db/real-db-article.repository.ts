@@ -226,4 +226,10 @@ export class RealDbArticleRepository implements ArticleRepository {
       score: r.score / max,
     }));
   }
+
+  async findUpdatedAfter(date: Date): Promise<any[]> {
+    return this.prisma.article.findMany({
+      where: { updatedAt: { gt: date } },
+    });
+  }
 }

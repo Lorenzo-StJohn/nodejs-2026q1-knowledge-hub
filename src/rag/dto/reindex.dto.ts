@@ -1,4 +1,10 @@
-import { IsOptional, IsBoolean, IsArray, IsString } from 'class-validator';
+import {
+  IsOptional,
+  IsBoolean,
+  IsArray,
+  IsString,
+  IsIn,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ReindexRequestDto {
@@ -12,6 +18,11 @@ export class ReindexRequestDto {
   @IsArray()
   @IsString({ each: true })
   articleIds?: string[];
+
+  @ApiPropertyOptional({ enum: ['full', 'incremental'], default: 'full' })
+  @IsOptional()
+  @IsIn(['full', 'incremental'])
+  mode?: 'full' | 'incremental' = 'full';
 }
 
 export class ReindexResponseDto {
@@ -20,4 +31,6 @@ export class ReindexResponseDto {
   indexedChunks: number;
 
   vectorCollection: string;
+
+  mode: 'full' | 'incremental';
 }

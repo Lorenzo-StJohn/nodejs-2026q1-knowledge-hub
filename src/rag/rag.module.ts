@@ -13,6 +13,8 @@ import { AiModule } from 'src/ai/ai.module';
 import { ChatService } from './services/chat.service';
 import { HybridSearchService } from './services/hybrid-search.service';
 import { RerankerService } from './services/reranker.service';
+import { IndexingStateService } from './services/indexing-state.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { RerankerService } from './services/reranker.service';
     ChatService,
     HybridSearchService,
     RerankerService,
+    IndexingStateService,
+    PrismaService,
   ],
 })
 export class RagModule {}

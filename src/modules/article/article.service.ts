@@ -76,7 +76,7 @@ export class ArticleService {
   async searchByQuery(
     query: string,
   ): Promise<{ articleId: string; score: number }[]> {
-    return this.articleRepo.searchByQuery(query);
+    return await this.articleRepo.searchByQuery(query);
   }
 
   async update(
@@ -156,5 +156,9 @@ export class ArticleService {
       throw new ForbiddenError();
     }
     return await this.articleRepo.delete(id);
+  }
+
+  async findUpdatedAfter(date: Date): Promise<any[]> {
+    return await this.articleRepo.findUpdatedAfter(date);
   }
 }

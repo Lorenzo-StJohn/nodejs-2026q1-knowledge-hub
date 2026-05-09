@@ -98,3 +98,9 @@ enum ArticleStatus {
   draft
   published
 }
+
+model RagIndexingState {
+  id                     Int      @id @default(autoincrement())
+  lastFullIndexAt        DateTime?
+  lastIncrementalIndexAt DateTime?
+}

@@ -24,6 +24,7 @@ export interface ArticleRepository {
   update(id: string, article: ArticleInterface): Promise<ArticleInterface>;
   delete(id: string): Promise<void>;
   searchByQuery(query: string): Promise<{ articleId: string; score: number }[]>;
+  findUpdatedAfter(date: Date): Promise<ArticleInterface[]>;
 }
 
 export const ARTICLE_REPOSITORY = 'ARTICLE_REPOSITORY' as const;
