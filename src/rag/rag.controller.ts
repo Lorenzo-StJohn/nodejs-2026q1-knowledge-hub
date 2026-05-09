@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { IndexingService } from './services/indexing.service';
 import {
   ApiBadRequestResponse,
@@ -35,6 +44,7 @@ export class RagIndexController {
   ) {}
 
   @Post('index')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Build/refresh vector index' })
   @ApiOkResponse({
     example: {
@@ -49,6 +59,7 @@ export class RagIndexController {
   }
 
   @Delete('index/articles/:articleId')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ description: 'Remove article vectors' })
   @ApiNoContentResponse()
   @ApiNotFoundResponse()
@@ -61,6 +72,7 @@ export class RagIndexController {
   }
 
   @Post('search')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Semantic search in Knowledge Hub' })
   @ApiOkResponse({
     example: {
@@ -82,6 +94,7 @@ export class RagIndexController {
   }
 
   @Post('chat')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: 'Chat with Knowledge Hub RAG' })
   @ApiOkResponse({
     example: {
@@ -119,6 +132,7 @@ export class RagIndexController {
   }
 
   @Post('hybrid-search')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Hybrid (semantic + lexical) search' })
   @ApiOkResponse({ description: 'Ranked chunks from both retrieval methods' })
   async hybridSearch(@Body() dto: RagSearchRequestDto) {
