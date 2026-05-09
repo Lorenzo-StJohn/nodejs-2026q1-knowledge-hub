@@ -224,7 +224,7 @@ Use `/ai/rag/hybrid-search` endpoint for hybrid (semantic + lexical) search
 | POST   | `/ai/rag/search`                      | 200     | 400, 401, 503                         |
 | POST   | `/ai/rag/chat`                        | 200     | 400, 401  503                         |
 | DELETE | `/ai/rag/index/articles/:articleId`   | 204     | 400, 401, 404, 503                    |
-| GET    | `/ai/rag/chat/:conversationId/history`| 200     | 400, 401, 503                         |
+| GET    | `/ai/rag/chat/:conversationId/history`| 200     | 401, 503                              |
 | POST   | `/ai/rag/hybrid-search`               | 200     | 400, 401, 503                         |
 
 
