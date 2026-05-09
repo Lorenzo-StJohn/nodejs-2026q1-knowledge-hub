@@ -11,6 +11,7 @@ import {
 import { IndexingService } from './services/indexing.service';
 import {
   ApiBadRequestResponse,
+  ApiInternalServerErrorResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -56,7 +57,9 @@ export class RagIndexController {
       vectorCollection: 'string',
     },
   })
+  @ApiBadRequestResponse({ description: 'Validation Error' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   async reindex(@Body() dto: ReindexRequestDto) {
     return this.indexingService.reindex(dto);
   }
@@ -68,8 +71,10 @@ export class RagIndexController {
     summary: 'Remove article vectors',
   })
   @ApiNoContentResponse()
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @ApiBadRequestResponse({ description: 'Validation Error' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   async deleteArticle(@Param('articleId') articleId: string) {
     const count = await this.vectorStore.countPointsForArticle(articleId);
     if (count === 0) throw new NotFoundError();
@@ -97,6 +102,7 @@ export class RagIndexController {
   })
   @ApiBadRequestResponse({ description: 'Validation Error' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   async search(@Body() dto: RagSearchRequestDto) {
     if (!dto.query) throw new ValidationError();
     return { results: await this.retrievalService.search(dto) };
@@ -123,6 +129,7 @@ export class RagIndexController {
   })
   @ApiBadRequestResponse({ description: 'Validation Error' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   async chat(@Body() dto: RagChatRequestDto) {
     if (!dto.question) throw new ValidationError();
     return this.chatService.chat(dto);
@@ -142,6 +149,7 @@ export class RagIndexController {
     ],
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   async history(@Param('conversationId') conversationId: string) {
     return this.conversationMemoryService.getHistory(conversationId);
   }
@@ -165,6 +173,9 @@ export class RagIndexController {
       ],
     },
   })
+  @ApiBadRequestResponse({ description: 'Validation Error' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
   async hybridSearch(@Body() dto: RagSearchRequestDto) {
     if (!dto.query) throw new ValidationError();
     return {

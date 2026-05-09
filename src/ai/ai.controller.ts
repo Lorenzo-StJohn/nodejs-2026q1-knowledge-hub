@@ -67,6 +67,7 @@ export class AiController {
   })
   @ApiNotFoundResponse({ description: 'Article not found' })
   @ApiTooManyRequestsResponse({ description: 'Too many requests' })
+  @ApiBadRequestResponse({ description: 'Validation Error' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async summarize(
     @Param('articleId') articleId: string,
@@ -193,6 +194,7 @@ export class AiController {
   })
   @ApiNotFoundResponse({ description: 'Article not found' })
   @ApiTooManyRequestsResponse({ description: 'Too many requests' })
+  @ApiBadRequestResponse({ description: 'Validation Error' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async analyze(
     @Param('articleId') articleId: string,
