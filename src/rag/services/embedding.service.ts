@@ -25,35 +25,37 @@ export class EmbeddingService {
   }
 
   async embedTexts(texts: string[]): Promise<number[][]> {
-    const maxConcurrency = 5;
+    const batchSize = 100;
     const results: number[][] = [];
 
-    for (let i = 0; i < texts.length; i += maxConcurrency) {
-      const batch = texts.slice(i, i + maxConcurrency);
-      const embeddings = await Promise.all(
-        batch.map((text) => this.embedSingle(text)),
-      );
+    for (let i = 0; i < texts.length; i += batchSize) {
+      const chunk = texts.slice(i, i + batchSize);
+      const embeddings = await this.embedBatch(chunk);
       results.push(...embeddings);
-
-      if (i + maxConcurrency < texts.length) {
-        await sleep(1200);
+      if (i + batchSize < texts.length) {
+        await sleep(4000);
       }
     }
 
     return results;
   }
 
-  private async embedSingle(text: string): Promise<number[]> {
-    const url = `${this.baseUrl}/v1beta/models/${this.model}:embedContent?key=${this.apiKey}`;
+  private async embedBatch(texts: string[]): Promise<number[][]> {
+    const url = `${this.baseUrl}/v1beta/models/${this.model}:batchEmbedContents?key=${this.apiKey}`;
+
     const payload = {
-      content: { parts: [{ text }] },
+      requests: texts.map((text) => ({
+        model: `models/${this.model}`,
+        content: { parts: [{ text }] },
+      })),
     };
 
     try {
       const response = await lastValueFrom(
-        this.httpService.post(url, payload, { timeout: 20000 }),
+        this.httpService.post(url, payload, { timeout: 30000 }),
       );
-      return response.data.embedding.values;
+
+      return response.data.embeddings.map((e: any) => e.values);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.status === 429) {
