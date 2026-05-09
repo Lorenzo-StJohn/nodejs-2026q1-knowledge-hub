@@ -45,7 +45,10 @@ export class RagIndexController {
 
   @Post('index')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ description: 'Build/refresh vector index' })
+  @ApiOperation({
+    description: 'Build/refresh vector index',
+    summary: 'Build/refresh vector index',
+  })
   @ApiOkResponse({
     example: {
       indexedArticles: 1,
@@ -60,7 +63,10 @@ export class RagIndexController {
 
   @Delete('index/articles/:articleId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ description: 'Remove article vectors' })
+  @ApiOperation({
+    description: 'Remove article vectors',
+    summary: 'Remove article vectors',
+  })
   @ApiNoContentResponse()
   @ApiNotFoundResponse()
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -73,7 +79,10 @@ export class RagIndexController {
 
   @Post('search')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ description: 'Semantic search in Knowledge Hub' })
+  @ApiOperation({
+    description: 'Semantic search in Knowledge Hub',
+    summary: 'Semantic search in Knowledge Hub',
+  })
   @ApiOkResponse({
     example: {
       results: [
@@ -95,7 +104,10 @@ export class RagIndexController {
 
   @Post('chat')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ description: 'Chat with Knowledge Hub RAG' })
+  @ApiOperation({
+    description: 'Chat with Knowledge Hub RAG',
+    summary: 'Chat with Knowledge Hub RAG',
+  })
   @ApiOkResponse({
     example: {
       answer: 'string',
@@ -117,7 +129,10 @@ export class RagIndexController {
   }
 
   @Get('chat/:conversationId/history')
-  @ApiOperation({ description: 'Retrieve chat history' })
+  @ApiOperation({
+    description: 'Retrieve chat history',
+    summary: 'Retrieve chat history',
+  })
   @ApiOkResponse({
     example: [
       {
@@ -133,8 +148,23 @@ export class RagIndexController {
 
   @Post('hybrid-search')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Hybrid (semantic + lexical) search' })
-  @ApiOkResponse({ description: 'Ranked chunks from both retrieval methods' })
+  @ApiOperation({
+    description: 'Hybrid (semantic + lexical) search',
+    summary: 'Hybrid (semantic + lexical) search',
+  })
+  @ApiOkResponse({
+    example: {
+      results: [
+        {
+          articleId: '8dc1b26b-af02-418b-a4f2-5f1768514a22',
+          articleTitle: 'The Rise of Quantum Computing',
+          chunk:
+            'Discover how quantum computers are set to revolutionize computing and solve problems beyond classical capabilities...',
+          similarity: 0.016,
+        },
+      ],
+    },
+  })
   async hybridSearch(@Body() dto: RagSearchRequestDto) {
     if (!dto.query) throw new ValidationError();
     return {
