@@ -135,25 +135,94 @@ There are several mock articles from seed step in database, but you can add your
 
 Use `/ai/rag/index` endpoint to index articles (you can choose mode and specify the list of articles)
 
+Example via curl:
+```bash
+curl -X 'POST' \
+  'http://localhost:4000/ai/rag/index' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer $TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "onlyPublished": true,
+  "mode": "full"
+}
+```
+
 ### Delete article vectors
 
 Use `/ai/rag/index/articles/:articleId` endpoint to delete vectors for specified article
+
+Example via curl:
+```bash
+curl -X 'DELETE' \
+  'http://localhost:4000/ai/rag/index/articles/$ARTICLEID' \
+  -H 'accept: */*' \
+  -H 'Authorization: Bearer $TOKEN'
+```
 
 ### Use semantic search
 
 Use `/ai/rag/search` endpoint to perform semantic search
 
+Example via curl:
+```bash
+curl -X 'POST' \
+  'http://localhost:4000/ai/rag/search' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer $TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "query": "$QUERY",
+  "limit": 5,
+  "articleStatus": "published"
+}'
+```
+
 ### Use RAG chat
 
 Use `/ai/rag/chat` endpoint for questions answering with source attribution
+
+Example via curl:
+```bash
+curl -X 'POST' \
+  'http://localhost:4000/ai/rag/chat' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer $TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "question": "$QUESTION"
+}'
+```
 
 ### See RAG chat history
 
 Use `/ai/rag/chat/:conversationId/history` endpoint to get conversation history
 
+Example via curl:
+```bash
+curl -X 'GET' \
+  'http://localhost:4000/ai/rag/chat/$CONVERSATIONID/history' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer $TOKEN'
+```
+
 ### Use hybrid search
 
 Use `/ai/rag/hybrid-search` endpoint for hybrid (semantic + lexical) search
+
+Example via curl:
+```bash
+curl -X 'POST' \
+  'http://localhost:4000/ai/rag/hybrid-search' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer $TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "query": "$QUERY",
+  "limit": 5,
+  "articleStatus": "published"
+}'
+```
 
 ## API Endpoints
 
