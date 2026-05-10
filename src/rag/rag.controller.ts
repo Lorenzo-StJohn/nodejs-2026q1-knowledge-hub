@@ -16,6 +16,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -31,7 +32,7 @@ import { ChatService } from './services/chat.service';
 import { RagChatRequestDto } from './dto/chat.dto';
 import { ConversationMemoryService } from './services/conversation-memory.service';
 import { HybridSearchService } from './services/hybrid-search.service';
-import { IdParamDto } from 'src/common/dto/id-param.dto';
+import { ArticleIdParamDto } from './dto/article-id-param.dto';
 
 @Controller('ai/rag')
 @ApiTags('RAG')
@@ -76,10 +77,13 @@ export class RagIndexController {
   @ApiBadRequestResponse({ description: 'Validation Error' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
-  async deleteArticle(@Param() params: IdParamDto) {
-    const count = await this.vectorStore.countPointsForArticle(params.id);
+  @ApiParam({ name: 'articleId', description: 'The ID of the article' })
+  async deleteArticle(@Param() params: ArticleIdParamDto) {
+    const count = await this.vectorStore.countPointsForArticle(
+      params.articleId,
+    );
     if (count === 0) throw new NotFoundError();
-    await this.vectorStore.deleteByArticleId(params.id);
+    await this.vectorStore.deleteByArticleId(params.articleId);
     return;
   }
 
