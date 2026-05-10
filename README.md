@@ -144,8 +144,11 @@ curl -X 'POST' \
   -H 'Content-Type: application/json' \
   -d '{
   "onlyPublished": true,
+  "articleIds": [
+    "$ARTICLEID"
+  ],
   "mode": "full"
-}
+}'
 ```
 
 ### Delete article vectors
