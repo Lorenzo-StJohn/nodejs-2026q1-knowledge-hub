@@ -73,6 +73,12 @@ export class ArticleService {
     return plainToInstance(ArticleResponseDto, article);
   }
 
+  async searchByQuery(
+    query: string,
+  ): Promise<{ articleId: string; score: number }[]> {
+    return await this.articleRepo.searchByQuery(query);
+  }
+
   async update(
     id: string,
     updateArticleDto: UpdateArticleDto,
@@ -150,5 +156,9 @@ export class ArticleService {
       throw new ForbiddenError();
     }
     return await this.articleRepo.delete(id);
+  }
+
+  async findUpdatedAfter(date: Date): Promise<any[]> {
+    return await this.articleRepo.findUpdatedAfter(date);
   }
 }

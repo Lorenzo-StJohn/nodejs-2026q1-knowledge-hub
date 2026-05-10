@@ -4,6 +4,7 @@ networks:
 
 volumes:
   postgres-data:
+  vectordb-data:
 
 services:
   db:
@@ -25,11 +26,28 @@ services:
     networks:
       - app-network
 
+  vectordb:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - vectordb-data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "pidof qdrant"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
   app:
     build: .
     restart: on-failure
     depends_on:
       db:
+        condition: service_healthy
+      vectordb:                 # <-- добавлена зависимость от Qdrant
         condition: service_healthy
     ports:
       - "${PORT:-4000}:${PORT:-4000}"

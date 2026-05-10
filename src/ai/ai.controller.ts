@@ -67,6 +67,7 @@ export class AiController {
   })
   @ApiNotFoundResponse({ description: 'Article not found' })
   @ApiTooManyRequestsResponse({ description: 'Too many requests' })
+  @ApiBadRequestResponse({ description: 'Validation Error' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async summarize(
     @Param('articleId') articleId: string,
@@ -159,7 +160,6 @@ export class AiController {
       );
     }
 
-    // Structured validation with fallback
     const fallback: TranslateResponse = {
       translatedText: text.trim(),
       detectedLanguage: dto.sourceLanguage || 'unknown',
@@ -194,6 +194,7 @@ export class AiController {
   })
   @ApiNotFoundResponse({ description: 'Article not found' })
   @ApiTooManyRequestsResponse({ description: 'Too many requests' })
+  @ApiBadRequestResponse({ description: 'Validation Error' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async analyze(
     @Param('articleId') articleId: string,
@@ -214,7 +215,6 @@ export class AiController {
       );
     }
 
-    // Structured validation with fallback
     const fallback: AnalyzeResponse = {
       analysis: text,
       suggestions: [],

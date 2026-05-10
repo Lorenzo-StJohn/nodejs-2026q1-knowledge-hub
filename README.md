@@ -2,7 +2,7 @@
 
 ## Description
 
-This repository contains solution for [Assignment: Knowledge Hub AI Integration](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/09-ai-llm-integration/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework and Gemini API. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
+This repository contains solution for [Assignment: Knowledge Hub RAG & Vector Database](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments-v2/10-ai-rag-vectordb/assignment.md). It has an implementation of a REST API for a Knowledge Hub platform using the Nest.js framework and Gemini API. The application is fully implemented according to the technical specification (**Basic + Advanced + Hacker Scope**).
 
 
 ## Prerequisites
@@ -25,16 +25,16 @@ git clone https://github.com/Lorenzo-StJohn/nodejs-2026q1-knowledge-hub
 cd nodejs-2026q1-knowledge-hub
 ```
 
-### 3. Checkout to the ai-llm-integration branch
+### 3. Checkout to the ai-rag-vectordb branch
 
 ```bash
-git checkout ai-llm-integration
+git checkout ai-rag-vectordb
 ```
 
 ### 4. Install dependencies
 
 ```bash
-npm ci
+npm i
 ```
 
 ### 5. Create .env file
@@ -82,46 +82,35 @@ Find `GEMINI_API_KEY=your-gemini-api-key` in `.env` and replace `your-gemini-api
 npx prisma generate
 ```
 
-### Build application via docker 
+### Clean Docker
+
+```bash
+docker system prune -a --volumes
+```
+
+### Build and run application via docker 
 
 > [!WARNING]
-> Before running this command make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@db:5432/knowledgehub?schema=public`
+> The project includes a Qdrant vector database service defined in `docker-compose.yml`.  
+> It is automatically started together with the application and PostgreSQL
 
 ```bash
-docker compose build --no-cache
+docker compose up --build
 ```
 
-### Start local app + docker db
+### Apply database migrations
 
-#### Start docker db:
-
+> [!WARNING]
+> Wait before the previous step is fully completed and the app is successfully running
+ 
 ```bash
-docker compose up -d db
+docker compose run --rm app npx prisma migrate deploy
 ```
 
-#### Apply database migrations
-
-
-Change in `.env` file DATABASE_URL, for local app it should be the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
+### Run seed script so there is at least one admin user in database
 
 ```bash
-npx prisma migrate deploy
-```
-
-#### Start local app:
-
-  - in development mode:
-
-```bash
-npm run start:dev
-```
-
-### Run seed script from local app
-
-Make sure that in `.env` file DATABASE_URL is the following: `postgresql://postgres:supersecretpassword@localhost:5432/knowledgehub?schema=public`
-
-```bash
-npx prisma db seed
+npm run seed:docker
 ```
 
 After running the script, the following users will exist:
@@ -130,20 +119,113 @@ After running the script, the following users will exist:
 - login: `editor` password: `password123`
 - login: `viewer` password: `password123`
 
-### Screenshots:
+### Login via Swagger
 
-<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 54 53" src="https://github.com/user-attachments/assets/fc670ccd-cd92-46e3-89a9-3bf3bfeb306d" />
-<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 55 27" src="https://github.com/user-attachments/assets/eca8b8dc-48c1-4344-8dfe-bfb1d117be18" />
-<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 56 38" src="https://github.com/user-attachments/assets/08eab210-d2d6-49a0-8be0-cd5d899b2d0c" />
-<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 57 32" src="https://github.com/user-attachments/assets/a0f160d4-7349-4bf3-b87d-0e9e42f8441b" />
-<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 57 53" src="https://github.com/user-attachments/assets/84f59faa-62d0-4290-99a3-e95f356828d2" />
-<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 59 08" src="https://github.com/user-attachments/assets/63d288f9-8db8-4979-a87d-ac121c763465" />
-<img width="1552" height="982" alt="Screenshot 2026-05-03 at 23 59 28" src="https://github.com/user-attachments/assets/3f99117d-19b5-401f-a475-d9f17e48b9f6" />
-<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 01 22" src="https://github.com/user-attachments/assets/43bd54b9-188a-43d9-82a9-cdbbfe11a8c0" />
-<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 02 24" src="https://github.com/user-attachments/assets/d829ddb1-6aa4-47f9-b1ce-48fa3afa6fac" />
-<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 04 39" src="https://github.com/user-attachments/assets/4eeda192-af7c-49a4-b37b-716a97377732" />
-<img width="1552" height="982" alt="Screenshot 2026-05-04 at 00 10 50" src="https://github.com/user-attachments/assets/1f21bbd5-f5d2-4c32-b5f3-33df6c714ffa" />
+- Open http://localhost:4000/doc
 
+- Use login and password from previous step
+
+- Add access token into Authorize section
+
+### Add your own articles
+
+There are several mock articles from seed step in database, but you can add your own articles via `/article` endpoint in swagger.
+
+### Index Knowledge Hub articles
+
+Use `/ai/rag/index` endpoint to index articles (you can choose mode and specify the list of articles)
+
+Example via curl:
+```bash
+curl -X 'POST' \
+  'http://localhost:4000/ai/rag/index' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer $TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "onlyPublished": true,
+  "articleIds": [
+    "$ARTICLEID"
+  ],
+  "mode": "full"
+}'
+```
+
+### Delete article vectors
+
+Use `/ai/rag/index/articles/:articleId` endpoint to delete vectors for specified article
+
+Example via curl:
+```bash
+curl -X 'DELETE' \
+  'http://localhost:4000/ai/rag/index/articles/$ARTICLEID' \
+  -H 'accept: */*' \
+  -H 'Authorization: Bearer $TOKEN'
+```
+
+### Use semantic search
+
+Use `/ai/rag/search` endpoint to perform semantic search
+
+Example via curl:
+```bash
+curl -X 'POST' \
+  'http://localhost:4000/ai/rag/search' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer $TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "query": "$QUERY",
+  "limit": 5,
+  "articleStatus": "published"
+}'
+```
+
+### Use RAG chat
+
+Use `/ai/rag/chat` endpoint for questions answering with source attribution
+
+Example via curl:
+```bash
+curl -X 'POST' \
+  'http://localhost:4000/ai/rag/chat' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer $TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "question": "$QUESTION"
+}'
+```
+
+### See RAG chat history
+
+Use `/ai/rag/chat/:conversationId/history` endpoint to get conversation history
+
+Example via curl:
+```bash
+curl -X 'GET' \
+  'http://localhost:4000/ai/rag/chat/$CONVERSATIONID/history' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer $TOKEN'
+```
+
+### Use hybrid search
+
+Use `/ai/rag/hybrid-search` endpoint for hybrid (semantic + lexical) search
+
+Example via curl:
+```bash
+curl -X 'POST' \
+  'http://localhost:4000/ai/rag/hybrid-search' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer $TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "query": "$QUERY",
+  "limit": 5,
+  "articleStatus": "published"
+}'
+```
 
 ## API Endpoints
 
@@ -199,12 +281,24 @@ After running the script, the following users will exist:
 
 | Method | Endpoint                            | Success | Error Codes                           |
 |--------|-------------------------------------|---------|---------------------------------------|
-| POST   | `/ai/articles/:articleId/summarize` | 201     | 400, 429                              |
-| POST   | `/ai/articles/:articleId/translate` | 200     | 400, 403, 429                         |
+| POST   | `/ai/articles/:articleId/summarize` | 201     | 400, 401, 429                         |
+| POST   | `/ai/articles/:articleId/translate` | 200     | 400, 401, 403, 429                    |
 | POST   | `/ai/articles/:articleId/analyze`   | 200     | 401, 403                              |
 | POST   | `/ai/usage`                         | 200     | 401                                   |
 | POST   | `/ai/generate`                      | 200     | 401                                   |
 | POST   | `/ai/diagnostics`                   | 200     | 401                                   |
+
+### RAG (`/ai/rag`)
+
+| Method | Endpoint                              | Success | Error Codes                           |
+|--------|---------------------------------------|---------|---------------------------------------|
+| POST   | `/ai/rag/index`                       | 200     | 400, 401, 503                         |
+| POST   | `/ai/rag/search`                      | 200     | 400, 401, 503                         |
+| POST   | `/ai/rag/chat`                        | 200     | 400, 401  503                         |
+| DELETE | `/ai/rag/index/articles/:articleId`   | 204     | 400, 401, 404, 503                    |
+| GET    | `/ai/rag/chat/:conversationId/history`| 200     | 401, 503                              |
+| POST   | `/ai/rag/hybrid-search`               | 200     | 400, 401, 503                         |
+
 
 
 ## Swagger (from the first part of the task)

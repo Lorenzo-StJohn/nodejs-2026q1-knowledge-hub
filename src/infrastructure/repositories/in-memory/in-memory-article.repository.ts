@@ -171,4 +171,25 @@ export class InMemoryArticleRepository implements ArticleRepository {
 
     this.articles.delete(id);
   }
+
+  //mock implementation
+  async searchByQuery(
+    query: string,
+  ): Promise<{ articleId: string; score: number }[]> {
+    return [...this.articles.values()]
+      .filter((article) =>
+        article.title.toLowerCase().includes(query.toLowerCase()),
+      )
+      .map((article) => ({
+        articleId: article.id,
+        score: 0.9,
+      }));
+  }
+
+  async findUpdatedAfter(date: Date): Promise<ArticleInterface[]> {
+    return [...this.articles.values()].filter((article) => {
+      const updated = new Date(article.updatedAt);
+      return updated > date;
+    });
+  }
 }

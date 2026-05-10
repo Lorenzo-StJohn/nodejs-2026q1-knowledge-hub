@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
 import { AppLogger } from './common/logger/logger.service';
 import { LoggingMiddleware } from './common/middleware/logging.middleware';
 import { AiModule } from './ai/ai.module';
+import { RagModule } from './rag/rag.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AiModule } from './ai/ai.module';
     CommentModule,
     AuthModule,
     AiModule,
+    RagModule,
   ],
   controllers: [AppController],
   providers: [

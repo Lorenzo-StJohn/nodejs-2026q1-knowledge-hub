@@ -1,4 +1,3 @@
-// src/ai/services/conversation.service.ts
 import { Injectable } from '@nestjs/common';
 import { AppLogger } from '../../common/logger/logger.service';
 
@@ -15,8 +14,8 @@ interface SessionEntry {
 @Injectable()
 export class ConversationService {
   private sessions = new Map<string, SessionEntry>();
-  private readonly maxMessages = 20; // ограничение контекста
-  private readonly ttlMs = 30 * 60 * 1000; // 30 минут жизни сессии
+  private readonly maxMessages = 20;
+  private readonly ttlMs = 30 * 60 * 1000;
 
   constructor(private readonly logger: AppLogger) {
     setInterval(() => this.cleanup(), 5 * 60 * 1000);
